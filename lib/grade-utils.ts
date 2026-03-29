@@ -1,6 +1,6 @@
 import {
   Assessment,
-  Course,
+  Module,
   GradeBand,
   GroupedAssessment,
   RequiredScoreResult,
@@ -130,68 +130,68 @@ export function getAssessmentStatus(assessment: Assessment) {
   return getGroupedAssessmentMetrics(assessment).status;
 }
 
-export function getCompletedWeight(course: Course) {
-  return course.assessments.reduce((sum, assessment) => {
+export function getCompletedWeight(module: Module) {
+  return module.assessments.reduce((sum, assessment) => {
     return sum + getAssessmentCurrentWeight(assessment);
   }, 0);
 }
 
-export function getSecuredContribution(course: Course) {
-  return course.assessments.reduce((sum, assessment) => {
+export function getSecuredContribution(module: Module) {
+  return module.assessments.reduce((sum, assessment) => {
     return sum + getAssessmentWeightedContribution(assessment);
   }, 0);
 }
 
-export function hasRecordedCourseGrade(course: Course) {
-  return getCompletedWeight(course) > 0;
+export function hasRecordedModuleGrade(module: Module) {
+  return getCompletedWeight(module) > 0;
 }
 
-export function getCourseCurrentGrade(course: Course) {
-  const completedWeight = getCompletedWeight(course);
+export function getModuleCurrentGrade(module: Module) {
+  const completedWeight = getCompletedWeight(module);
   if (completedWeight === 0) {
     return 0;
   }
 
-  return round((getSecuredContribution(course) / completedWeight) * 100);
+  return round((getSecuredContribution(module) / completedWeight) * 100);
 }
-export function getCourseGuaranteedGrade(course: Course) {
-  return round(getSecuredContribution(course));
+export function getModuleGuaranteedGrade(module: Module) {
+  return round(getSecuredContribution(module));
 }
 
-export function getRemainingWeight(course: Course) {
+export function getRemainingWeight(module: Module) {
   return round(
-    course.assessments.reduce((sum, assessment) => {
+    module.assessments.reduce((sum, assessment) => {
       return sum + getAssessmentRemainingWeight(assessment);
     }, 0),
     2,
   );
 }
 
-export function getSortedGradeBands(course: Course) {
-  return [...course.gradeBands].sort(
+export function getSortedGradeBands(module: Module) {
+  return [...module.gradeBands].sort(
     (left, right) => right.threshold - left.threshold,
   );
 }
 
 export function getGradeBandState(
-  course: Course,
+  module: Module,
   band: GradeBand,
 ): "guaranteed" | "reachable" | "unreachable" {
-  if (getCourseGuaranteedGrade(course) >= band.threshold) {
+  if (getModuleGuaranteedGrade(module) >= band.threshold) {
     return "guaranteed";
   }
 
-  return calculateRequiredScore(course, band.threshold).achievable
+  return calculateRequiredScore(module, band.threshold).achievable
     ? "reachable"
     : "unreachable";
 }
 
 export function calculateRequiredScore(
-  course: Course,
+  module: Module,
   targetGrade: number,
 ): RequiredScoreResult {
-  const securedContribution = getSecuredContribution(course);
-  const remainingWeight = getRemainingWeight(course);
+  const securedContribution = getSecuredContribution(module);
+  const remainingWeight = getRemainingWeight(module);
   const neededPoints = targetGrade - securedContribution;
 
   if (remainingWeight <= 0) {
@@ -203,8 +203,8 @@ export function calculateRequiredScore(
       remainingWeight: 0,
       message:
         achieved >= targetGrade
-          ? `This course is already closed above your ${targetGrade}% target.`
-          : `This course is complete at ${achieved}%, below the ${targetGrade}% target.`,
+          ? `This module is already closed above your ${targetGrade}% target.`
+          : `This module is complete at ${achieved}%, below the ${targetGrade}% target.`,
     };
   }
 
@@ -235,39 +235,39 @@ export function calculateRequiredScore(
     neededAverage,
     neededPoints: round(neededPoints),
     remainingWeight,
-    message: `You need an average of ${neededAverage}% across the remaining ${remainingWeight}% of the course.`,
+    message: `You need an average of ${neededAverage}% across the remaining ${remainingWeight}% of the module.`,
   };
 }
 
 export function getSemesterAverage(semester: Semester) {
-  const gradedCourses = semester.courses.filter(hasRecordedCourseGrade);
-  const totalCredits = gradedCourses.reduce(
-    (sum, course) => sum + course.credits,
+  const gradedModules = semester.modules.filter(hasRecordedModuleGrade);
+  const totalCredits = gradedModules.reduce(
+    (sum, module) => sum + module.credits,
     0,
   );
   if (totalCredits === 0) {
     return 0;
   }
 
-  const weighted = gradedCourses.reduce((sum, course) => {
-    return sum + getCourseCurrentGrade(course) * course.credits;
+  const weighted = gradedModules.reduce((sum, module) => {
+    return sum + getModuleCurrentGrade(module) * module.credits;
   }, 0);
 
   return round(weighted / totalCredits);
 }
 
 export function getSemesterGpa(semester: Semester) {
-  const gradedCourses = semester.courses.filter(hasRecordedCourseGrade);
-  const totalCredits = gradedCourses.reduce(
-    (sum, course) => sum + course.credits,
+  const gradedModules = semester.modules.filter(hasRecordedModuleGrade);
+  const totalCredits = gradedModules.reduce(
+    (sum, module) => sum + module.credits,
     0,
   );
   if (totalCredits === 0) {
     return 0;
   }
 
-  const weightedPoints = gradedCourses.reduce((sum, course) => {
-    return sum + gradeToGpa(getCourseCurrentGrade(course)) * course.credits;
+  const weightedPoints = gradedModules.reduce((sum, module) => {
+    return sum + gradeToGpa(getModuleCurrentGrade(module)) * module.credits;
   }, 0);
 
   return round(weightedPoints / totalCredits, 2);
@@ -288,10 +288,10 @@ export function formatPercent(value: number) {
   return `${round(value)}%`;
 }
 
-export function getAssessmentPace(course: Course) {
-  const completed = course.assessments.reduce((sum, assessment) => {
+export function getAssessmentPace(module: Module) {
+  const completed = module.assessments.reduce((sum, assessment) => {
     return sum + (getAssessmentStatus(assessment) === "completed" ? 1 : 0);
   }, 0);
 
-  return `${completed}/${course.assessments.length} done`;
+  return `${completed}/${module.assessments.length} done`;
 }

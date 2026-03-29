@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BookMarked, Plus } from "lucide-react";
 
-import { CourseDialog } from "@/components/dashboard/course-dialog";
+import { ModuleDialog } from "@/components/dashboard/module-dialog";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { ModuleListItem } from "@/components/dashboard/module-list-item";
 import {
@@ -22,7 +22,7 @@ import {
   getSemesterAverage,
   getSemesterGpa,
 } from "@/lib/grade-utils";
-import { Course } from "@/lib/types";
+import { Module } from "@/lib/types";
 
 export function SemesterScreen({
   semesterIdFromUrl,
@@ -34,7 +34,7 @@ export function SemesterScreen({
     semester,
     semesters,
     selectedSemesterId,
-    addCourse,
+    addModule,
     isExperimenting,
     selectSemester,
     stopExperiment,
@@ -43,17 +43,17 @@ export function SemesterScreen({
 
   const average = getSemesterAverage(semester);
   const gpa = getSemesterGpa(semester);
-  const totalCredits = semester.courses.reduce(
-    (sum, course) => sum + course.credits,
+  const totalCredits = semester.modules.reduce(
+    (sum, module) => sum + module.credits,
     0,
   );
-  const completedCourses = semester.courses.filter(
-    (course) => getCompletedWeight(course) >= 100,
+  const completedModules = semester.modules.filter(
+    (module) => getCompletedWeight(module) >= 100,
   ).length;
 
-  function handleSaveCourse(course: Course) {
-    addCourse(course);
-    router.push(`/workspace/modules/${course.id}`);
+  function handleSaveModule(module: Module) {
+    addModule(module);
+    router.push(`/workspace/modules/${module.id}`);
   }
 
   useEffect(() => {
@@ -107,27 +107,27 @@ export function SemesterScreen({
             <div>
               <CardTitle className="text-base">Modules</CardTitle>
               <CardDescription className="mt-1">
-                {semester.courses.length} active, {completedCourses} complete
+                {semester.modules.length} active, {completedModules} complete
               </CardDescription>
             </div>
             <p className="text-sm text-stone-500">Open a module</p>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          {semester.courses.length > 0 ? (
+          {semester.modules.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-              {semester.courses.map((course) => (
+              {semester.modules.map((module) => (
                 <ModuleListItem
-                  course={course}
+                  module={module}
                   isActive={false}
-                  key={course.id}
+                  key={module.id}
                   onSelect={() =>
-                    router.push(`/workspace/modules/${course.id}`)
+                    router.push(`/workspace/modules/${module.id}`)
                   }
                 />
               ))}
-              <CourseDialog
-                onSaveCourse={handleSaveCourse}
+              <ModuleDialog
+                onSaveModule={handleSaveModule}
                 triggerAsChild
                 triggerChildren={
                   <button
@@ -145,8 +145,8 @@ export function SemesterScreen({
           ) : (
             <EmptyState
               action={
-                <CourseDialog
-                  onSaveCourse={handleSaveCourse}
+                <ModuleDialog
+                  onSaveModule={handleSaveModule}
                   triggerAsChild
                   triggerChildren={
                     <button

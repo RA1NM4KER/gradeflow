@@ -11,7 +11,7 @@ import { ModuleHeader } from "@/components/workspace/module-header";
 import { useWorkspace } from "@/components/workspace/workspace-provider";
 import { Assessment } from "@/lib/types";
 
-export function ModuleScreen({ courseId }: { courseId: string }) {
+export function ModuleScreen({ moduleId }: { moduleId: string }) {
   const {
     semester,
     addAssessment,
@@ -20,30 +20,30 @@ export function ModuleScreen({ courseId }: { courseId: string }) {
     startExperiment,
     stopExperiment,
     updateAssessment,
-    updateCourse,
+    updateModule,
   } = useWorkspace();
-  const course = semester.courses.find((item) => item.id === courseId) ?? null;
+  const module = semester.modules.find((item) => item.id === moduleId) ?? null;
 
-  function saveAssessment(nextCourseId: string, assessment: Assessment) {
-    const exists = course?.assessments.some(
+  function saveAssessment(nextModuleId: string, assessment: Assessment) {
+    const exists = module?.assessments.some(
       (item) => item.id === assessment.id,
     );
 
     if (exists) {
-      updateAssessment(nextCourseId, assessment);
+      updateAssessment(nextModuleId, assessment);
       return;
     }
 
-    addAssessment(nextCourseId, assessment);
+    addAssessment(nextModuleId, assessment);
   }
 
   function updateGradeBand(bandId: string, threshold: number) {
-    if (!course) {
+    if (!module) {
       return;
     }
 
-    updateCourse(course.id, {
-      gradeBands: course.gradeBands.map((band) =>
+    updateModule(module.id, {
+      gradeBands: module.gradeBands.map((band) =>
         band.id === bandId
           ? { ...band, threshold: Math.min(Math.max(threshold || 0, 0), 100) }
           : band,
@@ -51,7 +51,7 @@ export function ModuleScreen({ courseId }: { courseId: string }) {
     });
   }
 
-  if (!course) {
+  if (!module) {
     return (
       <div className="mx-auto max-w-5xl px-5 pb-10 pt-6 sm:px-8">
         <EmptyState
@@ -75,15 +75,15 @@ export function ModuleScreen({ courseId }: { courseId: string }) {
     <div className="mx-auto h-[calc(100vh-5.5rem)] max-w-7xl overflow-hidden px-5 py-4 sm:px-8">
       <div className="mb-4">
         <ModuleHeader
-          course={course}
-          onSaveCourse={(nextCourse) =>
-            updateCourse(course.id, {
-              accent: nextCourse.accent,
-              code: nextCourse.code,
-              credits: nextCourse.credits,
-              gradeBands: course.gradeBands,
-              instructor: nextCourse.instructor,
-              name: nextCourse.name,
+          module={module}
+          onSaveModule={(nextModule) =>
+            updateModule(module.id, {
+              accent: nextModule.accent,
+              code: nextModule.code,
+              credits: nextModule.credits,
+              gradeBands: module.gradeBands,
+              instructor: nextModule.instructor,
+              name: nextModule.name,
             })
           }
         />
@@ -98,7 +98,7 @@ export function ModuleScreen({ courseId }: { courseId: string }) {
       <div className="grid h-[calc(100%-5.5rem)] min-h-0 gap-3 min-[900px]:grid-cols-[minmax(0,1fr)_560px] lg:gap-4">
         <div className="mt-7 grid min-h-0">
           <AssessmentTable
-            course={course}
+            module={module}
             isExperimenting={isExperimenting}
             onStartExperiment={startExperiment}
             onReorderAssessments={reorderAssessments}
@@ -107,7 +107,7 @@ export function ModuleScreen({ courseId }: { courseId: string }) {
         </div>
 
         <div className="grid min-h-0 content-start gap-4 overflow-y-auto pr-1">
-          <GradeBandPanel course={course} onUpdateGradeBand={updateGradeBand} />
+          <GradeBandPanel module={module} onUpdateGradeBand={updateGradeBand} />
         </div>
       </div>
     </div>

@@ -24,10 +24,10 @@ import {
 import { GroupedAssessment, GroupedAssessmentCategory } from "@/lib/types";
 
 interface GroupedAssessmentDialogProps {
-  courseId: string;
+  moduleId: string;
   category?: GroupedAssessmentCategory;
   assessment?: GroupedAssessment;
-  onSaveAssessment: (courseId: string, assessment: GroupedAssessment) => void;
+  onSaveAssessment: (moduleId: string, assessment: GroupedAssessment) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   triggerLabel?: string;
@@ -37,7 +37,7 @@ interface GroupedAssessmentDialogProps {
 }
 
 export function GroupedAssessmentDialog({
-  courseId,
+  moduleId,
   category = "tutorials",
   assessment,
   onSaveAssessment,
@@ -82,7 +82,7 @@ export function GroupedAssessmentDialog({
     event.preventDefault();
 
     onSaveAssessment(
-      courseId,
+      moduleId,
       buildGroupedAssessment(assessment?.category ?? category, {
         id: assessment?.id,
         name: form.name,

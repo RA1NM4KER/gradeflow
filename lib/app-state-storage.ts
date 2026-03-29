@@ -1,4 +1,9 @@
-import { AppState, normalizeAppState } from "@/lib/app-state";
+import {
+  AppState,
+  migrateAppState,
+  normalizeAppState,
+  toPersistedAppState,
+} from "@/lib/app-state";
 
 const DATABASE_NAME = "gradeflow";
 const DATABASE_VERSION = 1;
@@ -82,15 +87,13 @@ export async function loadAppState(): Promise<AppState> {
     store.get(APP_STATE_KEY),
   );
 
-  return normalizeAppState(
-    (storedState as Partial<AppState> | undefined) ?? null,
-  );
+  return normalizeAppState(migrateAppState(storedState));
 }
 
 export async function saveAppState(state: AppState): Promise<AppState> {
   const normalizedState = normalizeAppState(state);
   await withStore("readwrite", (store) =>
-    store.put(normalizedState, APP_STATE_KEY),
+    store.put(toPersistedAppState(normalizedState), APP_STATE_KEY),
   );
   return normalizedState;
 }

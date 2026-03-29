@@ -7,36 +7,36 @@ import {
   calculateRequiredScore,
   formatPercent,
   getCompletedWeight,
-  getCourseCurrentGrade,
-  getCourseGuaranteedGrade,
+  getModuleCurrentGrade,
+  getModuleGuaranteedGrade,
   getGradeBandState,
   getRemainingWeight,
   getSortedGradeBands,
-  hasRecordedCourseGrade,
+  hasRecordedModuleGrade,
 } from "@/lib/grade-utils";
-import { Course, GradeBand } from "@/lib/types";
+import { Module, GradeBand } from "@/lib/types";
 
 const inlineInputClassName =
   "h-auto rounded-none border-0 bg-transparent px-0 py-0 text-inherit shadow-none focus-visible:ring-0";
 
 interface GradeBandPanelProps {
-  course: Course;
+  module: Module;
   onUpdateGradeBand: (bandId: string, threshold: number) => void;
 }
 
 export function GradeBandPanel({
-  course,
+  module,
   onUpdateGradeBand,
 }: GradeBandPanelProps) {
-  const hasAssessments = course.assessments.length > 0;
-  const hasRecordedGrade = hasRecordedCourseGrade(course);
-  const currentGrade = getCourseCurrentGrade(course);
+  const hasAssessments = module.assessments.length > 0;
+  const hasRecordedGrade = hasRecordedModuleGrade(module);
+  const currentGrade = getModuleCurrentGrade(module);
   const animatedCurrentGrade = useAnimatedNumber(currentGrade);
-  const guaranteedGrade = getCourseGuaranteedGrade(course);
-  const remainingWeight = getRemainingWeight(course);
+  const guaranteedGrade = getModuleGuaranteedGrade(module);
+  const remainingWeight = getRemainingWeight(module);
   const ceiling = guaranteedGrade + remainingWeight;
-  const completion = getCompletedWeight(course);
-  const bands = getSortedGradeBands(course);
+  const completion = getCompletedWeight(module);
+  const bands = getSortedGradeBands(module);
 
   return (
     <div className="grid gap-4 min-[900px]:grid-cols-[280px_minmax(0,1fr)] min-[900px]:items-start">
@@ -67,7 +67,7 @@ export function GradeBandPanel({
                 <BandLine
                   band={band}
                   key={band.id}
-                  state={getGradeBandState(course, band)}
+                  state={getGradeBandState(module, band)}
                 />
               ))
             : null}
@@ -95,9 +95,9 @@ export function GradeBandPanel({
         </p>
         <div className="overflow-hidden rounded-[24px] border border-stone-200 bg-white/90">
           {bands.map((band) => {
-            const result = calculateRequiredScore(course, band.threshold);
+            const result = calculateRequiredScore(module, band.threshold);
             const state = hasAssessments
-              ? getGradeBandState(course, band)
+              ? getGradeBandState(module, band)
               : "reachable";
             const needed = !hasAssessments
               ? "Not set"

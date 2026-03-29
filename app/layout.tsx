@@ -49,10 +49,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans antialiased">
-        <AppShell>
-          <TopNav />
-          <WorkspaceProvider>{children}</WorkspaceProvider>
-        </AppShell>
+        <WorkspaceProvider>
+          <AppShell>
+            <TopNav />
+            {children}
+          </AppShell>
+        </WorkspaceProvider>
         <ServiceWorkerRegistration />
       </body>
     </html>

@@ -13,7 +13,7 @@ export function createSemester({
     id: crypto.randomUUID(),
     name,
     periodLabel,
-    courses: [],
+    modules: [],
   };
 }
 

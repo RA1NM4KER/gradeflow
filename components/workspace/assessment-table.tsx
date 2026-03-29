@@ -23,18 +23,18 @@ import {
 } from "@/lib/grade-utils";
 import {
   Assessment,
-  Course,
+  Module,
   GroupedAssessment,
   SingleAssessment,
 } from "@/lib/types";
 
 interface AssessmentTableProps {
-  course: Course;
+  module: Module;
   isExperimenting: boolean;
   onStartExperiment: () => void;
-  onSaveAssessment: (courseId: string, assessment: Assessment) => void;
+  onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
   onReorderAssessments: (
-    courseId: string,
+    moduleId: string,
     fromAssessmentId: string,
     toAssessmentId: string,
   ) => void;
@@ -47,7 +47,7 @@ const inlineValueInputClassName =
   "h-auto w-full rounded-none border-0 bg-transparent px-0 py-0 text-sm font-medium leading-normal text-stone-950 shadow-none [appearance:textfield] focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
 
 export function AssessmentTable({
-  course,
+  module,
   isExperimenting,
   onStartExperiment,
   onSaveAssessment,
@@ -99,37 +99,37 @@ export function AssessmentTable({
               </tr>
             </WorkspaceTableHeader>
             <tbody>
-              {course.assessments.map((assessment) =>
+              {module.assessments.map((assessment) =>
                 isSingleAssessment(assessment) ? (
                   <SingleAssessmentRow
                     assessment={assessment}
-                    course={course}
+                    module={module}
                     draggingId={draggingId}
                     key={assessment.id}
                     onDragEnd={() => setDraggingId(null)}
                     onDragStart={() => setDraggingId(assessment.id)}
                     onDropRow={(fromId, toId) =>
-                      onReorderAssessments(course.id, fromId, toId)
+                      onReorderAssessments(module.id, fromId, toId)
                     }
                     onSaveAssessment={onSaveAssessment}
                   />
                 ) : (
                   <GroupedAssessmentRow
                     assessment={assessment}
-                    course={course}
+                    module={module}
                     draggingId={draggingId}
                     key={assessment.id}
                     onDragEnd={() => setDraggingId(null)}
                     onDragStart={() => setDraggingId(assessment.id)}
                     onDropRow={(fromId, toId) =>
-                      onReorderAssessments(course.id, fromId, toId)
+                      onReorderAssessments(module.id, fromId, toId)
                     }
                     onSaveAssessment={onSaveAssessment}
                   />
                 ),
               )}
               <AddAssessmentRow
-                course={course}
+                module={module}
                 onSaveAssessment={onSaveAssessment}
               />
             </tbody>
@@ -139,7 +139,7 @@ export function AssessmentTable({
 
       <div className="grid max-h-full gap-3 overflow-auto md:hidden">
         <AssessmentComposerDialog
-          course={course}
+          module={module}
           onSaveAssessment={onSaveAssessment}
           triggerAsChild
           triggerChildren={
@@ -152,20 +152,20 @@ export function AssessmentTable({
             </button>
           }
         />
-        {course.assessments.map((assessment) =>
+        {module.assessments.map((assessment) =>
           isSingleAssessment(assessment) ? (
             <SingleAssessmentCard
               assessment={assessment}
               key={assessment.id}
               onSaveAssessment={onSaveAssessment}
-              courseId={course.id}
+              moduleId={module.id}
             />
           ) : (
             <GroupedAssessmentCard
               assessment={assessment}
               key={assessment.id}
               onSaveAssessment={onSaveAssessment}
-              courseId={course.id}
+              moduleId={module.id}
             />
           ),
         )}
@@ -175,11 +175,11 @@ export function AssessmentTable({
 }
 
 function AddAssessmentRow({
-  course,
+  module,
   onSaveAssessment,
 }: {
-  course: Course;
-  onSaveAssessment: (courseId: string, assessment: Assessment) => void;
+  module: Module;
+  onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
 }) {
   return (
     <WorkspaceTableRow className="bg-stone-100/90">
@@ -191,7 +191,7 @@ function AddAssessmentRow({
         colSpan={3}
       >
         <AssessmentComposerDialog
-          course={course}
+          module={module}
           onSaveAssessment={onSaveAssessment}
           triggerAsChild
           triggerChildren={
@@ -209,7 +209,7 @@ function AddAssessmentRow({
 }
 
 function SingleAssessmentRow({
-  course,
+  module,
   assessment,
   onSaveAssessment,
   draggingId,
@@ -217,9 +217,9 @@ function SingleAssessmentRow({
   onDragEnd,
   onDropRow,
 }: {
-  course: Course;
+  module: Module;
   assessment: SingleAssessment;
-  onSaveAssessment: (courseId: string, assessment: Assessment) => void;
+  onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
   draggingId: string | null;
   onDragStart: () => void;
   onDragEnd: () => void;
@@ -254,7 +254,7 @@ function SingleAssessmentRow({
             </p>
           }
           onCommit={(name) =>
-            onSaveAssessment(course.id, { ...assessment, name })
+            onSaveAssessment(module.id, { ...assessment, name })
           }
           value={assessment.name}
         />
@@ -264,7 +264,7 @@ function SingleAssessmentRow({
           align="left"
           display={String(assessment.weight)}
           onCommit={(weight) =>
-            onSaveAssessment(course.id, { ...assessment, weight })
+            onSaveAssessment(module.id, { ...assessment, weight })
           }
           value={assessment.weight}
         />
@@ -274,7 +274,7 @@ function SingleAssessmentRow({
           align="left"
           assessment={assessment}
           onCommit={(scoreAchieved) =>
-            onSaveAssessment(course.id, {
+            onSaveAssessment(module.id, {
               ...assessment,
               scoreAchieved,
               totalPossible: 100,
@@ -288,7 +288,7 @@ function SingleAssessmentRow({
 }
 
 function GroupedAssessmentRow({
-  course,
+  module,
   assessment,
   onSaveAssessment,
   draggingId,
@@ -296,9 +296,9 @@ function GroupedAssessmentRow({
   onDragEnd,
   onDropRow,
 }: {
-  course: Course;
+  module: Module;
   assessment: GroupedAssessment;
-  onSaveAssessment: (courseId: string, assessment: Assessment) => void;
+  onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
   draggingId: string | null;
   onDragStart: () => void;
   onDragEnd: () => void;
@@ -347,7 +347,7 @@ function GroupedAssessmentRow({
             </div>
           }
           onCommit={(name) =>
-            onSaveAssessment(course.id, { ...assessment, name })
+            onSaveAssessment(module.id, { ...assessment, name })
           }
           value={assessment.name}
         />
@@ -360,7 +360,7 @@ function GroupedAssessmentRow({
           align="left"
           display={String(assessment.weight)}
           onCommit={(weight) =>
-            onSaveAssessment(course.id, { ...assessment, weight })
+            onSaveAssessment(module.id, { ...assessment, weight })
           }
           value={assessment.weight}
         />
@@ -377,7 +377,7 @@ function GroupedAssessmentRow({
       </WorkspaceTableCell>
       <GroupedAssessmentDialog
         assessment={assessment}
-        courseId={course.id}
+        moduleId={module.id}
         onOpenChange={setOpen}
         onSaveAssessment={onSaveAssessment}
         open={open}
@@ -389,13 +389,13 @@ function GroupedAssessmentRow({
 }
 
 function SingleAssessmentCard({
-  courseId,
+  moduleId,
   assessment,
   onSaveAssessment,
 }: {
-  courseId: string;
+  moduleId: string;
   assessment: SingleAssessment;
-  onSaveAssessment: (courseId: string, assessment: Assessment) => void;
+  onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
 }) {
   return (
     <div className="rounded-[22px] border border-stone-200 bg-white/80 p-4">
@@ -415,7 +415,7 @@ function SingleAssessmentCard({
         <InlineText
           display={<span className="text-sm text-stone-500">Rename</span>}
           onCommit={(name) =>
-            onSaveAssessment(courseId, { ...assessment, name })
+            onSaveAssessment(moduleId, { ...assessment, name })
           }
           value={assessment.name}
         />
@@ -425,13 +425,13 @@ function SingleAssessmentCard({
 }
 
 function GroupedAssessmentCard({
-  courseId,
+  moduleId,
   assessment,
   onSaveAssessment,
 }: {
-  courseId: string;
+  moduleId: string;
   assessment: GroupedAssessment;
-  onSaveAssessment: (courseId: string, assessment: Assessment) => void;
+  onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
 }) {
   const [open, setOpen] = useState(false);
   const metrics = getGroupedAssessmentMetrics(assessment);
@@ -455,7 +455,7 @@ function GroupedAssessmentCard({
       </div>
       <GroupedAssessmentDialog
         assessment={assessment}
-        courseId={courseId}
+        moduleId={moduleId}
         onOpenChange={setOpen}
         onSaveAssessment={onSaveAssessment}
         open={open}

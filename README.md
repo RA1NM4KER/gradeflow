@@ -54,8 +54,10 @@ Gradeflow is local-first by design.
 Current behavior:
 
 - app state is written to IndexedDB in the browser
+- persisted app state is versioned and migrated locally as the schema evolves
 - the app does not require a remote database to function
 - the app shell can reopen offline after it has been loaded once
+- backups can be exported to and restored from local JSON files
 
 This is not a temporary implementation detail. It is part of the product direction.
 
@@ -97,7 +99,17 @@ Local state lives in the browser via IndexedDB.
 
 On first launch, Gradeflow seeds from the app's default semester template. After that, all semester, module, and assessment changes are stored locally in the browser with no backend or cloud dependency.
 
-The app also ships with a minimal service worker and web app manifest so it can be installed and reopened offline after the first successful load.
+Persisted state includes an explicit version field and runs through a small migration path before the app uses it. That same migration path is used for backup import, so older local data can be upgraded intentionally instead of being trusted blindly.
+
+The app also ships with a minimal service worker and web app manifest so it can be installed and reopened offline after the first successful load. Navigation responses are cached as they are visited, which keeps revisited deep links available offline while still using a simple network-first shell strategy.
+
+## Local backup
+
+Gradeflow includes a lightweight local backup flow in the app chrome.
+
+- Export saves the full normalized app state to a JSON file on your device.
+- Import validates and migrates the JSON locally before it replaces current state.
+- No server is involved in backup or restore.
 
 ## Project structure
 
@@ -117,6 +129,8 @@ Important files:
 - [components/workspace/semester-screen.tsx](/components/workspace/semester-screen.tsx) — selected semester workspace
 - [components/workspace/module-screen.tsx](/components/workspace/module-screen.tsx) — module detail screen
 - [components/workspace/workspace-provider.tsx](/components/workspace/workspace-provider.tsx) — shared client state
+- [lib/app-state.ts](lib/app-state.ts) — app state shape, versioning, and migration
+- [lib/app-state-actions.ts](lib/app-state-actions.ts) — pure immutable app-state mutations
 - [lib/grade-utils.ts](lib/grade-utils.ts) — grade and weighting logic
 - [lib/app-state-storage.ts](lib/app-state-storage.ts) — IndexedDB persistence
 

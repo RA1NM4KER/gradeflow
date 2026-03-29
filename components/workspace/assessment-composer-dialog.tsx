@@ -19,11 +19,11 @@ import {
   buildGroupedAssessment,
   getGroupedAssessmentDefaults,
 } from "@/lib/grouped-assessment-utils";
-import { Assessment, Course, SingleAssessment } from "@/lib/types";
+import { Assessment, Module, SingleAssessment } from "@/lib/types";
 
 interface AssessmentComposerDialogProps {
-  course: Course;
-  onSaveAssessment: (courseId: string, assessment: Assessment) => void;
+  module: Module;
+  onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
   triggerLabel?: string;
   triggerVariant?: "default" | "secondary" | "outline" | "ghost";
   triggerAsChild?: boolean;
@@ -31,7 +31,7 @@ interface AssessmentComposerDialogProps {
 }
 
 export function AssessmentComposerDialog({
-  course,
+  module,
   onSaveAssessment,
   triggerLabel = "Add assignment",
   triggerVariant = "outline",
@@ -69,10 +69,10 @@ export function AssessmentComposerDialog({
         status: "ongoing",
       };
 
-      onSaveAssessment(course.id, nextAssessment);
+      onSaveAssessment(module.id, nextAssessment);
     } else {
       onSaveAssessment(
-        course.id,
+        module.id,
         buildGroupedAssessment("tutorials", {
           name: groupForm.name,
           weight: Number(groupForm.weight || 0),
@@ -100,7 +100,7 @@ export function AssessmentComposerDialog({
       <DialogContent className="max-h-[90vh] overflow-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Add assignment</DialogTitle>
-          <DialogDescription>{course.code}</DialogDescription>
+          <DialogDescription>{module.code}</DialogDescription>
         </DialogHeader>
         <form className="grid gap-5" onSubmit={submit}>
           <div className="grid gap-3 sm:grid-cols-2">

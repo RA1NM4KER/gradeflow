@@ -5,27 +5,27 @@ import { cn } from "@/lib/utils";
 import {
   formatPercent,
   getAssessmentPace,
-  getCourseCurrentGrade,
+  getModuleCurrentGrade,
   getRemainingWeight,
-  hasRecordedCourseGrade,
+  hasRecordedModuleGrade,
 } from "@/lib/grade-utils";
-import { Course } from "@/lib/types";
+import { Module } from "@/lib/types";
 
 interface ModuleListItemProps {
-  course: Course;
+  module: Module;
   isActive: boolean;
   onSelect: () => void;
 }
 
 export function ModuleListItem({
-  course,
+  module,
   isActive,
   onSelect,
 }: ModuleListItemProps) {
-  const hasAssignments = course.assessments.length > 0;
-  const hasRecordedGrade = hasRecordedCourseGrade(course);
-  const grade = getCourseCurrentGrade(course);
-  const remainingWeight = getRemainingWeight(course);
+  const hasAssignments = module.assessments.length > 0;
+  const hasRecordedGrade = hasRecordedModuleGrade(module);
+  const grade = getModuleCurrentGrade(module);
+  const remainingWeight = getRemainingWeight(module);
   const progressValue = hasAssignments ? 100 - remainingWeight : 0;
 
   return (
@@ -42,10 +42,10 @@ export function ModuleListItem({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-stone-600">
-              {course.code}
+              {module.code}
             </span>
             <span className="text-xs text-stone-500 sm:text-sm">
-              {course.credits} credits
+              {module.credits} credits
             </span>
           </div>
         </div>
@@ -70,10 +70,10 @@ export function ModuleListItem({
       <div className="mt-4 flex flex-1 flex-col">
         <div className="min-h-[72px]">
           <h3 className="line-clamp-2 text-base font-semibold tracking-tight text-stone-950 sm:text-lg">
-            {course.name}
+            {module.name}
           </h3>
           <p className="mt-1 line-clamp-1 text-sm text-stone-600">
-            {course.instructor}
+            {module.instructor}
           </p>
         </div>
         <div className="mt-auto">
@@ -88,7 +88,7 @@ export function ModuleListItem({
           <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
             <span>Assignment progress</span>
             <span>
-              {hasAssignments ? getAssessmentPace(course) : "0/0 DONE"}
+              {hasAssignments ? getAssessmentPace(module) : "0/0 DONE"}
             </span>
           </div>
           <Progress className="mt-3" value={progressValue} />

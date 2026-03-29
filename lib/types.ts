@@ -58,7 +58,7 @@ export interface GradeBand {
   threshold: number;
 }
 
-export interface Course {
+export interface Module {
   id: string;
   code: string;
   name: string;
@@ -73,7 +73,7 @@ export interface Semester {
   id: string;
   name: string;
   periodLabel: string;
-  courses: Course[];
+  modules: Module[];
 }
 export interface RequiredScoreResult {
   achievable: boolean;

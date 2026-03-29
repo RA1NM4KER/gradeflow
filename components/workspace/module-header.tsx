@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { ArrowLeft, Cog } from "lucide-react";
 
-import { CourseDialog } from "@/components/dashboard/course-dialog";
+import { ModuleDialog } from "@/components/dashboard/module-dialog";
 import { Button } from "@/components/ui/button";
-import { Course } from "@/lib/types";
+import { Module } from "@/lib/types";
 
 export function ModuleHeader({
-  course,
-  onSaveCourse,
+  module,
+  onSaveModule,
 }: {
-  course: Course;
-  onSaveCourse: (course: Course) => void;
+  module: Module;
+  onSaveModule: (module: Module) => void;
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
@@ -24,11 +24,11 @@ export function ModuleHeader({
         </Link>
         <div className="mt-2 flex items-center gap-2">
           <h1 className="text-2xl font-semibold tracking-tight text-stone-950">
-            {course.name}
+            {module.name}
           </h1>
-          <CourseDialog
-            course={course}
-            onSaveCourse={onSaveCourse}
+          <ModuleDialog
+            module={module}
+            onSaveModule={onSaveModule}
             triggerAsChild
             triggerChildren={
               <Button
@@ -45,7 +45,7 @@ export function ModuleHeader({
           />
         </div>
         <p className="mt-1 text-sm text-stone-600">
-          {course.code} · Lecturer: {course.instructor} · {course.credits}{" "}
+          {module.code} · Lecturer: {module.instructor} · {module.credits}{" "}
           credits
         </p>
       </div>

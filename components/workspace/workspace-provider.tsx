@@ -6,45 +6,47 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { usePathname } from "next/navigation";
 
 import { WorkspaceBootState } from "@/components/workspace/workspace-boot-state";
-import { normalizeAppState } from "@/lib/app-state";
-import { loadAppState, saveAppState } from "@/lib/app-state-storage";
+import { AppState } from "@/lib/app-state";
+import * as appStateActions from "@/lib/app-state-actions";
 import { createSemester } from "@/lib/semester-utils";
-import { Assessment, Course, Semester } from "@/lib/types";
+import { usePersistedAppState } from "@/lib/use-persisted-app-state";
+import { Assessment, Module, Semester } from "@/lib/types";
 
 interface WorkspaceContextValue {
+  appState: AppState;
   semester: Semester;
   semesters: Semester[];
   selectedSemesterId: string;
   isExperimenting: boolean;
+  replaceAppState: (state: AppState) => void;
   startExperiment: () => void;
   stopExperiment: () => void;
   addSemester: (semester: Semester) => void;
   deleteSemester: (semesterId: string) => void;
   updateSemester: (
     semesterId: string,
-    updates: Partial<Omit<Semester, "id" | "courses">>,
+    updates: Partial<Omit<Semester, "id" | "modules">>,
   ) => void;
   selectSemester: (semesterId: string) => void;
-  addCourse: (course: Course) => void;
-  updateCourse: (
-    courseId: string,
-    updates: Partial<Omit<Course, "id" | "assessments">>,
+  addModule: (module: Module) => void;
+  updateModule: (
+    moduleId: string,
+    updates: Partial<Omit<Module, "id" | "assessments">>,
   ) => void;
-  addAssessment: (courseId: string, assessment: Assessment) => void;
-  updateAssessment: (courseId: string, assessment: Assessment) => void;
+  addAssessment: (moduleId: string, assessment: Assessment) => void;
+  updateAssessment: (moduleId: string, assessment: Assessment) => void;
   reorderAssessments: (
-    courseId: string,
+    moduleId: string,
     fromAssessmentId: string,
     toAssessmentId: string,
   ) => void;
   recordGrade: (
-    courseId: string,
+    moduleId: string,
     assessmentId: string,
     scoreAchieved: number,
     totalPossible: number,
@@ -55,299 +57,170 @@ const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [semesters, setSemesters] = useState<Semester[]>([]);
-  const [selectedSemesterId, setSelectedSemesterId] = useState("");
-  const [isExperimenting, setIsExperimenting] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
-  const [bootError, setBootError] = useState<string | null>(null);
-  const hasLoadedRef = useRef(false);
-  const lastSavedStateRef = useRef<string>("");
-  const experimentSnapshotRef = useRef<{
-    semesters: Semester[];
-    selectedSemesterId: string;
-  } | null>(null);
+  const {
+    appState: persistedAppState,
+    bootError,
+    isHydrated,
+    replaceAppState: replacePersistedAppState,
+  } = usePersistedAppState();
+  const [experimentAppState, setExperimentAppState] = useState<AppState | null>(
+    null,
+  );
+
+  const isExperimenting = experimentAppState !== null;
+  const activeAppState = experimentAppState ?? persistedAppState;
 
   useEffect(() => {
-    let cancelled = false;
+    if (experimentAppState && !pathname.startsWith("/workspace")) {
+      setExperimentAppState(null);
+    }
+  }, [experimentAppState, pathname]);
 
-    async function loadState() {
-      try {
-        const state = await loadAppState();
-        const normalizedState = normalizeAppState(state);
-
-        if (cancelled) {
+  const updateActiveAppState = useMemo(
+    () =>
+      function updateActiveAppState(
+        updater: AppState | ((current: AppState) => AppState),
+      ) {
+        if (!persistedAppState) {
           return;
         }
 
-        setSemesters(normalizedState.semesters);
-        setSelectedSemesterId(normalizedState.selectedSemesterId);
-        lastSavedStateRef.current = JSON.stringify(normalizedState);
-        hasLoadedRef.current = true;
-        setBootError(null);
-        setIsHydrated(true);
-      } catch (error) {
-        if (cancelled) {
+        if (experimentAppState) {
+          setExperimentAppState((currentState) => {
+            const baseState = currentState ?? persistedAppState;
+            return typeof updater === "function" ? updater(baseState) : updater;
+          });
           return;
         }
 
-        console.error("Failed to load Gradeflow state from IndexedDB.", error);
-        setBootError(
-          "Gradeflow could not open your browser's private storage. Check storage permissions or private browsing restrictions, then reload.",
-        );
-      }
+        replacePersistedAppState(updater);
+      },
+    [experimentAppState, persistedAppState, replacePersistedAppState],
+  );
+
+  const value = useMemo<WorkspaceContextValue | null>(() => {
+    if (!activeAppState) {
+      return null;
     }
 
-    void loadState();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!hasLoadedRef.current) {
-      return;
-    }
-
-    if (isExperimenting) {
-      return;
-    }
-
-    const normalizedState = normalizeAppState({
-      semesters,
-      selectedSemesterId,
-    });
-    const serializedState = JSON.stringify(normalizedState);
-
-    if (serializedState === lastSavedStateRef.current) {
-      return;
-    }
-
-    void saveAppState(normalizedState)
-      .then((savedState) => {
-        lastSavedStateRef.current = JSON.stringify(savedState);
-      })
-      .catch((error) => {
-        console.error("Failed to save Gradeflow state to IndexedDB.", error);
-      });
-  }, [isExperimenting, selectedSemesterId, semesters]);
-
-  useEffect(() => {
-    if (isExperimenting && !pathname.startsWith("/workspace")) {
-      const snapshot = experimentSnapshotRef.current;
-
-      if (snapshot) {
-        setSemesters(snapshot.semesters);
-        setSelectedSemesterId(snapshot.selectedSemesterId);
-      }
-
-      experimentSnapshotRef.current = null;
-      setIsExperimenting(false);
-    }
-  }, [isExperimenting, pathname]);
-
-  const value = useMemo<WorkspaceContextValue>(() => {
     const semester =
-      semesters.find((item) => item.id === selectedSemesterId) ??
-      semesters[0] ??
+      activeAppState.semesters.find(
+        (item) => item.id === activeAppState.selectedSemesterId,
+      ) ??
+      activeAppState.semesters[0] ??
       createSemester({
         name: "Semester 1",
         periodLabel: "Start by creating your first semester",
       });
 
     return {
+      appState: activeAppState,
       semester,
-      semesters,
+      semesters: activeAppState.semesters,
       selectedSemesterId: semester.id,
       isExperimenting,
+      replaceAppState: (nextState) => {
+        setExperimentAppState(null);
+        replacePersistedAppState(nextState);
+      },
       startExperiment: () => {
-        if (isExperimenting) {
+        if (isExperimenting || !persistedAppState) {
           return;
         }
 
-        experimentSnapshotRef.current = {
-          semesters: structuredClone(semesters),
-          selectedSemesterId,
-        };
-        setIsExperimenting(true);
+        setExperimentAppState(structuredClone(persistedAppState));
       },
       stopExperiment: () => {
-        const snapshot = experimentSnapshotRef.current;
-
-        if (snapshot) {
-          setSemesters(snapshot.semesters);
-          setSelectedSemesterId(snapshot.selectedSemesterId);
-        }
-
-        experimentSnapshotRef.current = null;
-        setIsExperimenting(false);
+        setExperimentAppState(null);
       },
       addSemester: (nextSemester) => {
-        setSemesters((current) => [...current, nextSemester]);
-        setSelectedSemesterId(nextSemester.id);
+        updateActiveAppState((currentState) =>
+          appStateActions.addSemester(currentState, nextSemester),
+        );
       },
       deleteSemester: (semesterId) => {
-        setSemesters((current) => {
-          const remaining = current.filter((item) => item.id !== semesterId);
-
-          if (selectedSemesterId === semesterId) {
-            setSelectedSemesterId(remaining[0]?.id ?? "");
-          }
-
-          return remaining;
-        });
+        updateActiveAppState((currentState) =>
+          appStateActions.deleteSemester(currentState, semesterId),
+        );
       },
       updateSemester: (semesterId, updates) => {
-        setSemesters((current) =>
-          current.map((item) =>
-            item.id === semesterId ? { ...item, ...updates } : item,
-          ),
+        updateActiveAppState((currentState) =>
+          appStateActions.updateSemester(currentState, semesterId, updates),
         );
       },
       selectSemester: (semesterId) => {
-        setSelectedSemesterId(semesterId);
+        updateActiveAppState((currentState) =>
+          appStateActions.selectSemester(currentState, semesterId),
+        );
       },
-      addCourse: (course) => {
-        setSemesters((current) =>
-          current.map((item) =>
-            item.id === semester.id
-              ? { ...item, courses: [...item.courses, course] }
-              : item,
+      addModule: (module) => {
+        updateActiveAppState((currentState) =>
+          appStateActions.addModule(currentState, semester.id, module),
+        );
+      },
+      updateModule: (moduleId, updates) => {
+        updateActiveAppState((currentState) =>
+          appStateActions.updateModule(
+            currentState,
+            semester.id,
+            moduleId,
+            updates,
           ),
         );
       },
-      updateCourse: (courseId, updates) => {
-        setSemesters((current) =>
-          current.map((item) =>
-            item.id !== semester.id
-              ? item
-              : {
-                  ...item,
-                  courses: item.courses.map((course) =>
-                    course.id === courseId ? { ...course, ...updates } : course,
-                  ),
-                },
+      addAssessment: (moduleId, assessment) => {
+        updateActiveAppState((currentState) =>
+          appStateActions.addAssessment(
+            currentState,
+            semester.id,
+            moduleId,
+            assessment,
           ),
         );
       },
-      addAssessment: (courseId, assessment) => {
-        setSemesters((current) =>
-          current.map((item) =>
-            item.id !== semester.id
-              ? item
-              : {
-                  ...item,
-                  courses: item.courses.map((course) =>
-                    course.id === courseId
-                      ? {
-                          ...course,
-                          assessments: [...course.assessments, assessment],
-                        }
-                      : course,
-                  ),
-                },
+      updateAssessment: (moduleId, nextAssessment) => {
+        updateActiveAppState((currentState) =>
+          appStateActions.updateAssessment(
+            currentState,
+            semester.id,
+            moduleId,
+            nextAssessment,
           ),
         );
       },
-      updateAssessment: (courseId, nextAssessment) => {
-        setSemesters((current) =>
-          current.map((item) =>
-            item.id !== semester.id
-              ? item
-              : {
-                  ...item,
-                  courses: item.courses.map((course) =>
-                    course.id !== courseId
-                      ? course
-                      : {
-                          ...course,
-                          assessments: course.assessments.map((assessment) =>
-                            assessment.id === nextAssessment.id
-                              ? nextAssessment
-                              : assessment,
-                          ),
-                        },
-                  ),
-                },
+      reorderAssessments: (moduleId, fromAssessmentId, toAssessmentId) => {
+        updateActiveAppState((currentState) =>
+          appStateActions.reorderAssessments(
+            currentState,
+            semester.id,
+            moduleId,
+            fromAssessmentId,
+            toAssessmentId,
           ),
         );
       },
-      reorderAssessments: (courseId, fromAssessmentId, toAssessmentId) => {
-        setSemesters((current) =>
-          current.map((item) => {
-            if (item.id !== semester.id) {
-              return item;
-            }
-
-            return {
-              ...item,
-              courses: item.courses.map((course) => {
-                if (course.id !== courseId) {
-                  return course;
-                }
-
-                const items = [...course.assessments];
-                const fromIndex = items.findIndex(
-                  (assessment) => assessment.id === fromAssessmentId,
-                );
-                const toIndex = items.findIndex(
-                  (assessment) => assessment.id === toAssessmentId,
-                );
-
-                if (
-                  fromIndex === -1 ||
-                  toIndex === -1 ||
-                  fromIndex === toIndex
-                ) {
-                  return course;
-                }
-
-                const [moved] = items.splice(fromIndex, 1);
-                items.splice(toIndex, 0, moved);
-
-                return {
-                  ...course,
-                  assessments: items,
-                };
-              }),
-            };
-          }),
-        );
-      },
-      recordGrade: (courseId, assessmentId, scoreAchieved, totalPossible) => {
-        setSemesters((current) =>
-          current.map((item) =>
-            item.id !== semester.id
-              ? item
-              : {
-                  ...item,
-                  courses: item.courses.map((course) =>
-                    course.id !== courseId
-                      ? course
-                      : {
-                          ...course,
-                          assessments: course.assessments.map((assessment) =>
-                            assessment.id !== assessmentId
-                              ? assessment
-                              : assessment.kind !== "single"
-                                ? assessment
-                                : {
-                                    ...assessment,
-                                    scoreAchieved,
-                                    totalPossible,
-                                    status: "completed",
-                                  },
-                          ),
-                        },
-                  ),
-                },
+      recordGrade: (moduleId, assessmentId, scoreAchieved, totalPossible) => {
+        updateActiveAppState((currentState) =>
+          appStateActions.recordGrade(
+            currentState,
+            semester.id,
+            moduleId,
+            assessmentId,
+            scoreAchieved,
+            totalPossible,
           ),
         );
       },
     };
-  }, [isExperimenting, selectedSemesterId, semesters]);
+  }, [
+    activeAppState,
+    isExperimenting,
+    persistedAppState,
+    replacePersistedAppState,
+    updateActiveAppState,
+  ]);
 
-  if (!isHydrated) {
+  if (!isHydrated || !value) {
     return bootError ? (
       <WorkspaceBootState
         action={

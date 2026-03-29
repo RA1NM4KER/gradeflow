@@ -3,9 +3,9 @@ import { ModuleScreen } from "@/components/workspace/module-screen";
 export default async function ModulePage({
   params,
 }: {
-  params: Promise<{ courseId: string }>;
+  params: Promise<{ moduleId: string }>;
 }) {
-  const { courseId } = await params;
+  const { moduleId } = await params;
 
-  return <ModuleScreen courseId={courseId} />;
+  return <ModuleScreen moduleId={moduleId} />;
 }

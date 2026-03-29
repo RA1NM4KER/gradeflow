@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Course } from "@/lib/types";
+import { Module } from "@/lib/types";
 
 const defaultGradeBands = [
   { id: "grade-band-a", label: "A", threshold: 80 },
@@ -23,56 +23,56 @@ const defaultGradeBands = [
   { id: "grade-band-d", label: "D", threshold: 50 },
 ];
 
-interface CourseDialogProps {
-  onSaveCourse: (course: Course) => void;
+interface ModuleDialogProps {
+  onSaveModule: (module: Module) => void;
   triggerLabel?: string;
   triggerVariant?: "default" | "secondary" | "outline" | "ghost";
-  course?: Course;
+  module?: Module;
   triggerAsChild?: boolean;
   triggerChildren?: ReactNode;
 }
 
-export function CourseDialog({
-  onSaveCourse,
-  triggerLabel = "Add course",
+export function ModuleDialog({
+  onSaveModule,
+  triggerLabel = "Add module",
   triggerVariant = "default",
-  course,
+  module,
   triggerAsChild = false,
   triggerChildren,
-}: CourseDialogProps) {
+}: ModuleDialogProps) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    code: course?.code ?? "",
-    name: course?.name ?? "",
-    instructor: course?.instructor ?? "",
-    credits: String(course?.credits ?? 12),
+    code: module?.code ?? "",
+    name: module?.name ?? "",
+    instructor: module?.instructor ?? "",
+    credits: String(module?.credits ?? 12),
   });
 
   function submit(event: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
     event.preventDefault();
 
-    const nextCourse: Course = {
-      id: course?.id ?? crypto.randomUUID(),
+    const nextModule: Module = {
+      id: module?.id ?? crypto.randomUUID(),
       code: form.code.toUpperCase(),
       name: form.name,
       instructor: form.instructor,
       credits: Number(form.credits),
-      accent: course?.accent ?? "from-stone-950 via-stone-900 to-stone-700",
+      accent: module?.accent ?? "from-stone-950 via-stone-900 to-stone-700",
       gradeBands:
-        course?.gradeBands ??
+        module?.gradeBands ??
         defaultGradeBands.map((band) => ({
           ...band,
-          id: `${form.code.toLowerCase() || "course"}-${band.id}`,
+          id: `${form.code.toLowerCase() || "module"}-${band.id}`,
         })),
-      assessments: course?.assessments ?? [],
+      assessments: module?.assessments ?? [],
     };
 
-    onSaveCourse(nextCourse);
+    onSaveModule(nextModule);
     setForm({
-      code: course?.code ?? "",
-      name: course?.name ?? "",
-      instructor: course?.instructor ?? "",
-      credits: String(course?.credits ?? 12),
+      code: module?.code ?? "",
+      name: module?.name ?? "",
+      instructor: module?.instructor ?? "",
+      credits: String(module?.credits ?? 12),
     });
     setOpen(false);
   }
@@ -90,17 +90,17 @@ export function CourseDialog({
       )}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{course ? "Edit module" : "Add module"}</DialogTitle>
+          <DialogTitle>{module ? "Edit module" : "Add module"}</DialogTitle>
           <DialogDescription>
-            {course ? "Update module details." : "Create a module."}
+            {module ? "Update module details." : "Create a module."}
           </DialogDescription>
         </DialogHeader>
         <form className="space-y-4" onSubmit={submit}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="course-code">Course code</Label>
+              <Label htmlFor="module-code">Module code</Label>
               <Input
-                id="course-code"
+                id="module-code"
                 onChange={(event) =>
                   setForm((current) => ({
                     ...current,
@@ -114,9 +114,9 @@ export function CourseDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="course-credits">Credits</Label>
+              <Label htmlFor="module-credits">Credits</Label>
               <Input
-                id="course-credits"
+                id="module-credits"
                 min={1}
                 onChange={(event) =>
                   setForm((current) => ({
@@ -131,9 +131,9 @@ export function CourseDialog({
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="course-name">Course title</Label>
+            <Label htmlFor="module-name">Module title</Label>
             <Input
-              id="course-name"
+              id="module-name"
               onChange={(event) =>
                 setForm((current) => ({ ...current, name: event.target.value }))
               }
@@ -143,9 +143,9 @@ export function CourseDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="course-instructor">Lecturer</Label>
+            <Label htmlFor="module-instructor">Lecturer</Label>
             <Input
-              id="course-instructor"
+              id="module-instructor"
               onChange={(event) =>
                 setForm((current) => ({
                   ...current,
@@ -159,7 +159,7 @@ export function CourseDialog({
           </div>
           <DialogFooter>
             <Button type="submit">
-              {course ? "Save changes" : "Create module"}
+              {module ? "Save changes" : "Create module"}
             </Button>
           </DialogFooter>
         </form>
