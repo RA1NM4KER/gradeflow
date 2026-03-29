@@ -16,7 +16,7 @@ export function AppShell({ children, className }: AppShellProps) {
         className,
       )}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),transparent_56%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[34rem]" />
       {children}
     </main>
   );

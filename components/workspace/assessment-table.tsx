@@ -1,8 +1,9 @@
 "use client";
 
 import { KeyboardEvent, ReactNode, useEffect, useRef, useState } from "react";
-import { GripVertical, Plus } from "lucide-react";
+import { FlaskConical, GripVertical, Plus } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AssessmentComposerDialog } from "@/components/workspace/assessment-composer-dialog";
 import { GroupedAssessmentDialog } from "@/components/workspace/grouped-assessment-dialog";
@@ -29,6 +30,8 @@ import {
 
 interface AssessmentTableProps {
   course: Course;
+  isExperimenting: boolean;
+  onStartExperiment: () => void;
   onSaveAssessment: (courseId: string, assessment: Assessment) => void;
   onReorderAssessments: (
     courseId: string,
@@ -45,6 +48,8 @@ const inlineValueInputClassName =
 
 export function AssessmentTable({
   course,
+  isExperimenting,
+  onStartExperiment,
   onSaveAssessment,
   onReorderAssessments,
 }: AssessmentTableProps) {
@@ -57,7 +62,31 @@ export function AssessmentTable({
           <WorkspaceTable>
             <WorkspaceTableHeader>
               <tr>
-                <WorkspaceTableHeaderCell className="w-7 px-1 lg:w-8 lg:px-2 min-[1024px]:max-[1120px]:w-6 min-[1024px]:max-[1120px]:px-0.5" />
+                <WorkspaceTableHeaderCell className="w-7 px-1 text-center align-middle lg:w-8 lg:px-2 min-[1024px]:max-[1120px]:w-6 min-[1024px]:max-[1120px]:px-0.5">
+                  <div className="flex justify-center">
+                    <Button
+                      aria-label="Start experiment mode"
+                      className="group relative h-auto w-auto rounded-none border-0 bg-transparent p-0 text-stone-400 shadow-none hover:bg-transparent hover:text-sky-600"
+                      disabled={isExperimenting}
+                      onClick={onStartExperiment}
+                      size="icon"
+                      title="Experiment mode"
+                      type="button"
+                      variant="ghost"
+                    >
+                      <span className="pointer-events-none absolute -top-1 left-1/2 h-1.5 w-1.5 -translate-x-[7px] rounded-full bg-sky-400/0 opacity-0 transition-opacity duration-200 group-hover:bg-sky-400/80 group-hover:opacity-100 group-hover:animate-ping" />
+                      <span
+                        className="pointer-events-none absolute -top-2 left-1/2 h-1 w-1 -translate-x-[1px] rounded-full bg-sky-300/0 opacity-0 transition-opacity duration-200 group-hover:bg-sky-300/90 group-hover:opacity-100 group-hover:animate-ping"
+                        style={{ animationDelay: "120ms" }}
+                      />
+                      <span
+                        className="pointer-events-none absolute -top-0.5 left-1/2 h-1 w-1 -translate-x-[5px] rounded-full bg-sky-200/0 opacity-0 transition-opacity duration-200 group-hover:bg-sky-200/90 group-hover:opacity-100 group-hover:animate-ping"
+                        style={{ animationDelay: "240ms" }}
+                      />
+                      <FlaskConical className="-scale-x-100 h-4 w-4 transition-transform duration-300 group-hover:-rotate-12" />
+                    </Button>
+                  </div>
+                </WorkspaceTableHeaderCell>
                 <WorkspaceTableHeaderCell className="w-[48%] min-[1024px]:max-[1120px]:px-2">
                   Assignment
                 </WorkspaceTableHeaderCell>

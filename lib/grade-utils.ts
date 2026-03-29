@@ -142,6 +142,10 @@ export function getSecuredContribution(course: Course) {
   }, 0);
 }
 
+export function hasRecordedCourseGrade(course: Course) {
+  return getCompletedWeight(course) > 0;
+}
+
 export function getCourseCurrentGrade(course: Course) {
   const completedWeight = getCompletedWeight(course);
   if (completedWeight === 0) {
@@ -236,7 +240,8 @@ export function calculateRequiredScore(
 }
 
 export function getSemesterAverage(semester: Semester) {
-  const totalCredits = semester.courses.reduce(
+  const gradedCourses = semester.courses.filter(hasRecordedCourseGrade);
+  const totalCredits = gradedCourses.reduce(
     (sum, course) => sum + course.credits,
     0,
   );
@@ -244,7 +249,7 @@ export function getSemesterAverage(semester: Semester) {
     return 0;
   }
 
-  const weighted = semester.courses.reduce((sum, course) => {
+  const weighted = gradedCourses.reduce((sum, course) => {
     return sum + getCourseCurrentGrade(course) * course.credits;
   }, 0);
 
@@ -252,7 +257,8 @@ export function getSemesterAverage(semester: Semester) {
 }
 
 export function getSemesterGpa(semester: Semester) {
-  const totalCredits = semester.courses.reduce(
+  const gradedCourses = semester.courses.filter(hasRecordedCourseGrade);
+  const totalCredits = gradedCourses.reduce(
     (sum, course) => sum + course.credits,
     0,
   );
@@ -260,7 +266,7 @@ export function getSemesterGpa(semester: Semester) {
     return 0;
   }
 
-  const weightedPoints = semester.courses.reduce((sum, course) => {
+  const weightedPoints = gradedCourses.reduce((sum, course) => {
     return sum + gradeToGpa(getCourseCurrentGrade(course)) * course.credits;
   }, 0);
 

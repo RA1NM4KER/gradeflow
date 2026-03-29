@@ -56,7 +56,7 @@ export function MinimalLanding() {
           Semesters
         </p>
         <h1 className="mt-2 text-4xl font-semibold tracking-tight text-stone-950">
-          Choose a semester
+          Your semesters
         </h1>
       </div>
 

@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Calculator, Pencil } from "lucide-react";
+import { Calculator } from "lucide-react";
 
 import { EmptyState } from "@/components/dashboard/empty-state";
-import { AssessmentComposerDialog } from "@/components/workspace/assessment-composer-dialog";
 import { AssessmentTable } from "@/components/workspace/assessment-table";
+import { ExperimentModePill } from "@/components/workspace/experiment-mode-pill";
 import { GradeBandPanel } from "@/components/workspace/grade-band-panel";
 import { ModuleHeader } from "@/components/workspace/module-header";
 import { useWorkspace } from "@/components/workspace/workspace-provider";
@@ -15,7 +15,10 @@ export function ModuleScreen({ courseId }: { courseId: string }) {
   const {
     semester,
     addAssessment,
+    isExperimenting,
     reorderAssessments,
+    startExperiment,
+    stopExperiment,
     updateAssessment,
     updateCourse,
   } = useWorkspace();
@@ -86,29 +89,21 @@ export function ModuleScreen({ courseId }: { courseId: string }) {
         />
       </div>
 
+      {isExperimenting ? (
+        <div className="mb-4">
+          <ExperimentModePill onStop={stopExperiment} />
+        </div>
+      ) : null}
+
       <div className="grid h-[calc(100%-5.5rem)] min-h-0 gap-3 min-[900px]:grid-cols-[minmax(0,1fr)_560px] lg:gap-4">
         <div className="grid min-h-0">
-          {course.assessments.length > 0 ? (
-            <AssessmentTable
-              course={course}
-              onReorderAssessments={reorderAssessments}
-              onSaveAssessment={saveAssessment}
-            />
-          ) : (
-            <EmptyState
-              action={
-                <AssessmentComposerDialog
-                  course={course}
-                  onSaveAssessment={saveAssessment}
-                  triggerLabel="Add assignment"
-                  triggerVariant="outline"
-                />
-              }
-              description="No assignments yet."
-              icon={<Pencil className="h-5 w-5" />}
-              title="No assignments"
-            />
-          )}
+          <AssessmentTable
+            course={course}
+            isExperimenting={isExperimenting}
+            onStartExperiment={startExperiment}
+            onReorderAssessments={reorderAssessments}
+            onSaveAssessment={saveAssessment}
+          />
         </div>
 
         <div className="grid min-h-0 content-start gap-4 overflow-y-auto pr-1">

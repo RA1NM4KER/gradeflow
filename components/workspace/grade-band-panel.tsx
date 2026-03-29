@@ -12,6 +12,7 @@ import {
   getGradeBandState,
   getRemainingWeight,
   getSortedGradeBands,
+  hasRecordedCourseGrade,
 } from "@/lib/grade-utils";
 import { Course, GradeBand } from "@/lib/types";
 
@@ -27,7 +28,10 @@ export function GradeBandPanel({
   course,
   onUpdateGradeBand,
 }: GradeBandPanelProps) {
+  const hasAssessments = course.assessments.length > 0;
+  const hasRecordedGrade = hasRecordedCourseGrade(course);
   const currentGrade = getCourseCurrentGrade(course);
+  const animatedCurrentGrade = useAnimatedNumber(currentGrade);
   const guaranteedGrade = getCourseGuaranteedGrade(course);
   const remainingWeight = getRemainingWeight(course);
   const ceiling = guaranteedGrade + remainingWeight;
@@ -38,32 +42,46 @@ export function GradeBandPanel({
     <div className="grid gap-4 min-[900px]:grid-cols-[280px_minmax(0,1fr)] min-[900px]:items-start">
       <div className="min-w-0">
         <div className="relative h-[500px] overflow-hidden rounded-[24px] border border-stone-200 bg-white/90">
-          <div
-            className="absolute inset-x-0 top-0 bg-[repeating-linear-gradient(135deg,rgba(214,211,209,0.62),rgba(214,211,209,0.62)_3px,transparent_3px,transparent_7px)]"
-            style={{ height: `${100 - getLinePosition(ceiling)}%` }}
-          />
-          <div
-            className="absolute inset-x-0 bottom-0 bg-[repeating-linear-gradient(135deg,rgba(214,211,209,0.58),rgba(214,211,209,0.58)_3px,transparent_3px,transparent_7px)]"
-            style={{ height: `${getLinePosition(guaranteedGrade)}%` }}
-          />
+          {hasAssessments ? (
+            <>
+              <div
+                className="absolute inset-x-0 top-0 bg-[repeating-linear-gradient(135deg,rgba(214,211,209,0.62),rgba(214,211,209,0.62)_3px,transparent_3px,transparent_7px)] transition-[height] duration-500 ease-out"
+                style={{ height: `${100 - getLinePosition(ceiling)}%` }}
+              />
+              <div
+                className="absolute inset-x-0 bottom-0 bg-[repeating-linear-gradient(135deg,rgba(214,211,209,0.58),rgba(214,211,209,0.58)_3px,transparent_3px,transparent_7px)] transition-[height] duration-500 ease-out"
+                style={{ height: `${getLinePosition(guaranteedGrade)}%` }}
+              />
+            </>
+          ) : null}
 
           {[90, 80, 70, 60, 50, 40, 30, 20, 10].map((line) => (
             <GuideLine key={line} value={line} />
           ))}
 
-          {bands.map((band) => (
-            <BandLine
-              band={band}
-              key={band.id}
-              state={getGradeBandState(course, band)}
-            />
-          ))}
+          {hasAssessments
+            ? bands.map((band) => (
+                <BandLine
+                  band={band}
+                  key={band.id}
+                  state={getGradeBandState(course, band)}
+                />
+              ))
+            : null}
 
-          <CurrentLine value={currentGrade} />
-          <CurrentPill value={currentGrade} />
+          {hasRecordedGrade ? (
+            <CurrentLine value={animatedCurrentGrade} />
+          ) : null}
+          {hasRecordedGrade ? (
+            <CurrentPill value={animatedCurrentGrade} />
+          ) : null}
 
           <p className="absolute inset-x-0 bottom-4 text-center text-sm text-stone-600">
-            {formatPercent(completion)} complete
+            {hasRecordedGrade
+              ? `${formatPercent(completion)} complete`
+              : hasAssessments
+                ? "Waiting for first grade"
+                : "Add assignments to start tracking"}
           </p>
         </div>
       </div>
@@ -71,9 +89,12 @@ export function GradeBandPanel({
       <div className="min-w-0 overflow-hidden rounded-[24px] border border-stone-200 bg-white/90">
         {bands.map((band) => {
           const result = calculateRequiredScore(course, band.threshold);
-          const state = getGradeBandState(course, band);
-          const needed =
-            state === "guaranteed"
+          const state = hasAssessments
+            ? getGradeBandState(course, band)
+            : "reachable";
+          const needed = !hasAssessments
+            ? "Not set"
+            : state === "guaranteed"
               ? formatPercent(band.threshold)
               : result.remainingWeight === 0
                 ? "Closed"
@@ -86,19 +107,18 @@ export function GradeBandPanel({
               }`}
               key={band.id}
             >
-              <div className="flex items-baseline gap-2">
-                <p className="text-[1.7rem] font-semibold leading-none tracking-tight">
-                  {renderNeededValue(needed)}
-                </p>
-                <p className="text-base leading-none">
-                  <span className="font-medium text-stone-500">for a </span>
-                  <span className="font-semibold text-stone-950">
-                    {band.label}
-                  </span>
-                </p>
-              </div>
-              <div className="flex items-center justify-between gap-4 text-xs text-stone-500">
-                <span>{band.threshold}% cutoff</span>
+              <div className="flex items-baseline justify-between gap-4">
+                <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <p className="text-[1.7rem] font-semibold leading-none tracking-tight">
+                    {renderNeededValue(needed)}
+                  </p>
+                  <p className="text-base leading-none">
+                    <span className="font-medium text-stone-500">for a </span>
+                    <span className="font-semibold text-stone-950">
+                      {band.label}
+                    </span>
+                  </p>
+                </div>
                 <InlineBandThreshold
                   band={band}
                   onCommit={(threshold) =>
@@ -134,7 +154,7 @@ function getLinePosition(value: number) {
 function GuideLine({ value }: { value: number }) {
   return (
     <div
-      className="absolute inset-x-0 border-t border-stone-200"
+      className="absolute inset-x-0 border-t border-stone-200 transition-[bottom] duration-500 ease-out"
       style={{ bottom: `${getLinePosition(value)}%` }}
     >
       <span className="absolute right-4 top-0 -translate-y-1/2 text-[11px] text-stone-400">
@@ -153,11 +173,11 @@ function BandLine({
 }) {
   return (
     <div
-      className="absolute inset-x-0"
+      className="absolute inset-x-0 transition-[bottom] duration-500 ease-out"
       style={{ bottom: `${getLinePosition(band.threshold)}%` }}
     >
       <div
-        className={`border-t ${
+        className={`border-t transition-colors duration-300 ${
           state === "unreachable"
             ? "border-stone-300/80"
             : "border-stone-500/90"
@@ -165,7 +185,7 @@ function BandLine({
       />
       <div className="absolute inset-x-0 top-0 -translate-y-1/2 px-4">
         <span
-          className={`inline-flex h-7 w-7 items-center justify-center rounded-full border bg-white text-sm ${
+          className={`inline-flex h-7 w-7 items-center justify-center rounded-full border bg-white text-sm transition-colors duration-300 ${
             state === "unreachable"
               ? "border-stone-300 text-stone-400"
               : "border-stone-500 text-stone-700"
@@ -181,7 +201,7 @@ function BandLine({
 function CurrentLine({ value }: { value: number }) {
   return (
     <div
-      className="absolute inset-x-0 border-t-2 border-stone-500"
+      className="absolute inset-x-0 border-t-2 border-stone-500 transition-[bottom] duration-500 ease-out"
       style={{ bottom: `${getLinePosition(value)}%` }}
     />
   );
@@ -190,10 +210,10 @@ function CurrentLine({ value }: { value: number }) {
 function CurrentPill({ value }: { value: number }) {
   return (
     <div
-      className="absolute left-1/2 -translate-x-1/2"
+      className="absolute left-1/2 -translate-x-1/2 transition-[bottom] duration-500 ease-out"
       style={{ bottom: `calc(${getLinePosition(value)}% - 20px)` }}
     >
-      <div className="rounded-full border border-stone-500 bg-white px-6 py-2 shadow-sm">
+      <div className="rounded-full border border-stone-500 bg-white px-6 py-2 shadow-sm transition-shadow duration-300">
         <p className="text-[1.75rem] font-semibold leading-none tracking-tight text-stone-700">
           {formatPercent(value)}
         </p>
@@ -232,7 +252,7 @@ function InlineBandThreshold({
   if (!editing) {
     return (
       <button
-        className="cursor-text text-stone-500"
+        className="cursor-text text-sm font-medium leading-none text-stone-400"
         onClick={() => setEditing(true)}
         type="button"
       >
@@ -242,9 +262,9 @@ function InlineBandThreshold({
   }
 
   return (
-    <div className="inline-flex items-center gap-1">
+    <div className="inline-flex items-center gap-1 text-sm font-medium leading-none text-stone-400">
       <Input
-        className={`${inlineInputClassName} w-10 text-right`}
+        className={`${inlineInputClassName} w-10 text-right text-sm`}
         onBlur={() => {
           setEditing(false);
           onCommit(Math.max(Math.min(Number(draft || 0), 100), 0));
@@ -283,4 +303,53 @@ function handleInlineNumberKeyDown(
     setDraft(String(value));
     setEditing(false);
   }
+}
+
+function useAnimatedNumber(target: number, duration = 450) {
+  const [animated, setAnimated] = useState(target);
+  const frameRef = useRef<number | null>(null);
+  const previousTargetRef = useRef(target);
+
+  useEffect(() => {
+    const startValue = previousTargetRef.current;
+    const delta = target - startValue;
+
+    if (Math.abs(delta) < 0.05) {
+      setAnimated(target);
+      previousTargetRef.current = target;
+      return;
+    }
+
+    const start = performance.now();
+
+    if (frameRef.current !== null) {
+      cancelAnimationFrame(frameRef.current);
+    }
+
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const nextValue = startValue + delta * eased;
+
+      setAnimated(nextValue);
+
+      if (progress < 1) {
+        frameRef.current = requestAnimationFrame(tick);
+        return;
+      }
+
+      previousTargetRef.current = target;
+      frameRef.current = null;
+    };
+
+    frameRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (frameRef.current !== null) {
+        cancelAnimationFrame(frameRef.current);
+      }
+    };
+  }, [duration, target]);
+
+  return animated;
 }

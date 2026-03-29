@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { usePathname } from "next/navigation";
 
 import { getDefaultAppState } from "@/lib/app-state";
 import { createSemester } from "@/lib/semester-utils";
@@ -18,6 +19,9 @@ interface WorkspaceContextValue {
   semester: Semester;
   semesters: Semester[];
   selectedSemesterId: string;
+  isExperimenting: boolean;
+  startExperiment: () => void;
+  stopExperiment: () => void;
   addSemester: (semester: Semester) => void;
   deleteSemester: (semesterId: string) => void;
   updateSemester: (
@@ -48,6 +52,7 @@ interface WorkspaceContextValue {
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const defaultState = getDefaultAppState();
   const [semesters, setSemesters] = useState<Semester[]>(
     defaultState.semesters,
@@ -55,7 +60,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [selectedSemesterId, setSelectedSemesterId] = useState(
     defaultState.selectedSemesterId,
   );
+  const [isExperimenting, setIsExperimenting] = useState(false);
   const hasLoadedRef = useRef(false);
+  const experimentSnapshotRef = useRef<{
+    semesters: Semester[];
+    selectedSemesterId: string;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -85,6 +95,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    if (isExperimenting) {
+      return;
+    }
+
     void fetch("/api/state", {
       method: "POST",
       headers: {
@@ -95,7 +109,21 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         selectedSemesterId,
       }),
     });
-  }, [selectedSemesterId, semesters]);
+  }, [isExperimenting, selectedSemesterId, semesters]);
+
+  useEffect(() => {
+    if (isExperimenting && !pathname.startsWith("/workspace")) {
+      const snapshot = experimentSnapshotRef.current;
+
+      if (snapshot) {
+        setSemesters(snapshot.semesters);
+        setSelectedSemesterId(snapshot.selectedSemesterId);
+      }
+
+      experimentSnapshotRef.current = null;
+      setIsExperimenting(false);
+    }
+  }, [isExperimenting, pathname]);
 
   const value = useMemo<WorkspaceContextValue>(() => {
     const semester =
@@ -110,6 +138,29 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       semester,
       semesters,
       selectedSemesterId: semester.id,
+      isExperimenting,
+      startExperiment: () => {
+        if (isExperimenting) {
+          return;
+        }
+
+        experimentSnapshotRef.current = {
+          semesters: structuredClone(semesters),
+          selectedSemesterId,
+        };
+        setIsExperimenting(true);
+      },
+      stopExperiment: () => {
+        const snapshot = experimentSnapshotRef.current;
+
+        if (snapshot) {
+          setSemesters(snapshot.semesters);
+          setSelectedSemesterId(snapshot.selectedSemesterId);
+        }
+
+        experimentSnapshotRef.current = null;
+        setIsExperimenting(false);
+      },
       addSemester: (nextSemester) => {
         setSemesters((current) => [...current, nextSemester]);
         setSelectedSemesterId(nextSemester.id);
@@ -273,7 +324,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         );
       },
     };
-  }, [selectedSemesterId, semesters]);
+  }, [isExperimenting, selectedSemesterId, semesters]);
 
   return (
     <WorkspaceContext.Provider value={value}>

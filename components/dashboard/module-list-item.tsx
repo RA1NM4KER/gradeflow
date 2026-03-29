@@ -7,6 +7,7 @@ import {
   getAssessmentPace,
   getCourseCurrentGrade,
   getRemainingWeight,
+  hasRecordedCourseGrade,
 } from "@/lib/grade-utils";
 import { Course } from "@/lib/types";
 
@@ -21,8 +22,11 @@ export function ModuleListItem({
   isActive,
   onSelect,
 }: ModuleListItemProps) {
+  const hasAssignments = course.assessments.length > 0;
+  const hasRecordedGrade = hasRecordedCourseGrade(course);
   const grade = getCourseCurrentGrade(course);
   const remainingWeight = getRemainingWeight(course);
+  const progressValue = hasAssignments ? 100 - remainingWeight : 0;
 
   return (
     <button
@@ -44,44 +48,50 @@ export function ModuleListItem({
               {course.credits} credits
             </span>
           </div>
-          <h3 className="mt-3 line-clamp-2 text-base font-semibold tracking-tight text-stone-950 sm:text-lg">
+        </div>
+
+        <div className="flex shrink-0 items-start gap-2">
+          <div className="flex items-center gap-2 self-start rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] text-stone-600 sm:px-3 sm:py-1.5 sm:text-xs">
+            {hasAssignments && remainingWeight === 0 ? (
+              <CheckCircle2 className="h-4 w-4 text-stone-900" />
+            ) : (
+              <CircleDashed className="h-4 w-4 text-stone-500" />
+            )}
+            {!hasAssignments
+              ? "Not started"
+              : remainingWeight === 0
+                ? "Complete"
+                : `${remainingWeight}% remaining`}
+          </div>
+          <ArrowRight className="mt-1 h-5 w-5 text-stone-400 transition group-hover:text-stone-900" />
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-1 flex-col">
+        <div className="min-h-[72px]">
+          <h3 className="line-clamp-2 text-base font-semibold tracking-tight text-stone-950 sm:text-lg">
             {course.name}
           </h3>
           <p className="mt-1 line-clamp-1 text-sm text-stone-600">
             {course.instructor}
           </p>
         </div>
-
-        <div className="flex shrink-0 items-start gap-2">
-          <div className="flex items-center gap-2 self-start rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] text-stone-600 sm:px-3 sm:py-1.5 sm:text-xs">
-            {remainingWeight === 0 ? (
-              <CheckCircle2 className="h-4 w-4 text-stone-900" />
-            ) : (
-              <CircleDashed className="h-4 w-4 text-stone-500" />
-            )}
-            {remainingWeight === 0
-              ? "Complete"
-              : `${remainingWeight}% remaining`}
-          </div>
-          <ArrowRight className="mt-1 h-5 w-5 text-stone-400 transition group-hover:text-stone-900" />
-        </div>
-      </div>
-
-      <div className="mt-4 grid flex-1 gap-3">
-        <div>
+        <div className="mt-auto">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
             Current grade
           </p>
           <p className="mt-1 text-[1.65rem] font-semibold tracking-tight text-stone-950 sm:text-2xl">
-            {formatPercent(grade)}
+            {hasRecordedGrade ? formatPercent(grade) : "--"}
           </p>
         </div>
-        <div>
+        <div className="mt-3">
           <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
             <span>Assignment progress</span>
-            <span>{getAssessmentPace(course)}</span>
+            <span>
+              {hasAssignments ? getAssessmentPace(course) : "0/0 DONE"}
+            </span>
           </div>
-          <Progress className="mt-3" value={100 - remainingWeight} />
+          <Progress className="mt-3" value={progressValue} />
         </div>
       </div>
     </button>

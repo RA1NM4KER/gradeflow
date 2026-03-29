@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ExperimentModePill } from "@/components/workspace/experiment-mode-pill";
 import { SemesterSummaryStrip } from "@/components/workspace/semester-summary-strip";
 import { useWorkspace } from "@/components/workspace/workspace-provider";
 import {
@@ -21,6 +22,7 @@ import {
   getSemesterAverage,
   getSemesterGpa,
 } from "@/lib/grade-utils";
+import { Course } from "@/lib/types";
 
 export function SemesterScreen({
   semesterIdFromUrl,
@@ -33,7 +35,9 @@ export function SemesterScreen({
     semesters,
     selectedSemesterId,
     addCourse,
+    isExperimenting,
     selectSemester,
+    stopExperiment,
     updateSemester,
   } = useWorkspace();
 
@@ -46,6 +50,11 @@ export function SemesterScreen({
   const completedCourses = semester.courses.filter(
     (course) => getCompletedWeight(course) >= 100,
   ).length;
+
+  function handleSaveCourse(course: Course) {
+    addCourse(course);
+    router.push(`/workspace/modules/${course.id}`);
+  }
 
   useEffect(() => {
     if (
@@ -67,6 +76,12 @@ export function SemesterScreen({
 
   return (
     <div className="mx-auto h-[calc(100vh-5.5rem)] max-w-7xl overflow-hidden px-5 py-4 sm:px-8">
+      {isExperimenting ? (
+        <div className="mb-4">
+          <ExperimentModePill onStop={stopExperiment} />
+        </div>
+      ) : null}
+
       <Card>
         <CardContent className="grid gap-4 p-4">
           <SemesterSummaryStrip
@@ -112,7 +127,7 @@ export function SemesterScreen({
                 />
               ))}
               <CourseDialog
-                onSaveCourse={addCourse}
+                onSaveCourse={handleSaveCourse}
                 triggerAsChild
                 triggerChildren={
                   <button
@@ -131,7 +146,7 @@ export function SemesterScreen({
             <EmptyState
               action={
                 <CourseDialog
-                  onSaveCourse={addCourse}
+                  onSaveCourse={handleSaveCourse}
                   triggerAsChild
                   triggerChildren={
                     <button
