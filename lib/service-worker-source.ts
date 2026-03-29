@@ -1,20 +1,21 @@
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const CACHE_NAME = `gradeflow-shell-${CACHE_VERSION}`;
 const APP_SHELL_URLS = [
   "/",
+  "/offline",
   "/workspace",
   "/manifest.webmanifest",
   "/apple-icon.png",
   "/icon-192.png",
   "/icon-512.png",
 ];
-const NAVIGATION_FALLBACK_URLS = ["/workspace", "/"];
+const OFFLINE_FALLBACK_URL = "/offline";
 
 export function getServiceWorkerSource() {
   return `
 const CACHE_NAME = ${JSON.stringify(CACHE_NAME)};
 const APP_SHELL_URLS = ${JSON.stringify(APP_SHELL_URLS)};
-const NAVIGATION_FALLBACK_URLS = ${JSON.stringify(NAVIGATION_FALLBACK_URLS)};
+const OFFLINE_FALLBACK_URL = ${JSON.stringify(OFFLINE_FALLBACK_URL)};
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -57,18 +58,42 @@ async function findNavigationFallback(request) {
     return exactMatch;
   }
 
-  // These are the intentional app-shell fallbacks for first-load offline opens
-  // when a deep link has not been visited yet.
-  for (const fallbackUrl of NAVIGATION_FALLBACK_URLS) {
-    const fallbackResponse = await caches.match(fallbackUrl);
+  return caches.match(OFFLINE_FALLBACK_URL);
+}
 
-    if (fallbackResponse) {
-      return fallbackResponse;
-    }
+self.addEventListener("message", (event) => {
+  const data = event.data;
+
+  if (!data || data.type !== "CACHE_ROUTE" || typeof data.url !== "string") {
+    return;
   }
 
-  return Response.error();
-}
+  const routeUrl = new URL(data.url, self.location.origin);
+
+  if (routeUrl.origin !== self.location.origin) {
+    return;
+  }
+
+  event.waitUntil(
+    fetch(
+      new Request(routeUrl.toString(), {
+        headers: {
+          "x-gradeflow-cache-warm": "1",
+        },
+      }),
+    )
+      .then((response) => {
+        if (!response || response.status !== 200) {
+          return null;
+        }
+
+        return caches.open(CACHE_NAME).then((cache) =>
+          cache.put(routeUrl.toString(), response.clone()),
+        );
+      })
+      .catch(() => null),
+  );
+});
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
@@ -80,6 +105,10 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
 
   if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  if (request.headers.get("x-gradeflow-cache-warm") === "1") {
     return;
   }
 

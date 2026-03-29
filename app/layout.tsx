@@ -4,6 +4,7 @@ import React from "react";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { TopNav } from "@/components/layout/top-nav";
+import { RouteCacheWarmup } from "@/components/pwa/route-cache-warmup";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import { WorkspaceProvider } from "@/components/workspace/workspace-provider";
 
@@ -51,6 +52,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <WorkspaceProvider>
           <AppShell>
+            <RouteCacheWarmup />
             <TopNav />
             {children}
           </AppShell>
