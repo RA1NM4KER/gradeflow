@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { BookMarked, Plus } from "lucide-react";
 
 import { ModuleDialog } from "@/components/dashboard/module-dialog";
@@ -26,8 +26,9 @@ import { Module } from "@/lib/types";
 
 export function SemesterScreen() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const semesterIdFromUrl = searchParams.get("semester") ?? undefined;
+  const [semesterIdFromUrl, setSemesterIdFromUrl] = useState<
+    string | undefined
+  >(undefined);
   const {
     semester,
     semesters,
@@ -55,6 +56,27 @@ export function SemesterScreen() {
   }
 
   useEffect(() => {
+    function readSemesterIdFromLocation() {
+      const nextSemesterId =
+        new URLSearchParams(window.location.search).get("semester") ??
+        undefined;
+
+      setSemesterIdFromUrl((currentSemesterId) =>
+        currentSemesterId === nextSemesterId
+          ? currentSemesterId
+          : nextSemesterId,
+      );
+    }
+
+    readSemesterIdFromLocation();
+    window.addEventListener("popstate", readSemesterIdFromLocation);
+
+    return () => {
+      window.removeEventListener("popstate", readSemesterIdFromLocation);
+    };
+  }, []);
+
+  useEffect(() => {
     if (
       semesterIdFromUrl &&
       semesterIdFromUrl !== selectedSemesterId &&
@@ -69,8 +91,14 @@ export function SemesterScreen() {
       return;
     }
 
-    router.replace(`/workspace?semester=${selectedSemesterId}`);
-  }, [router, selectedSemesterId, semesterIdFromUrl]);
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set("semester", selectedSemesterId);
+
+    // Keep the semester query in sync without asking App Router to perform
+    // a navigation, which can trigger offline RSC fetch churn on refresh.
+    window.history.replaceState(window.history.state, "", nextUrl);
+    setSemesterIdFromUrl(selectedSemesterId);
+  }, [selectedSemesterId, semesterIdFromUrl]);
 
   return (
     <div className="mx-auto h-[calc(100vh-5.5rem)] max-w-7xl overflow-hidden px-5 py-4 sm:px-8">
