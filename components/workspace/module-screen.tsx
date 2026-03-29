@@ -96,7 +96,7 @@ export function ModuleScreen({ courseId }: { courseId: string }) {
       ) : null}
 
       <div className="grid h-[calc(100%-5.5rem)] min-h-0 gap-3 min-[900px]:grid-cols-[minmax(0,1fr)_560px] lg:gap-4">
-        <div className="grid min-h-0">
+        <div className="mt-7 grid min-h-0">
           <AssessmentTable
             course={course}
             isExperimenting={isExperimenting}

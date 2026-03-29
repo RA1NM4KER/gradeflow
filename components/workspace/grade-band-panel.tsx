@@ -41,6 +41,9 @@ export function GradeBandPanel({
   return (
     <div className="grid gap-4 min-[900px]:grid-cols-[280px_minmax(0,1fr)] min-[900px]:items-start">
       <div className="min-w-0">
+        <p className="mb-3 text-center text-sm text-stone-500">
+          Current standing
+        </p>
         <div className="relative h-[500px] overflow-hidden rounded-[24px] border border-stone-200 bg-white/90">
           {hasAssessments ? (
             <>
@@ -86,49 +89,54 @@ export function GradeBandPanel({
         </div>
       </div>
 
-      <div className="min-w-0 overflow-hidden rounded-[24px] border border-stone-200 bg-white/90">
-        {bands.map((band) => {
-          const result = calculateRequiredScore(course, band.threshold);
-          const state = hasAssessments
-            ? getGradeBandState(course, band)
-            : "reachable";
-          const needed = !hasAssessments
-            ? "Not set"
-            : state === "guaranteed"
-              ? formatPercent(band.threshold)
-              : result.remainingWeight === 0
-                ? "Closed"
-                : `${result.neededAverage}%`;
+      <div className="min-w-0">
+        <p className="mb-3 text-center text-sm text-stone-500">
+          Remainder of grades must average:
+        </p>
+        <div className="overflow-hidden rounded-[24px] border border-stone-200 bg-white/90">
+          {bands.map((band) => {
+            const result = calculateRequiredScore(course, band.threshold);
+            const state = hasAssessments
+              ? getGradeBandState(course, band)
+              : "reachable";
+            const needed = !hasAssessments
+              ? "Not set"
+              : state === "guaranteed"
+                ? formatPercent(band.threshold)
+                : result.remainingWeight === 0
+                  ? "Closed"
+                  : `${result.neededAverage}%`;
 
-          return (
-            <div
-              className={`grid gap-1.5 border-t border-stone-200 px-4 py-3 first:border-t-0 ${
-                state === "unreachable" ? "text-stone-400" : "text-stone-700"
-              }`}
-              key={band.id}
-            >
-              <div className="flex items-baseline justify-between gap-4">
-                <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
-                  <p className="text-[1.7rem] font-semibold leading-none tracking-tight">
-                    {renderNeededValue(needed)}
-                  </p>
-                  <p className="text-base leading-none">
-                    <span className="font-medium text-stone-500">for a </span>
-                    <span className="font-semibold text-stone-950">
-                      {band.label}
-                    </span>
-                  </p>
+            return (
+              <div
+                className={`grid gap-1.5 border-t border-stone-200 px-4 py-3 first:border-t-0 ${
+                  state === "unreachable" ? "text-stone-400" : "text-stone-700"
+                }`}
+                key={band.id}
+              >
+                <div className="flex items-baseline justify-between gap-4">
+                  <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <p className="text-[1.7rem] font-semibold leading-none tracking-tight">
+                      {renderNeededValue(needed)}
+                    </p>
+                    <p className="text-base leading-none">
+                      <span className="font-medium text-stone-500">for a </span>
+                      <span className="font-semibold text-stone-950">
+                        {band.label}
+                      </span>
+                    </p>
+                  </div>
+                  <InlineBandThreshold
+                    band={band}
+                    onCommit={(threshold) =>
+                      onUpdateGradeBand(band.id, threshold)
+                    }
+                  />
                 </div>
-                <InlineBandThreshold
-                  band={band}
-                  onCommit={(threshold) =>
-                    onUpdateGradeBand(band.id, threshold)
-                  }
-                />
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
