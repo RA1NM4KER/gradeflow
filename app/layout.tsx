@@ -21,8 +21,14 @@ export const metadata: Metadata = {
     title: "Gradeflow",
   },
   icons: {
+    shortcut: "/favicon.ico",
     apple: "/apple-icon.png",
     icon: [
+      {
+        url: "/favicon.ico",
+        sizes: "64x64",
+        type: "image/png",
+      },
       {
         url: "/icon-192.png",
         sizes: "192x192",

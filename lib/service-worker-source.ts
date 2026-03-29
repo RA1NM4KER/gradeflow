@@ -1,9 +1,10 @@
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const CACHE_NAME = `gradeflow-shell-${CACHE_VERSION}`;
 const APP_SHELL_URLS = [
   "/",
   "/offline",
   "/workspace",
+  "/favicon.ico",
   "/manifest.webmanifest",
   "/apple-icon.png",
   "/icon-192.png",
@@ -49,6 +50,22 @@ async function cacheResponse(request, response) {
   const cache = await caches.open(CACHE_NAME);
   await cache.put(request, response.clone());
   return response;
+}
+
+function buildOfflineAssetResponse(request) {
+  if (request.destination === "image") {
+    return new Response("", {
+      headers: {
+        "Content-Type": "image/svg+xml",
+      },
+      status: 200,
+    });
+  }
+
+  return new Response("", {
+    status: 503,
+    statusText: "Offline",
+  });
 }
 
 async function findNavigationFallback(request) {
@@ -135,7 +152,9 @@ self.addEventListener("fetch", (event) => {
         return cachedResponse;
       }
 
-      return fetch(request).then((response) => cacheResponse(request, response));
+      return fetch(request)
+        .then((response) => cacheResponse(request, response))
+        .catch(() => buildOfflineAssetResponse(request));
     }),
   );
 });
