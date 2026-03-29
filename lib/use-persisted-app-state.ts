@@ -16,13 +16,18 @@ import {
 const APP_STATE_CHANNEL_NAME = "gradeflow-app-state";
 const EXTERNAL_REFRESH_DELAY_MS = 1200;
 
+let hydratedAppStateCache: AppState | null = null;
+let hydratedSnapshotCache = "";
+
 type AppStateUpdater = AppState | ((current: AppState) => AppState);
 
 export function usePersistedAppState() {
-  const [appState, setAppState] = useState<AppState | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [appState, setAppState] = useState<AppState | null>(
+    hydratedAppStateCache,
+  );
+  const [isHydrated, setIsHydrated] = useState(hydratedAppStateCache !== null);
   const [bootError, setBootError] = useState<string | null>(null);
-  const lastSavedSnapshotRef = useRef("");
+  const lastSavedSnapshotRef = useRef(hydratedSnapshotCache);
   const pendingExternalSnapshotRef = useRef<string | null>(null);
   const channelRef = useRef<BroadcastChannel | null>(null);
   const refreshTimerRef = useRef<number | null>(null);
@@ -36,6 +41,8 @@ export function usePersistedAppState() {
 
       pendingExternalSnapshotRef.current = null;
       lastSavedSnapshotRef.current = nextSnapshot;
+      hydratedAppStateCache = normalizedState;
+      hydratedSnapshotCache = nextSnapshot;
       setAppState(normalizedState);
     },
     [],
@@ -54,6 +61,8 @@ export function usePersistedAppState() {
 
       pendingExternalSnapshotRef.current = null;
       lastSavedSnapshotRef.current = metadata.snapshot;
+      hydratedAppStateCache = state;
+      hydratedSnapshotCache = metadata.snapshot;
       return state;
     });
   }, []);
@@ -98,7 +107,10 @@ export function usePersistedAppState() {
       const nextState =
         typeof updater === "function" ? updater(baseState) : updater;
 
-      return normalizeAppState(nextState);
+      const normalizedState = normalizeAppState(nextState);
+      hydratedAppStateCache = normalizedState;
+      hydratedSnapshotCache = getPersistedAppStateSnapshot(normalizedState);
+      return normalizedState;
     });
   }, []);
 
