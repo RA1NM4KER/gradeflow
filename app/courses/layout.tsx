@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 
-import { CoursesRouteView } from "@/components/workspace/workspace-route-view";
+import { CoursesRouteView } from "@/components/workspace/courses-route-view";
 
 export default function CoursesLayout({ children }: { children: ReactNode }) {
   void children;

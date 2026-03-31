@@ -12,12 +12,12 @@ export function CourseMobileOverviewNeededGrid({
   bands,
   isExperimenting = false,
   module,
-  onSaveBands,
+  onSaveBandsAction,
 }: {
   bands: GradeBand[];
   isExperimenting?: boolean;
   module: Course;
-  onSaveBands: (bands: GradeBand[]) => void;
+  onSaveBandsAction: (bands: GradeBand[]) => void;
 }) {
   const theme = getCourseTheme(module);
 
@@ -29,7 +29,7 @@ export function CourseMobileOverviewNeededGrid({
         </p>
         <GradeBandDialog
           bands={bands}
-          onSave={onSaveBands}
+          onSave={onSaveBandsAction}
           triggerAsChild
           triggerChildren={
             <button

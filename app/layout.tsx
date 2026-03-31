@@ -6,7 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { TopNav } from "@/components/layout/top-nav";
 import { RouteCacheWarmup } from "@/components/pwa/route-cache-warmup";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
-import { CoursesProvider } from "@/components/workspace/workspace-provider";
+import { CoursesProvider } from "@/components/workspace/courses-provider";
 
 import "./globals.css";
 

@@ -3,19 +3,13 @@
 import { useEffect, useState } from "react";
 import { BookMarked, Plus } from "lucide-react";
 
-import { CourseDialog } from "@/components/dashboard/module-dialog";
+import { CourseDialog } from "@/components/dashboard/course-dialog";
 import { EmptyState } from "@/components/dashboard/empty-state";
-import { ModuleListItem } from "@/components/dashboard/module-list-item";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { CourseListItem } from "@/components/dashboard/course-list-item";
+import { Card, CardContent } from "@/components/ui/card";
 import { ExperimentModePill } from "@/components/workspace/experiment-mode-pill";
 import { SemesterSummaryStrip } from "@/components/workspace/semester-summary-strip";
-import { useCourses } from "@/components/workspace/workspace-provider";
+import { useCourses } from "@/components/workspace/courses-provider";
 import {
   getCompletedWeight,
   getSemesterAverage,
@@ -24,7 +18,7 @@ import {
 import {
   addCoursesNavigationListener,
   navigateCourses,
-} from "@/lib/workspace-navigation";
+} from "@/lib/courses-navigation";
 import { Course } from "@/lib/types";
 
 export function SemesterScreen() {
@@ -103,7 +97,7 @@ export function SemesterScreen() {
       {isExperimenting ? (
         <div className="pointer-events-none fixed left-1/2 top-[4.7rem] z-40 w-[calc(100%-2rem)] max-w-max -translate-x-1/2 sm:top-[5.25rem]">
           <div className="pointer-events-auto">
-            <ExperimentModePill onStop={stopExperiment} />
+            <ExperimentModePill onStopAction={stopExperiment} />
           </div>
         </div>
       ) : null}
@@ -144,8 +138,8 @@ export function SemesterScreen() {
           {semester.courses.length > 0 ? (
             <div className="grid items-start gap-3.5 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
               {semester.courses.map((module) => (
-                <ModuleListItem
-                  module={module}
+                <CourseListItem
+                  course={module}
                   isActive={false}
                   key={module.id}
                   onSelect={() => navigateCourses(`/courses/${module.id}`)}

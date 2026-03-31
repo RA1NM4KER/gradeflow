@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { CourseScreen } from "@/components/workspace/module-screen";
 import { SemesterScreen } from "@/components/workspace/semester-screen";
-import { addCoursesNavigationListener } from "@/lib/workspace-navigation";
+import { addCoursesNavigationListener } from "@/lib/courses-navigation";
 
 function readWorkspaceLocation() {
   if (typeof window === "undefined") {
@@ -53,5 +53,3 @@ export function CoursesRouteView() {
 
   return <SemesterScreen />;
 }
-
-export const WorkspaceRouteView = CoursesRouteView;

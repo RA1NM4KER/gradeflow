@@ -44,6 +44,3 @@ export function addCoursesNavigationListener(listener: () => void) {
     window.removeEventListener(WORKSPACE_NAVIGATION_EVENT, listener);
   };
 }
-
-export const navigateWorkspace = navigateCourses;
-export const addWorkspaceNavigationListener = addCoursesNavigationListener;

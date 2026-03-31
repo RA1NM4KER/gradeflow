@@ -1,6 +1,6 @@
 "use client";
 
-import {
+import React, {
   KeyboardEvent,
   MouseEvent,
   ReactNode,
@@ -16,18 +16,20 @@ import { AssessmentComposerDialog } from "@/components/workspace/assessment-comp
 import { GroupedAssessmentDialog } from "@/components/workspace/grouped-assessment-dialog";
 import { SingleAssessmentDialog } from "@/components/workspace/single-assessment-dialog";
 import {
-  WorkspaceTable,
+  CoursesTable,
   WorkspaceTableCell,
   WorkspaceTableFrame,
   WorkspaceTableHeader,
   WorkspaceTableHeaderCell,
   WorkspaceTableRow,
-} from "@/components/workspace/workspace-table";
+} from "@/components/workspace/courses-table";
 import {
+  formatEditablePercent as formatEditablePercentInput,
   formatPercent,
   getAssessmentPercent,
   getGroupedAssessmentMetrics,
   isSingleAssessment,
+  parsePercentInput,
 } from "@/lib/grade-utils";
 import { getCourseTheme } from "@/lib/course-theme";
 import {
@@ -76,7 +78,7 @@ export function AssessmentTable({
     <div className="grid min-h-0 content-start">
       <div className="hidden md:block">
         <WorkspaceTableFrame>
-          <WorkspaceTable>
+          <CoursesTable>
             <WorkspaceTableHeader
               className={
                 isExperimenting
@@ -166,7 +168,7 @@ export function AssessmentTable({
                 onSaveAssessment={onSaveAssessment}
               />
             </tbody>
-          </WorkspaceTable>
+          </CoursesTable>
         </WorkspaceTableFrame>
       </div>
 
@@ -662,85 +664,6 @@ function GroupedAssessmentRow({
     </WorkspaceTableRow>
   );
 }
-
-function SingleAssessmentCard({
-  moduleId,
-  assessment,
-  onSaveAssessment,
-}: {
-  moduleId: string;
-  assessment: SingleAssessment;
-  onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
-}) {
-  return (
-    <div className="rounded-[22px] border border-stone-200 bg-white/80 p-4">
-      <p className="font-medium text-stone-950">{assessment.name}</p>
-      <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-600">
-        <InfoCell label="Weight" value={String(assessment.weight)} />
-        <InfoCell
-          label="Grade"
-          value={
-            assessment.scoreAchieved === null
-              ? "Pending"
-              : formatPercent(getAssessmentPercent(assessment) ?? 0)
-          }
-        />
-      </div>
-      <div className="mt-4 grid gap-2">
-        <InlineText
-          display={<span className="text-sm text-stone-500">Rename</span>}
-          onCommit={(name) =>
-            onSaveAssessment(moduleId, { ...assessment, name })
-          }
-          value={assessment.name}
-        />
-      </div>
-    </div>
-  );
-}
-
-function GroupedAssessmentCard({
-  moduleId,
-  assessment,
-  onSaveAssessment,
-}: {
-  moduleId: string;
-  assessment: GroupedAssessment;
-  onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const metrics = getGroupedAssessmentMetrics(assessment);
-
-  return (
-    <div
-      className="rounded-[22px] border border-stone-200 bg-white/80 p-4"
-      onClick={() => setOpen(true)}
-    >
-      <p className="font-medium text-stone-950">{assessment.name}</p>
-      <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-600">
-        <InfoCell label="Weight" value={String(assessment.weight)} />
-        <InfoCell
-          label="Grade"
-          value={
-            metrics.currentPercent === null
-              ? "Pending"
-              : formatPercent(metrics.currentPercent)
-          }
-        />
-      </div>
-      <GroupedAssessmentDialog
-        assessment={assessment}
-        moduleId={moduleId}
-        onOpenChange={setOpen}
-        onSaveAssessment={onSaveAssessment}
-        open={open}
-        triggerChildren={<span className="hidden" />}
-        triggerAsChild
-      />
-    </div>
-  );
-}
-
 function InlineText({
   value,
   display,
@@ -982,48 +905,12 @@ function handleInlineNumberKeyDown(
     setEditing(false);
   }
 }
-
-function InfoCell({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs uppercase tracking-[0.18em] text-stone-400">
-        {label}
-      </p>
-      <p className="mt-1">{value}</p>
-    </div>
-  );
-}
-
 function parseGradeInput(value: string) {
-  const trimmed = value.trim();
-  if (trimmed === "") {
-    return null;
-  }
-
-  if (trimmed.includes("/")) {
-    const [left, right] = trimmed.split("/");
-    const score = Number(left);
-    const total = Number(right);
-
-    if (Number.isFinite(score) && Number.isFinite(total) && total > 0) {
-      return Number(((score / total) * 100).toFixed(1));
-    }
-  }
-
-  const numeric = Number(trimmed);
-  if (!Number.isFinite(numeric)) {
-    return null;
-  }
-
-  return numeric;
+  return parsePercentInput(value);
 }
 
 function formatEditablePercent(scoreAchieved: number, totalPossible: number) {
-  if (totalPossible <= 0) {
-    return String(scoreAchieved);
-  }
-
-  return String(Number(((scoreAchieved / totalPossible) * 100).toFixed(1)));
+  return formatEditablePercentInput(scoreAchieved, totalPossible);
 }
 
 function parsePlainNumber(value: string) {

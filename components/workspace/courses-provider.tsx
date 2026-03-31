@@ -11,7 +11,7 @@ import {
 } from "react";
 import { usePathname } from "next/navigation";
 
-import { WorkspaceBootState } from "@/components/workspace/workspace-boot-state";
+import { CoursesBootState } from "@/components/workspace/courses-boot-state";
 import { AppState } from "@/lib/app-state";
 import * as appStateActions from "@/lib/app-state-actions";
 import { createSemester } from "@/lib/semester-utils";
@@ -237,7 +237,7 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
 
   if (!isHydrated || !value) {
     return bootError ? (
-      <WorkspaceBootState
+      <CoursesBootState
         action={
           <button
             className="inline-flex h-11 items-center rounded-full bg-stone-950 px-5 text-sm font-semibold text-stone-50"
@@ -251,7 +251,7 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
         title="Local storage unavailable"
       />
     ) : (
-      <WorkspaceBootState
+      <CoursesBootState
         description="Restoring your saved semesters, courses, and assessments."
         title="Opening courses"
       />
@@ -272,6 +272,3 @@ export function useCourses() {
 
   return context;
 }
-
-export const WorkspaceProvider = CoursesProvider;
-export const useWorkspace = useCourses;

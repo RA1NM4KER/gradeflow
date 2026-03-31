@@ -2,10 +2,10 @@
 
 import { ReactNode } from "react";
 
-import { WorkspaceRouteView } from "@/components/workspace/workspace-route-view";
+import { CoursesRouteView } from "@/components/workspace/courses-route-view";
 
 export default function WorkspaceLayout({ children }: { children: ReactNode }) {
   void children;
 
-  return <WorkspaceRouteView />;
+  return <CoursesRouteView />;
 }

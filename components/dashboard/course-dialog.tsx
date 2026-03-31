@@ -306,9 +306,6 @@ export function CourseDialog({
     </Dialog>
   );
 }
-
-export const ModuleDialog = CourseDialog;
-
 function getDefaultGradeBands(courseCode: string) {
   return GRADE_BAND_PRESETS.filter((band) =>
     ["A", "B", "C", "D"].includes(band.label),

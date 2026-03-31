@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BookOpenText } from "lucide-react";
 
 import { LocalBackupDialog } from "@/components/pwa/local-backup-dialog";
-import { useCourses } from "@/components/workspace/workspace-provider";
+import { useCourses } from "@/components/workspace/courses-provider";
 
 export function TopNav() {
   const { appState, replaceAppState } = useCourses();

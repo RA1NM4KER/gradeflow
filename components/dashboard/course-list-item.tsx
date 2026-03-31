@@ -12,23 +12,23 @@ import {
 } from "@/lib/grade-utils";
 import { Course } from "@/lib/types";
 
-interface ModuleListItemProps {
-  module: Course;
+interface CourseListItemProps {
+  course: Course;
   isActive: boolean;
   onSelect: () => void;
 }
 
-export function ModuleListItem({
-  module,
+export function CourseListItem({
+  course,
   isActive,
   onSelect,
-}: ModuleListItemProps) {
-  const hasAssignments = module.assessments.length > 0;
-  const hasRecordedGrade = hasRecordedCourseGrade(module);
-  const grade = getCourseCurrentGrade(module);
-  const remainingWeight = getRemainingWeight(module);
+}: CourseListItemProps) {
+  const hasAssignments = course.assessments.length > 0;
+  const hasRecordedGrade = hasRecordedCourseGrade(course);
+  const grade = getCourseCurrentGrade(course);
+  const remainingWeight = getRemainingWeight(course);
   const progressValue = hasAssignments ? 100 - remainingWeight : 0;
-  const theme = getCourseTheme(module);
+  const theme = getCourseTheme(course);
 
   return (
     <button
@@ -48,14 +48,14 @@ export function ModuleListItem({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <h3 className="line-clamp-2 max-w-[14ch] text-[0.95rem] font-semibold leading-[1.05] tracking-[-0.025em] text-stone-950 sm:text-[1.1rem] sm:tracking-[-0.03em]">
-                {module.name}
+                {course.name}
               </h3>
               <span className="text-[0.65rem] font-medium uppercase tracking-[0.1em] text-stone-500 sm:text-[0.72rem] sm:tracking-[0.12em]">
-                {module.code}
+                {course.code}
               </span>
             </div>
             <p className="mt-0.5 text-[0.82rem] text-stone-500 sm:mt-1 sm:text-[0.92rem]">
-              {module.instructor} · {module.credits} credits
+              {course.instructor} · {course.credits} credits
             </p>
           </div>
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-950 text-stone-50 transition-transform duration-200 group-hover:translate-x-0.5 sm:h-9 sm:w-9">
@@ -82,7 +82,7 @@ export function ModuleListItem({
                 : `${remainingWeight}% remaining`}
           </span>
           <span className="rounded-full bg-stone-100 px-2 py-1 text-[9px] font-medium text-stone-600 sm:px-2.5 sm:text-[10px]">
-            {getAssessmentPace(module)}
+            {getAssessmentPace(course)}
           </span>
         </div>
 
@@ -100,7 +100,7 @@ export function ModuleListItem({
               Assessments
             </p>
             <p className="mt-1 text-[0.82rem] font-semibold tracking-[-0.025em] text-stone-950 sm:text-[0.92rem] sm:tracking-[-0.03em]">
-              {module.assessments.length}
+              {course.assessments.length}
             </p>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 
-export function WorkspaceBootState({
+export function CoursesBootState({
   action,
   description,
   title,

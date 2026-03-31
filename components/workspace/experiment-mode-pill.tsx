@@ -4,7 +4,11 @@ import { FlaskConical, Undo2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-export function ExperimentModePill({ onStop }: { onStop: () => void }) {
+export function ExperimentModePill({
+  onStopAction,
+}: {
+  onStopAction: () => void;
+}) {
   return (
     <div className="flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50/95 px-3 py-2 text-violet-950 shadow-card backdrop-blur">
       <div className="flex min-w-0 items-center gap-2">
@@ -25,7 +29,7 @@ export function ExperimentModePill({ onStop }: { onStop: () => void }) {
       </div>
       <Button
         className="h-8 shrink-0 rounded-full bg-white/90 px-3 text-[0.75rem] text-violet-900 hover:bg-white sm:h-9 sm:px-3.5 sm:text-[0.82rem]"
-        onClick={onStop}
+        onClick={onStopAction}
         size="sm"
         type="button"
         variant="secondary"

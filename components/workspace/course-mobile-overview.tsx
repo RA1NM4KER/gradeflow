@@ -14,11 +14,11 @@ import { Course } from "@/lib/types";
 export function CourseMobileOverview({
   module,
   isExperimenting = false,
-  onSaveBands,
+  onSaveBandsAction,
 }: {
   module: Course;
   isExperimenting?: boolean;
-  onSaveBands: (bands: Course["gradeBands"]) => void;
+  onSaveBandsAction: (bands: Course["gradeBands"]) => void;
 }) {
   const hasRecordedGrade = hasRecordedCourseGrade(module);
   const currentGrade = getCourseCurrentGrade(module);
@@ -46,7 +46,7 @@ export function CourseMobileOverview({
         bands={bands}
         isExperimenting={isExperimenting}
         module={module}
-        onSaveBands={onSaveBands}
+        onSaveBandsAction={onSaveBandsAction}
       />
     </div>
   );

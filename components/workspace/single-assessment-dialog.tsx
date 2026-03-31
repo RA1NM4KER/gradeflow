@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatEditablePercent, parsePercentInput } from "@/lib/grade-utils";
 import {
   sanitizePlainNumberInput,
   sanitizeScoreExpressionInput,
@@ -67,14 +68,16 @@ export function SingleAssessmentDialog({
       return;
     }
 
+    const parsedGrade = parsePercentInput(form.grade);
+
     onSaveAssessment(moduleId, {
       ...assessment,
       name: form.name,
       weight: Number(form.weight || 0),
       dueDate: form.dueDate,
-      scoreAchieved: parseScore(form.grade),
+      scoreAchieved: parsedGrade,
       totalPossible: 100,
-      status: parseScore(form.grade) === null ? "ongoing" : "completed",
+      status: parsedGrade === null ? "ongoing" : "completed",
     });
 
     setOpen(false);
@@ -212,42 +215,12 @@ function getFormState(assessment: SingleAssessment) {
     grade:
       assessment.scoreAchieved === null
         ? ""
-        : String(
-            Number(
-              (
-                (assessment.scoreAchieved / assessment.totalPossible) *
-                100
-              ).toFixed(1),
-            ),
+        : formatEditablePercent(
+            assessment.scoreAchieved,
+            assessment.totalPossible,
           ),
     dueDate: assessment.dueDate || "",
   };
-}
-
-function parseScore(value: string) {
-  const trimmed = value.trim();
-  if (trimmed === "") {
-    return null;
-  }
-
-  if (trimmed.includes("/")) {
-    const [left, right] = trimmed.split("/");
-    const score = Number(left);
-    const total = Number(right);
-
-    if (Number.isFinite(score) && Number.isFinite(total) && total > 0) {
-      return Number(((score / total) * 100).toFixed(1));
-    }
-
-    return null;
-  }
-
-  const numeric = Number(trimmed.replace("%", "").trim());
-  if (!Number.isFinite(numeric)) {
-    return null;
-  }
-
-  return numeric;
 }
 
 function validateDueDate(value: string) {

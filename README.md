@@ -128,7 +128,7 @@ Important files:
 - [components/landing/minimal-landing.tsx](/components/landing/minimal-landing.tsx) — semester list UI
 - [components/workspace/semester-screen.tsx](/components/workspace/semester-screen.tsx) — selected semester workspace
 - [components/workspace/module-screen.tsx](/components/workspace/module-screen.tsx) — module detail screen
-- [components/workspace/workspace-provider.tsx](/components/workspace/workspace-provider.tsx) — shared client state
+- [components/workspace/courses-provider.tsx](/components/workspace/courses-provider.tsx) — shared client state
 - [lib/app-state.ts](lib/app-state.ts) — app state shape, versioning, and migration
 - [lib/app-state-actions.ts](lib/app-state-actions.ts) — pure immutable app-state mutations
 - [lib/grade-utils.ts](lib/grade-utils.ts) — grade and weighting logic

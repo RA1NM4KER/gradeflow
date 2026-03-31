@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Plus, Trash2 } from "lucide-react";
 
 import { SemesterDialog } from "@/components/landing/semester-dialog";
-import { useCourses } from "@/components/workspace/workspace-provider";
+import { useCourses } from "@/components/workspace/courses-provider";
 import { createSemester, getSuggestedSemesters } from "@/lib/semester-utils";
 import { cn } from "@/lib/utils";
 

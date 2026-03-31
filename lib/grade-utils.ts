@@ -12,6 +12,44 @@ function round(value: number, digits = 1) {
   const factor = 10 ** digits;
   return Math.round(value * factor) / factor;
 }
+
+export function parsePercentInput(value: string) {
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    return null;
+  }
+
+  if (trimmed.includes("/")) {
+    const [left, right] = trimmed.split("/");
+    const score = Number(left);
+    const total = Number(right);
+
+    if (Number.isFinite(score) && Number.isFinite(total) && total > 0) {
+      return round((score / total) * 100);
+    }
+
+    return null;
+  }
+
+  const numeric = Number(trimmed.replace("%", "").trim());
+  if (!Number.isFinite(numeric)) {
+    return null;
+  }
+
+  return numeric;
+}
+
+export function formatEditablePercent(
+  scoreAchieved: number,
+  totalPossible: number,
+) {
+  if (totalPossible <= 0) {
+    return String(scoreAchieved);
+  }
+
+  return String(round((scoreAchieved / totalPossible) * 100));
+}
+
 export function isSingleAssessment(
   assessment: Assessment,
 ): assessment is SingleAssessment {

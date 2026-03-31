@@ -27,7 +27,7 @@ export function WorkspaceTableFrame({
   );
 }
 
-export function WorkspaceTable({
+export function CoursesTable({
   children,
   className,
   ...props

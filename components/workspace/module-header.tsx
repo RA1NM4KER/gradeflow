@@ -1,8 +1,8 @@
 import { ArrowLeft, Cog } from "lucide-react";
 
-import { CourseDialog } from "@/components/dashboard/module-dialog";
+import { CourseDialog } from "@/components/dashboard/course-dialog";
 import { Button } from "@/components/ui/button";
-import { navigateCourses } from "@/lib/workspace-navigation";
+import { navigateCourses } from "@/lib/courses-navigation";
 import { Course } from "@/lib/types";
 
 export function CourseHeader({
@@ -55,5 +55,3 @@ export function CourseHeader({
     </div>
   );
 }
-
-export const ModuleHeader = CourseHeader;

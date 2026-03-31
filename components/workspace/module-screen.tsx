@@ -10,8 +10,8 @@ import { GradeBandPanel } from "@/components/workspace/grade-band-panel";
 import { CourseHeader } from "@/components/workspace/module-header";
 import { getCourseTheme } from "@/lib/course-theme";
 import { cn } from "@/lib/utils";
-import { useCourses } from "@/components/workspace/workspace-provider";
-import { navigateCourses } from "@/lib/workspace-navigation";
+import { useCourses } from "@/components/workspace/courses-provider";
+import { navigateCourses } from "@/lib/courses-navigation";
 import { Assessment, Course } from "@/lib/types";
 
 export function CourseScreen({ moduleId }: { moduleId?: string }) {
@@ -108,7 +108,7 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
       {isExperimenting ? (
         <div className="pointer-events-none fixed left-1/2 top-[4.7rem] z-40 w-[calc(100%-2rem)] max-w-max -translate-x-1/2 sm:top-[5.25rem]">
           <div className="pointer-events-auto">
-            <ExperimentModePill onStop={stopExperiment} />
+            <ExperimentModePill onStopAction={stopExperiment} />
           </div>
         </div>
       ) : null}
@@ -117,7 +117,7 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
         <CourseMobileOverview
           isExperimenting={isExperimenting}
           module={module}
-          onSaveBands={saveGradeBands}
+          onSaveBandsAction={saveGradeBands}
         />
         <AssessmentTable
           onDeleteAssessment={deleteAssessment}

@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  WorkspaceTable,
+  CoursesTable,
   WorkspaceTableCell,
   WorkspaceTableFrame,
   WorkspaceTableHeader,
   WorkspaceTableHeaderCell,
   WorkspaceTableRow,
-} from "@/components/workspace/workspace-table";
+} from "@/components/workspace/courses-table";
 import {
   getGroupedAssessmentDefinition,
   normalizeDropLowest,
@@ -232,7 +232,7 @@ export function GroupedAssessmentEditor({
         </div>
 
         <WorkspaceTableFrame className="mx-auto hidden max-h-[48vh] w-fit max-w-full rounded-[20px] sm:inline-block">
-          <WorkspaceTable className="w-auto min-w-[440px] table-auto">
+          <CoursesTable className="w-auto min-w-[440px] table-auto">
             <WorkspaceTableHeader className="text-[11px] tracking-[0.14em]">
               <tr>
                 <WorkspaceTableHeaderCell className="w-[280px] py-2.5 text-center lg:px-5 lg:py-3">
@@ -271,7 +271,7 @@ export function GroupedAssessmentEditor({
                 </WorkspaceTableRow>
               ))}
             </tbody>
-          </WorkspaceTable>
+          </CoursesTable>
         </WorkspaceTableFrame>
       </div>
     </div>
