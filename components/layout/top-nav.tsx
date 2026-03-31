@@ -41,7 +41,7 @@ export function TopNav() {
             </Link>
             <LocalBackupDialog
               appState={appState}
-              onRestoreAppState={replaceAppState}
+              onRestoreAppStateAction={replaceAppState}
             />
             <Link
               className="rounded-[10px] bg-[#0b6ee6] px-3 py-1.5 text-[13px] font-medium text-white transition hover:bg-[#0a63ce] sm:px-4 sm:py-2 sm:text-sm"
