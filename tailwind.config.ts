@@ -37,14 +37,14 @@ const config: Config = {
         },
       },
       borderRadius: {
-        xl: "1.25rem",
-        "2xl": "1.75rem",
-        "3xl": "2rem",
+        xl: "1rem",
+        "2xl": "1.125rem",
+        "3xl": "1.5rem",
       },
       boxShadow: {
-        soft: "0 24px 60px -34px rgba(21, 24, 20, 0.22)",
-        card: "0 22px 40px -28px rgba(26, 31, 26, 0.18)",
-        inset: "inset 0 1px 0 rgba(255, 255, 255, 0.55)",
+        soft: "0 18px 38px -30px rgba(15, 23, 42, 0.14)",
+        card: "0 1px 1px rgba(15, 23, 42, 0.03), 0 12px 28px -24px rgba(15, 23, 42, 0.14)",
+        inset: "inset 0 1px 0 rgba(255, 255, 255, 0.65)",
       },
       fontFamily: {
         sans: ["var(--font-manrope)"],
@@ -52,7 +52,7 @@ const config: Config = {
       },
       backgroundImage: {
         "paper-grid":
-          "linear-gradient(to right, rgba(59, 66, 59, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(59, 66, 59, 0.03) 1px, transparent 1px)",
+          "linear-gradient(to right, rgba(55, 53, 47, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(55, 53, 47, 0.03) 1px, transparent 1px)",
       },
     },
   },

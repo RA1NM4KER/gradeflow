@@ -2,20 +2,22 @@
 
 import { useEffect, useState } from "react";
 
-import { ModuleScreen } from "@/components/workspace/module-screen";
+import { CourseScreen } from "@/components/workspace/module-screen";
 import { SemesterScreen } from "@/components/workspace/semester-screen";
-import { addWorkspaceNavigationListener } from "@/lib/workspace-navigation";
+import { addCoursesNavigationListener } from "@/lib/workspace-navigation";
 
 function readWorkspaceLocation() {
   if (typeof window === "undefined") {
     return {
       moduleId: null,
-      pathname: "/workspace",
+      pathname: "/courses",
     };
   }
 
   const pathname = window.location.pathname;
-  const moduleMatch = pathname.match(/^\/workspace\/modules\/([^/]+)$/);
+  const moduleMatch =
+    pathname.match(/^\/courses\/([^/]+)$/) ??
+    pathname.match(/^\/workspace\/modules\/([^/]+)$/);
 
   return {
     moduleId: moduleMatch ? decodeURIComponent(moduleMatch[1]) : null,
@@ -23,7 +25,7 @@ function readWorkspaceLocation() {
   };
 }
 
-export function WorkspaceRouteView() {
+export function CoursesRouteView() {
   const [location, setLocation] = useState(readWorkspaceLocation);
 
   useEffect(() => {
@@ -42,12 +44,14 @@ export function WorkspaceRouteView() {
       });
     };
 
-    return addWorkspaceNavigationListener(syncLocation);
+    return addCoursesNavigationListener(syncLocation);
   }, []);
 
   if (location.moduleId) {
-    return <ModuleScreen moduleId={location.moduleId} />;
+    return <CourseScreen moduleId={location.moduleId} />;
   }
 
   return <SemesterScreen />;
 }
+
+export const WorkspaceRouteView = CoursesRouteView;

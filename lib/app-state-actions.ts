@@ -1,5 +1,5 @@
 import { AppState } from "@/lib/app-state";
-import { Assessment, Module, Semester } from "@/lib/types";
+import { Assessment, Course, Semester } from "@/lib/types";
 
 function updateSemesterById(
   state: AppState,
@@ -38,7 +38,7 @@ export function deleteSemester(state: AppState, semesterId: string): AppState {
 export function updateSemester(
   state: AppState,
   semesterId: string,
-  updates: Partial<Omit<Semester, "id" | "modules">>,
+  updates: Partial<Omit<Semester, "id" | "courses" | "modules">>,
 ): AppState {
   return updateSemesterById(state, semesterId, (semester) => ({
     ...semester,
@@ -53,27 +53,35 @@ export function selectSemester(state: AppState, semesterId: string): AppState {
   };
 }
 
-export function addModule(
+export function addCourse(
   state: AppState,
   semesterId: string,
-  module: Module,
+  course: Course,
 ): AppState {
   return updateSemesterById(state, semesterId, (semester) => ({
     ...semester,
-    modules: [...semester.modules, module],
+    courses: [...semester.courses, course],
+    modules: [...semester.courses, course],
   }));
 }
 
-export function updateModule(
+export function updateCourse(
   state: AppState,
   semesterId: string,
-  moduleId: string,
-  updates: Partial<Omit<Module, "id" | "assessments">>,
+  courseId: string,
+  updates: Partial<Omit<Course, "id" | "assessments">>,
 ): AppState {
+  const courses = state.semesters.find(
+    (semester) => semester.id === semesterId,
+  )?.courses;
+
   return updateSemesterById(state, semesterId, (semester) => ({
     ...semester,
-    modules: semester.modules.map((module) =>
-      module.id === moduleId ? { ...module, ...updates } : module,
+    courses: semester.courses.map((course) =>
+      course.id === courseId ? { ...course, ...updates } : course,
+    ),
+    modules: semester.courses.map((course) =>
+      course.id === courseId ? { ...course, ...updates } : course,
     ),
   }));
 }
@@ -81,15 +89,20 @@ export function updateModule(
 export function addAssessment(
   state: AppState,
   semesterId: string,
-  moduleId: string,
+  courseId: string,
   assessment: Assessment,
 ): AppState {
   return updateSemesterById(state, semesterId, (semester) => ({
     ...semester,
-    modules: semester.modules.map((module) =>
-      module.id === moduleId
-        ? { ...module, assessments: [...module.assessments, assessment] }
-        : module,
+    courses: semester.courses.map((course) =>
+      course.id === courseId
+        ? { ...course, assessments: [...course.assessments, assessment] }
+        : course,
+    ),
+    modules: semester.courses.map((course) =>
+      course.id === courseId
+        ? { ...course, assessments: [...course.assessments, assessment] }
+        : course,
     ),
   }));
 }
@@ -97,17 +110,27 @@ export function addAssessment(
 export function updateAssessment(
   state: AppState,
   semesterId: string,
-  moduleId: string,
+  courseId: string,
   nextAssessment: Assessment,
 ): AppState {
   return updateSemesterById(state, semesterId, (semester) => ({
     ...semester,
-    modules: semester.modules.map((module) =>
-      module.id !== moduleId
-        ? module
+    courses: semester.courses.map((course) =>
+      course.id !== courseId
+        ? course
         : {
-            ...module,
-            assessments: module.assessments.map((assessment) =>
+            ...course,
+            assessments: course.assessments.map((assessment) =>
+              assessment.id === nextAssessment.id ? nextAssessment : assessment,
+            ),
+          },
+    ),
+    modules: semester.courses.map((course) =>
+      course.id !== courseId
+        ? course
+        : {
+            ...course,
+            assessments: course.assessments.map((assessment) =>
               assessment.id === nextAssessment.id ? nextAssessment : assessment,
             ),
           },
@@ -118,18 +141,18 @@ export function updateAssessment(
 export function reorderAssessments(
   state: AppState,
   semesterId: string,
-  moduleId: string,
+  courseId: string,
   fromAssessmentId: string,
   toAssessmentId: string,
 ): AppState {
   return updateSemesterById(state, semesterId, (semester) => ({
     ...semester,
-    modules: semester.modules.map((module) => {
-      if (module.id !== moduleId) {
-        return module;
+    courses: semester.courses.map((course) => {
+      if (course.id !== courseId) {
+        return course;
       }
 
-      const assessments = [...module.assessments];
+      const assessments = [...course.assessments];
       const fromIndex = assessments.findIndex(
         (assessment) => assessment.id === fromAssessmentId,
       );
@@ -138,36 +161,109 @@ export function reorderAssessments(
       );
 
       if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
-        return module;
+        return course;
       }
 
       const [movedAssessment] = assessments.splice(fromIndex, 1);
       assessments.splice(toIndex, 0, movedAssessment);
 
       return {
-        ...module,
+        ...course,
+        assessments,
+      };
+    }),
+    modules: semester.courses.map((course) => {
+      if (course.id !== courseId) {
+        return course;
+      }
+
+      const assessments = [...course.assessments];
+      const fromIndex = assessments.findIndex(
+        (assessment) => assessment.id === fromAssessmentId,
+      );
+      const toIndex = assessments.findIndex(
+        (assessment) => assessment.id === toAssessmentId,
+      );
+
+      if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+        return course;
+      }
+
+      const [movedAssessment] = assessments.splice(fromIndex, 1);
+      assessments.splice(toIndex, 0, movedAssessment);
+
+      return {
+        ...course,
         assessments,
       };
     }),
   }));
 }
 
+export function deleteAssessment(
+  state: AppState,
+  semesterId: string,
+  courseId: string,
+  assessmentId: string,
+): AppState {
+  return updateSemesterById(state, semesterId, (semester) => ({
+    ...semester,
+    courses: semester.courses.map((course) =>
+      course.id !== courseId
+        ? course
+        : {
+            ...course,
+            assessments: course.assessments.filter(
+              (assessment) => assessment.id !== assessmentId,
+            ),
+          },
+    ),
+    modules: semester.courses.map((course) =>
+      course.id !== courseId
+        ? course
+        : {
+            ...course,
+            assessments: course.assessments.filter(
+              (assessment) => assessment.id !== assessmentId,
+            ),
+          },
+    ),
+  }));
+}
+
 export function recordGrade(
   state: AppState,
   semesterId: string,
-  moduleId: string,
+  courseId: string,
   assessmentId: string,
   scoreAchieved: number,
   totalPossible: number,
 ): AppState {
   return updateSemesterById(state, semesterId, (semester) => ({
     ...semester,
-    modules: semester.modules.map((module) =>
-      module.id !== moduleId
-        ? module
+    courses: semester.courses.map((course) =>
+      course.id !== courseId
+        ? course
         : {
-            ...module,
-            assessments: module.assessments.map((assessment) =>
+            ...course,
+            assessments: course.assessments.map((assessment) =>
+              assessment.id !== assessmentId || assessment.kind !== "single"
+                ? assessment
+                : {
+                    ...assessment,
+                    scoreAchieved,
+                    totalPossible,
+                    status: "completed",
+                  },
+            ),
+          },
+    ),
+    modules: semester.courses.map((course) =>
+      course.id !== courseId
+        ? course
+        : {
+            ...course,
+            assessments: course.assessments.map((assessment) =>
               assessment.id !== assessmentId || assessment.kind !== "single"
                 ? assessment
                 : {
@@ -181,3 +277,6 @@ export function recordGrade(
     ),
   }));
 }
+
+export const addModule = addCourse;
+export const updateModule = updateCourse;

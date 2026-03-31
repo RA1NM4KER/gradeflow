@@ -71,11 +71,11 @@ export function InstallButton() {
 
   return (
     <button
-      className="rounded-full border border-stone-200 bg-white/70 px-4 py-2 text-sm text-stone-700 transition hover:border-stone-300 hover:bg-white hover:text-stone-950"
+      className="rounded-[10px] bg-[#0b76e0] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#0969c9]"
       onClick={() => void handleInstall()}
       type="button"
     >
-      Install
+      Install app
     </button>
   );
 }

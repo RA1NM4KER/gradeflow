@@ -7,6 +7,7 @@ import {
 
 export interface AppStateBackupSummary {
   assessmentCount: number;
+  courseCount: number;
   moduleCount: number;
   semesterCount: number;
   version: number;
@@ -24,15 +25,19 @@ export function getAppStateBackupSummary(
     assessmentCount: state.semesters.reduce(
       (count, semester) =>
         count +
-        semester.modules.reduce(
-          (moduleCount, module) => moduleCount + module.assessments.length,
+        semester.courses.reduce(
+          (courseCount, course) => courseCount + course.assessments.length,
           0,
         ),
       0,
     ),
     semesterCount: state.semesters.length,
+    courseCount: state.semesters.reduce(
+      (count, semester) => count + semester.courses.length,
+      0,
+    ),
     moduleCount: state.semesters.reduce(
-      (count, semester) => count + semester.modules.length,
+      (count, semester) => count + semester.courses.length,
       0,
     ),
     version: APP_STATE_VERSION,

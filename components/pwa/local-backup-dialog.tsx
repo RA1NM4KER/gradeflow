@@ -106,7 +106,7 @@ export function LocalBackupDialog({
     >
       <DialogTrigger asChild>
         <button
-          className="rounded-full border border-stone-200 bg-white/70 px-4 py-2 text-sm text-stone-700 transition hover:border-stone-300 hover:bg-white hover:text-stone-950"
+          className="rounded-md px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100 hover:text-stone-950"
           type="button"
         >
           Backup
@@ -122,13 +122,13 @@ export function LocalBackupDialog({
         </DialogHeader>
 
         <div className="grid gap-5">
-          <div className="rounded-[24px] border border-stone-200 bg-stone-50/80 p-4">
+          <div className="rounded-[24px] bg-[#fbfbfa] p-4 shadow-card">
             <p className="text-sm font-semibold text-stone-900">
               Export current data
             </p>
             <p className="mt-1 text-sm leading-6 text-stone-600">
               Version {summary.version}. {summary.semesterCount} semesters,{" "}
-              {summary.moduleCount} modules, and {summary.assessmentCount}{" "}
+              {summary.courseCount} courses, and {summary.assessmentCount}{" "}
               assessments will be saved to a local JSON file.
             </p>
             <Button
@@ -140,7 +140,7 @@ export function LocalBackupDialog({
             </Button>
           </div>
 
-          <div className="rounded-[24px] border border-stone-200 bg-stone-50/80 p-4">
+          <div className="rounded-[24px] bg-[#fbfbfa] p-4 shadow-card">
             <p className="text-sm font-semibold text-stone-900">
               Import backup
             </p>
@@ -175,14 +175,14 @@ export function LocalBackupDialog({
             ) : null}
 
             {pendingImport ? (
-              <div className="mt-3 rounded-2xl border border-stone-200 bg-white p-3">
+              <div className="mt-3 rounded-2xl bg-white p-3 shadow-card">
                 <p className="text-sm font-medium text-stone-900">
                   Ready to import {pendingImport.fileName}
                 </p>
                 <p className="mt-1 text-sm text-stone-600">
                   Version {pendingImportSummary?.version}.{" "}
                   {pendingImportSummary?.semesterCount} semesters,{" "}
-                  {pendingImportSummary?.moduleCount} modules, and{" "}
+                  {pendingImportSummary?.courseCount} courses, and{" "}
                   {pendingImportSummary?.assessmentCount} assessments detected.
                 </p>
                 {pendingImport.lastModified ? (

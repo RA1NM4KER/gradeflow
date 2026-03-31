@@ -1,9 +1,9 @@
 import {
   Assessment,
+  Course,
   GradeBand,
   GroupedAssessment,
   GroupedAssessmentItem,
-  Module,
   Semester,
   SingleAssessment,
 } from "@/lib/types";
@@ -33,6 +33,7 @@ export function getDefaultAppState(): AppState {
     id: "semester-1-2026",
     name: "Semester 1 2026",
     periodLabel: "January to June",
+    courses: [],
     modules: [],
   };
 
@@ -147,23 +148,23 @@ function normalizeAssessment(
   return normalizeSingleAssessment(assessment, index);
 }
 
-function normalizeModule(rawModule: unknown, index: number): Module {
-  const module = isRecord(rawModule) ? rawModule : {};
+function normalizeCourse(rawCourse: unknown, index: number): Course {
+  const course = isRecord(rawCourse) ? rawCourse : {};
 
   return {
-    id: getString(module.id, `module-${index + 1}`),
-    code: getString(module.code, `MOD${index + 1}`),
-    name: getString(module.name, `Module ${index + 1}`),
-    instructor: getString(module.instructor),
-    credits: getNumber(module.credits, 0),
+    id: getString(course.id, `course-${index + 1}`),
+    code: getString(course.code, `CRS${index + 1}`),
+    name: getString(course.name, `Course ${index + 1}`),
+    instructor: getString(course.instructor),
+    credits: getNumber(course.credits, 0),
     accent: getString(
-      module.accent,
+      course.accent,
       "from-stone-950 via-stone-900 to-stone-700",
     ),
-    gradeBands: getArray(module.gradeBands).map((band, bandIndex) =>
+    gradeBands: getArray(course.gradeBands).map((band, bandIndex) =>
       normalizeGradeBand(band, bandIndex),
     ),
-    assessments: getArray(module.assessments).map(
+    assessments: getArray(course.assessments).map(
       (assessment, assessmentIndex) =>
         normalizeAssessment(assessment, assessmentIndex),
     ),
@@ -172,17 +173,21 @@ function normalizeModule(rawModule: unknown, index: number): Module {
 
 function normalizeSemester(rawSemester: unknown, index: number): Semester {
   const semester = isRecord(rawSemester) ? rawSemester : {};
-  const rawModules = Array.isArray(semester.modules)
-    ? semester.modules
-    : getArray(semester.courses);
+  const rawCourses = Array.isArray(semester.courses)
+    ? semester.courses
+    : Array.isArray(semester.modules)
+      ? semester.modules
+      : getArray(semester.courses);
+  const courses = rawCourses.map((course, courseIndex) =>
+    normalizeCourse(course, courseIndex),
+  );
 
   return {
     id: getString(semester.id, `semester-${index + 1}`),
     name: getString(semester.name, `Semester ${index + 1}`),
     periodLabel: getString(semester.periodLabel),
-    modules: rawModules.map((module, moduleIndex) =>
-      normalizeModule(module, moduleIndex),
-    ),
+    courses,
+    modules: courses,
   };
 }
 

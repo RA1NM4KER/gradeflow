@@ -16,9 +16,9 @@ import { AppState } from "@/lib/app-state";
 import * as appStateActions from "@/lib/app-state-actions";
 import { createSemester } from "@/lib/semester-utils";
 import { usePersistedAppState } from "@/lib/use-persisted-app-state";
-import { Assessment, Module, Semester } from "@/lib/types";
+import { Assessment, Course, Semester } from "@/lib/types";
 
-interface WorkspaceContextValue {
+interface CoursesContextValue {
   appState: AppState;
   semester: Semester;
   semesters: Semester[];
@@ -31,32 +31,33 @@ interface WorkspaceContextValue {
   deleteSemester: (semesterId: string) => void;
   updateSemester: (
     semesterId: string,
-    updates: Partial<Omit<Semester, "id" | "modules">>,
+    updates: Partial<Omit<Semester, "id" | "courses" | "modules">>,
   ) => void;
   selectSemester: (semesterId: string) => void;
-  addModule: (module: Module) => void;
-  updateModule: (
-    moduleId: string,
-    updates: Partial<Omit<Module, "id" | "assessments">>,
+  addCourse: (course: Course) => void;
+  updateCourse: (
+    courseId: string,
+    updates: Partial<Omit<Course, "id" | "assessments">>,
   ) => void;
-  addAssessment: (moduleId: string, assessment: Assessment) => void;
-  updateAssessment: (moduleId: string, assessment: Assessment) => void;
+  addAssessment: (courseId: string, assessment: Assessment) => void;
+  deleteAssessment: (courseId: string, assessmentId: string) => void;
+  updateAssessment: (courseId: string, assessment: Assessment) => void;
   reorderAssessments: (
-    moduleId: string,
+    courseId: string,
     fromAssessmentId: string,
     toAssessmentId: string,
   ) => void;
   recordGrade: (
-    moduleId: string,
+    courseId: string,
     assessmentId: string,
     scoreAchieved: number,
     totalPossible: number,
   ) => void;
 }
 
-const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
+const CoursesContext = createContext<CoursesContextValue | null>(null);
 
-export function WorkspaceProvider({ children }: { children: ReactNode }) {
+export function CoursesProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const {
     appState: persistedAppState,
@@ -72,7 +73,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const activeAppState = experimentAppState ?? persistedAppState;
 
   useEffect(() => {
-    if (experimentAppState && !pathname.startsWith("/workspace")) {
+    if (
+      experimentAppState &&
+      !pathname.startsWith("/courses") &&
+      !pathname.startsWith("/workspace")
+    ) {
       setExperimentAppState(null);
     }
   }, [experimentAppState, pathname]);
@@ -98,7 +103,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     [experimentAppState, persistedAppState, replacePersistedAppState],
   );
 
-  const value = useMemo<WorkspaceContextValue | null>(() => {
+  const value = useMemo<CoursesContextValue | null>(() => {
     if (!activeAppState) {
       return null;
     }
@@ -153,58 +158,68 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           appStateActions.selectSemester(currentState, semesterId),
         );
       },
-      addModule: (module) => {
+      addCourse: (course) => {
         applyWorkspaceState((currentState) =>
-          appStateActions.addModule(currentState, semester.id, module),
+          appStateActions.addCourse(currentState, semester.id, course),
         );
       },
-      updateModule: (moduleId, updates) => {
+      updateCourse: (courseId, updates) => {
         applyWorkspaceState((currentState) =>
-          appStateActions.updateModule(
+          appStateActions.updateCourse(
             currentState,
             semester.id,
-            moduleId,
+            courseId,
             updates,
           ),
         );
       },
-      addAssessment: (moduleId, assessment) => {
+      addAssessment: (courseId, assessment) => {
         applyWorkspaceState((currentState) =>
           appStateActions.addAssessment(
             currentState,
             semester.id,
-            moduleId,
+            courseId,
             assessment,
           ),
         );
       },
-      updateAssessment: (moduleId, nextAssessment) => {
+      deleteAssessment: (courseId, assessmentId) => {
+        applyWorkspaceState((currentState) =>
+          appStateActions.deleteAssessment(
+            currentState,
+            semester.id,
+            courseId,
+            assessmentId,
+          ),
+        );
+      },
+      updateAssessment: (courseId, nextAssessment) => {
         applyWorkspaceState((currentState) =>
           appStateActions.updateAssessment(
             currentState,
             semester.id,
-            moduleId,
+            courseId,
             nextAssessment,
           ),
         );
       },
-      reorderAssessments: (moduleId, fromAssessmentId, toAssessmentId) => {
+      reorderAssessments: (courseId, fromAssessmentId, toAssessmentId) => {
         applyWorkspaceState((currentState) =>
           appStateActions.reorderAssessments(
             currentState,
             semester.id,
-            moduleId,
+            courseId,
             fromAssessmentId,
             toAssessmentId,
           ),
         );
       },
-      recordGrade: (moduleId, assessmentId, scoreAchieved, totalPossible) => {
+      recordGrade: (courseId, assessmentId, scoreAchieved, totalPossible) => {
         applyWorkspaceState((currentState) =>
           appStateActions.recordGrade(
             currentState,
             semester.id,
-            moduleId,
+            courseId,
             assessmentId,
             scoreAchieved,
             totalPossible,
@@ -237,25 +252,26 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       />
     ) : (
       <WorkspaceBootState
-        description="Restoring your saved semesters, modules, and assessments."
-        title="Opening workspace"
+        description="Restoring your saved semesters, courses, and assessments."
+        title="Opening courses"
       />
     );
   }
 
   return (
-    <WorkspaceContext.Provider value={value}>
-      {children}
-    </WorkspaceContext.Provider>
+    <CoursesContext.Provider value={value}>{children}</CoursesContext.Provider>
   );
 }
 
-export function useWorkspace() {
-  const context = useContext(WorkspaceContext);
+export function useCourses() {
+  const context = useContext(CoursesContext);
 
   if (!context) {
-    throw new Error("useWorkspace must be used within a WorkspaceProvider");
+    throw new Error("useCourses must be used within a CoursesProvider");
   }
 
   return context;
 }
+
+export const WorkspaceProvider = CoursesProvider;
+export const useWorkspace = useCourses;

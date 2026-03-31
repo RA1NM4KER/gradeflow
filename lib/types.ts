@@ -58,7 +58,7 @@ export interface GradeBand {
   threshold: number;
 }
 
-export interface Module {
+export interface Course {
   id: string;
   code: string;
   name: string;
@@ -69,11 +69,14 @@ export interface Module {
   assessments: Assessment[];
 }
 
+export type Module = Course;
+
 export interface Semester {
   id: string;
   name: string;
   periodLabel: string;
-  modules: Module[];
+  courses: Course[];
+  modules: Course[];
 }
 export interface RequiredScoreResult {
   achievable: boolean;

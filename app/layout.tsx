@@ -6,7 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { TopNav } from "@/components/layout/top-nav";
 import { RouteCacheWarmup } from "@/components/pwa/route-cache-warmup";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
-import { WorkspaceProvider } from "@/components/workspace/workspace-provider";
+import { CoursesProvider } from "@/components/workspace/workspace-provider";
 
 import "./globals.css";
 
@@ -56,13 +56,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans antialiased">
-        <WorkspaceProvider>
+        <CoursesProvider>
           <AppShell>
             <RouteCacheWarmup />
             <TopNav />
             {children}
           </AppShell>
-        </WorkspaceProvider>
+        </CoursesProvider>
         <ServiceWorkerRegistration />
       </body>
     </html>

@@ -27,6 +27,7 @@ interface GroupedAssessmentDialogProps {
   moduleId: string;
   category?: GroupedAssessmentCategory;
   assessment?: GroupedAssessment;
+  onDeleteAssessment?: (moduleId: string, assessmentId: string) => void;
   onSaveAssessment: (moduleId: string, assessment: GroupedAssessment) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -40,6 +41,7 @@ export function GroupedAssessmentDialog({
   moduleId,
   category = "tutorials",
   assessment,
+  onDeleteAssessment,
   onSaveAssessment,
   open,
   onOpenChange,
@@ -107,7 +109,7 @@ export function GroupedAssessmentDialog({
           <Button variant={triggerVariant}>{triggerLabel}</Button>
         </DialogTrigger>
       )}
-      <DialogContent className="max-h-[88vh] overflow-y-auto overflow-x-hidden sm:max-w-3xl">
+      <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
             {assessment
@@ -116,13 +118,34 @@ export function GroupedAssessmentDialog({
           </DialogTitle>
           <DialogDescription>Grouped category assessment</DialogDescription>
         </DialogHeader>
-        <form className="grid gap-5" onSubmit={submit}>
+        <form className="flex min-h-0 flex-1 flex-col gap-5" onSubmit={submit}>
           <GroupedAssessmentEditor
             category={assessment?.category ?? category}
             onChange={setForm}
             value={form}
           />
-          <DialogFooter>
+          <DialogFooter className="items-center justify-between border-t border-stone-200 bg-[#f7f4ee]/95 pt-4 sm:flex-row">
+            {assessment && onDeleteAssessment ? (
+              <Button
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      `Delete ${assessment.name}? This cannot be undone.`,
+                    )
+                  ) {
+                    onDeleteAssessment(moduleId, assessment.id);
+                    setDialogOpen(false);
+                  }
+                }}
+                type="button"
+                variant="outline"
+              >
+                Delete category
+              </Button>
+            ) : (
+              <span />
+            )}
             <Button type="submit">
               {assessment ? "Save changes" : `Create ${definition.label}`}
             </Button>

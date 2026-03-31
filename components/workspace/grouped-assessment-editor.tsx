@@ -18,6 +18,11 @@ import {
   resizeGroupedAssessmentItems,
 } from "@/lib/grouped-assessment-utils";
 import {
+  sanitizeIntegerInput,
+  sanitizePlainNumberInput,
+  sanitizeScoreExpressionInput,
+} from "@/lib/numeric-input";
+import {
   GroupedAssessment,
   GroupedAssessmentCategory,
   GroupedAssessmentItem,
@@ -48,13 +53,8 @@ export function GroupedAssessmentEditor({
 }: GroupedAssessmentEditorProps) {
   const definition = getGroupedAssessmentDefinition(category);
   const dropLowest = normalizeDropLowest(value.dropLowest, value.itemCount);
-  const [weightDraft, setWeightDraft] = useState(value.weight);
   const [itemCountDraft, setItemCountDraft] = useState(String(value.itemCount));
   const [dropLowestDraft, setDropLowestDraft] = useState(String(dropLowest));
-
-  useEffect(() => {
-    setWeightDraft(value.weight);
-  }, [value.weight]);
 
   useEffect(() => {
     setItemCountDraft(String(value.itemCount));
@@ -79,53 +79,46 @@ export function GroupedAssessmentEditor({
     });
   }
 
-  function commitWeight() {
-    const nextWeight = parseWholeNumber(weightDraft, 0);
-    const normalizedWeight = String(Math.min(Math.max(nextWeight, 0), 100));
-    setWeightDraft(normalizedWeight);
-    update({ weight: normalizedWeight });
-  }
-
-  function commitItemCount() {
-    const nextCount = clampWholeNumber(itemCountDraft, 1, 20, value.itemCount);
+  function commitItemCount(rawValue: string) {
+    const nextCount = Math.max(Number(rawValue) || 1, 1);
     const nextItems = resizeGroupedAssessmentItems(
       category,
       nextCount,
       value.items,
     );
-
-    setItemCountDraft(String(nextCount));
-    setDropLowestDraft(
-      String(normalizeDropLowest(value.dropLowest, nextItems.length)),
+    const nextDropLowest = normalizeDropLowest(
+      value.dropLowest,
+      nextItems.length,
     );
+
     update({
       itemCount: nextItems.length,
       items: nextItems,
-      dropLowest: normalizeDropLowest(value.dropLowest, nextItems.length),
+      dropLowest: nextDropLowest,
     });
+
+    setItemCountDraft(String(nextItems.length));
+    setDropLowestDraft(String(nextDropLowest));
   }
 
-  function commitDropLowest() {
-    const nextDropLowest = clampWholeNumber(
-      dropLowestDraft,
-      0,
-      Math.max(value.itemCount - 1, 0),
-      value.dropLowest,
+  function commitDropLowest(rawValue: string) {
+    const nextDropLowest = normalizeDropLowest(
+      Number(rawValue),
+      value.itemCount,
     );
-
-    setDropLowestDraft(String(nextDropLowest));
     update({
-      dropLowest: normalizeDropLowest(nextDropLowest, value.itemCount),
+      dropLowest: nextDropLowest,
     });
+    setDropLowestDraft(String(nextDropLowest));
   }
 
   return (
-    <div className="grid max-w-[760px] gap-5 sm:gap-6">
+    <div className="flex min-h-0 max-w-[760px] flex-1 flex-col gap-5 sm:gap-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor={`${category}-name`}>Category name</Label>
           <Input
-            className="h-11 text-center"
+            className="text-center"
             id={`${category}-name`}
             onChange={(event) => update({ name: event.target.value })}
             value={value.name}
@@ -134,36 +127,28 @@ export function GroupedAssessmentEditor({
         <div className="space-y-2">
           <Label htmlFor={`${category}-weight`}>Total weight (%)</Label>
           <Input
-            className="h-11 text-center"
+            className="text-center"
             id={`${category}-weight`}
             max={100}
             min={0}
-            inputMode="numeric"
-            onBlur={commitWeight}
-            onChange={(event) => setWeightDraft(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.currentTarget.blur();
-              }
-              if (event.key === "Escape") {
-                setWeightDraft(value.weight);
-                event.currentTarget.blur();
-              }
-            }}
+            onChange={(event) =>
+              update({ weight: sanitizePlainNumberInput(event.target.value) })
+            }
+            inputMode="decimal"
             type="text"
-            value={weightDraft}
+            value={value.weight}
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor={`${category}-count`}>Number of items</Label>
           <Input
-            className="h-11 text-center"
+            className="text-center"
             id={`${category}-count`}
-            max={20}
-            min={1}
             inputMode="numeric"
-            onBlur={commitItemCount}
-            onChange={(event) => setItemCountDraft(event.target.value)}
+            onBlur={() => commitItemCount(itemCountDraft)}
+            onChange={(event) =>
+              setItemCountDraft(sanitizeIntegerInput(event.target.value))
+            }
             onKeyDown={(event) => {
               if (event.key === "Enter") {
                 event.currentTarget.blur();
@@ -180,13 +165,13 @@ export function GroupedAssessmentEditor({
         <div className="space-y-2">
           <Label htmlFor={`${category}-drop`}>Drop lowest</Label>
           <Input
-            className="h-11 text-center"
+            className="text-center"
             id={`${category}-drop`}
-            max={Math.max(value.itemCount - 1, 0)}
-            min={0}
             inputMode="numeric"
-            onBlur={commitDropLowest}
-            onChange={(event) => setDropLowestDraft(event.target.value)}
+            onBlur={() => commitDropLowest(dropLowestDraft)}
+            onChange={(event) =>
+              setDropLowestDraft(sanitizeIntegerInput(event.target.value))
+            }
             onKeyDown={(event) => {
               if (event.key === "Enter") {
                 event.currentTarget.blur();
@@ -202,7 +187,7 @@ export function GroupedAssessmentEditor({
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="flex min-h-0 flex-1 flex-col space-y-3">
         <div className="text-center">
           <p className="text-sm font-semibold text-stone-950">
             {definition.label} items
@@ -212,33 +197,27 @@ export function GroupedAssessmentEditor({
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-[20px] border border-stone-200 bg-white/90 sm:hidden">
-          <div className="grid grid-cols-[minmax(0,1fr)_96px] border-b border-stone-200 bg-stone-100/90 px-4 py-2.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-stone-500">
-            <p>Assignment</p>
-            <p className="text-right">Grade</p>
-          </div>
-          <div>
-            {value.items.map((item, index) => (
+        <div className="min-h-0 sm:hidden">
+          <div className="max-h-[34vh] overflow-auto rounded-[18px] border border-stone-200 bg-white">
+            <div className="grid grid-cols-[minmax(0,1fr)_92px] border-b border-stone-200 bg-stone-50 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+              <span>Assignment</span>
+              <span className="text-right">Grade</span>
+            </div>
+            {value.items.map((item) => (
               <div
-                className="grid grid-cols-[minmax(0,1fr)_96px] items-center gap-3 border-t border-stone-200/80 px-4 py-2.5 first:border-t-0"
+                className="grid grid-cols-[minmax(0,1fr)_92px] items-center gap-3 border-t border-stone-200 px-4 py-3 first:border-t-0"
                 key={item.id}
               >
-                <Label
-                  className="sr-only"
-                  htmlFor={`${category}-label-mobile-${item.id}`}
-                >
-                  {definition.itemPrefix} {index + 1} label
-                </Label>
                 <Input
-                  className="h-9 rounded-xl border-0 bg-transparent px-0 py-0 text-base font-medium shadow-none focus-visible:ring-0"
-                  id={`${category}-label-mobile-${item.id}`}
+                  className="h-auto rounded-none border-0 bg-transparent px-0 py-0 text-left text-base font-medium text-stone-950 shadow-none focus-visible:ring-0"
+                  id={`${category}-label-${item.id}`}
                   onChange={(event) =>
                     updateItem(item.id, { label: event.target.value })
                   }
                   value={item.label}
                 />
                 <GroupedScoreInput
-                  id={`${category}-score-mobile-${item.id}`}
+                  id={`${category}-score-${item.id}`}
                   onCommit={(scoreAchieved) =>
                     updateItem(item.id, {
                       scoreAchieved,
@@ -325,9 +304,9 @@ function GroupedScoreInput({
   }, [value]);
 
   return (
-    <div className="relative mx-auto w-full max-w-[96px] sm:w-[88px]">
+    <div className="relative ml-auto w-[88px] sm:mx-auto">
       <Input
-        className={`${inlineGroupedNumberInputClassName} h-9 rounded-xl border-0 bg-transparent pr-5 text-right sm:h-11 sm:rounded-2xl sm:border sm:border-stone-200 sm:bg-white/90 sm:text-center`}
+        className={`${inlineGroupedNumberInputClassName} pr-5 text-center`}
         id={id}
         inputMode="decimal"
         onBlur={() => {
@@ -335,7 +314,9 @@ function GroupedScoreInput({
           setDraft(formatGroupedScoreInput(parsed));
           onCommit(parsed);
         }}
-        onChange={(event) => setDraft(event.target.value)}
+        onChange={(event) =>
+          setDraft(sanitizeScoreExpressionInput(event.target.value))
+        }
         onKeyDown={(event) => {
           if (event.key === "Enter") {
             event.currentTarget.blur();
@@ -396,28 +377,4 @@ function formatGroupedScoreInput(value: number | null) {
 function roundGroupedScore(value: number) {
   const clamped = Math.min(Math.max(value, 0), 100);
   return Math.round(clamped * 10) / 10;
-}
-
-function parseWholeNumber(value: string, fallback: number) {
-  const normalized = value.trim();
-  if (normalized === "") {
-    return fallback;
-  }
-
-  const numeric = Number(normalized);
-  if (!Number.isFinite(numeric)) {
-    return fallback;
-  }
-
-  return Math.round(numeric);
-}
-
-function clampWholeNumber(
-  value: string,
-  min: number,
-  max: number,
-  fallback: number,
-) {
-  const numeric = parseWholeNumber(value, fallback);
-  return Math.min(Math.max(numeric, min), max);
 }

@@ -9,11 +9,14 @@ export function createSemester({
   name,
   periodLabel,
 }: SemesterSuggestion): Semester {
+  const courses: Semester["courses"] = [];
+
   return {
     id: crypto.randomUUID(),
     name,
     periodLabel,
-    modules: [],
+    courses,
+    modules: courses,
   };
 }
 

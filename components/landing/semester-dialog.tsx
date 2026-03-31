@@ -89,7 +89,7 @@ export function SemesterDialog({
           <DialogDescription>
             {semester
               ? "Update this semester."
-              : "Start a new semester, then add modules inside it."}
+              : "Start a new semester, then add courses inside it."}
           </DialogDescription>
         </DialogHeader>
         <form className="grid gap-4" onSubmit={submit}>

@@ -17,7 +17,7 @@ export function WorkspaceTableFrame({
   return (
     <div
       className={cn(
-        "overflow-auto rounded-[24px] border border-stone-200 bg-white/88 shadow-card backdrop-blur-xl",
+        "overflow-auto rounded-[18px] bg-[#fbfbfa] shadow-card",
         className,
       )}
       {...props}
@@ -47,7 +47,7 @@ export function WorkspaceTableHeader({
   return (
     <thead
       className={cn(
-        "sticky top-0 bg-stone-100/95 text-xs uppercase tracking-[0.18em] text-stone-500 backdrop-blur",
+        "sticky top-0 bg-[#f7f7f5] text-xs uppercase tracking-[0.14em] text-stone-500",
         className,
       )}
       {...props}
@@ -75,7 +75,7 @@ export function WorkspaceTableRow({
 }: HTMLAttributes<HTMLTableRowElement>) {
   return (
     <tr
-      className={cn("border-t border-stone-200/80 bg-white/75", className)}
+      className={cn("border-t border-stone-100 bg-[#fbfbfa]", className)}
       {...props}
     />
   );

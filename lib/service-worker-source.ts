@@ -1,8 +1,9 @@
-const CACHE_VERSION = "v5";
+const CACHE_VERSION = "v6";
 const CACHE_NAME = `gradeflow-shell-${CACHE_VERSION}`;
 const APP_SHELL_URLS = [
   "/",
   "/offline",
+  "/courses",
   "/workspace",
   "/favicon.ico",
   "/manifest.webmanifest",

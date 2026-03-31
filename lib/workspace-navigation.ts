@@ -2,7 +2,7 @@
 
 const WORKSPACE_NAVIGATION_EVENT = "gradeflow:workspace-navigation";
 
-function warmWorkspaceRoute(url: string) {
+function warmCoursesRoute(url: string) {
   if (
     typeof window === "undefined" ||
     !("serviceWorker" in navigator) ||
@@ -20,21 +20,18 @@ function warmWorkspaceRoute(url: string) {
   });
 }
 
-export function navigateWorkspace(
-  url: string,
-  options?: { replace?: boolean },
-) {
+export function navigateCourses(url: string, options?: { replace?: boolean }) {
   if (typeof window === "undefined") {
     return;
   }
 
   const method = options?.replace ? "replaceState" : "pushState";
   window.history[method](window.history.state, "", url);
-  warmWorkspaceRoute(url);
+  warmCoursesRoute(url);
   window.dispatchEvent(new Event(WORKSPACE_NAVIGATION_EVENT));
 }
 
-export function addWorkspaceNavigationListener(listener: () => void) {
+export function addCoursesNavigationListener(listener: () => void) {
   if (typeof window === "undefined") {
     return () => undefined;
   }
@@ -47,3 +44,6 @@ export function addWorkspaceNavigationListener(listener: () => void) {
     window.removeEventListener(WORKSPACE_NAVIGATION_EVENT, listener);
   };
 }
+
+export const navigateWorkspace = navigateCourses;
+export const addWorkspaceNavigationListener = addCoursesNavigationListener;
