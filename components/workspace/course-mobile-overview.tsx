@@ -44,6 +44,7 @@ export function CourseMobileOverview({
 
       <CourseMobileOverviewNeededGrid
         bands={bands}
+        isExperimenting={isExperimenting}
         module={module}
         onSaveBands={onSaveBands}
       />

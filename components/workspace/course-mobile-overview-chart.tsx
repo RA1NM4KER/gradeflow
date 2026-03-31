@@ -1,7 +1,11 @@
 "use client";
 
+import { getCourseTheme } from "@/lib/course-theme";
 import { formatPercent, getGradeBandState } from "@/lib/grade-utils";
 import { Course, GradeBand } from "@/lib/types";
+
+const neutralChartStripe =
+  "repeating-linear-gradient(135deg, rgba(214,211,209,0.62), rgba(214,211,209,0.62) 3px, transparent 3px, transparent 7px)";
 
 export function CourseMobileOverviewChart({
   bands,
@@ -22,17 +26,25 @@ export function CourseMobileOverviewChart({
   isExperimenting?: boolean;
   module: Course;
 }) {
+  const theme = getCourseTheme(module);
+
   return (
     <div className="relative h-20 overflow-hidden rounded-[18px] border border-stone-200 bg-white">
       {hasAssessments ? (
         <>
           <div
-            className="pointer-events-none absolute inset-y-0 left-0 bg-[repeating-linear-gradient(135deg,rgba(229,226,220,0.8),rgba(229,226,220,0.8)_4px,rgba(247,244,238,0.92)_4px,rgba(247,244,238,0.92)_9px)]"
-            style={{ width: `${getLinePosition(guaranteedGrade)}%` }}
+            className="pointer-events-none absolute inset-y-0 left-0"
+            style={{
+              backgroundImage: neutralChartStripe,
+              width: `${getLinePosition(guaranteedGrade)}%`,
+            }}
           />
           <div
-            className="pointer-events-none absolute inset-y-0 right-0 bg-[repeating-linear-gradient(135deg,rgba(229,226,220,0.8),rgba(229,226,220,0.8)_4px,rgba(247,244,238,0.92)_4px,rgba(247,244,238,0.92)_9px)]"
-            style={{ width: `${100 - getLinePosition(ceiling)}%` }}
+            className="pointer-events-none absolute inset-y-0 right-0"
+            style={{
+              backgroundImage: neutralChartStripe,
+              width: `${100 - getLinePosition(ceiling)}%`,
+            }}
           />
         </>
       ) : null}
@@ -48,15 +60,15 @@ export function CourseMobileOverviewChart({
       <div className="absolute inset-y-0 right-0 border-r border-stone-300" />
       <div
         className={`absolute bottom-0 left-0 top-0 border-l-2 ${
-          isExperimenting ? "border-sky-600" : "border-stone-700"
+          isExperimenting ? "border-violet-600" : theme.markerLine
         }`}
         style={{ left: `${Math.min(Math.max(currentGrade, 0), 100)}%` }}
       />
       <div
         className={`absolute top-2 -translate-x-1/2 rounded-full border bg-white px-2 py-1 text-sm font-semibold shadow-sm ${
           isExperimenting
-            ? "border-sky-200 text-sky-700"
-            : "border-stone-300 text-stone-700"
+            ? "border-violet-200 text-violet-700"
+            : `${theme.markerBorder} ${theme.markerText}`
         }`}
         style={{ left: `${Math.min(Math.max(currentGrade, 8), 92)}%` }}
       >
@@ -69,11 +81,9 @@ export function CourseMobileOverviewChart({
           return (
             <span
               className={`absolute inline-flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border bg-white text-[0.68rem] font-medium ${
-                state === "unreachable"
-                  ? "border-stone-300 text-stone-400"
-                  : isExperimenting
-                    ? "border-sky-200 text-sky-700"
-                    : "border-stone-500 text-stone-700"
+                isExperimenting
+                  ? "border-violet-200 text-violet-700"
+                  : `${theme.markerBorder} ${theme.markerText} ${state === "unreachable" ? "opacity-60" : ""}`
               }`}
               key={band.id}
               style={{

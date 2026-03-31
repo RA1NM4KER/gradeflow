@@ -22,6 +22,9 @@ import {
 import { sanitizePlainNumberInput } from "@/lib/numeric-input";
 import { Assessment, Module, SingleAssessment } from "@/lib/types";
 
+const dialogPrimaryButtonClassName =
+  "border border-stone-200 bg-white text-stone-950 shadow-[0_10px_24px_rgba(28,25,23,0.08)] hover:bg-stone-50";
+
 interface AssessmentComposerDialogProps {
   module: Module;
   onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
@@ -183,7 +186,10 @@ export function AssessmentComposerDialog({
           </div>
 
           <DialogFooter className="shrink-0 border-t border-stone-200 bg-[#f7f4ee]/95 pt-3">
-            <Button className="w-full sm:w-auto" type="submit">
+            <Button
+              className={`w-full sm:w-auto ${dialogPrimaryButtonClassName}`}
+              type="submit"
+            >
               {mode === "single" ? "Save assignment" : "Create Tutorials"}
             </Button>
           </DialogFooter>
@@ -208,8 +214,8 @@ function ModeCard({
     <button
       className={`rounded-[20px] border px-3 py-3 text-left transition sm:rounded-[24px] sm:px-4 sm:py-4 ${
         isActive
-          ? "border-stone-950 bg-stone-950 text-stone-50"
-          : "border-stone-200 bg-white text-stone-950 hover:border-stone-300 hover:bg-stone-50/60"
+          ? "border-stone-300 bg-[#f2ede5] text-stone-950 shadow-[0_10px_24px_rgba(28,25,23,0.08)]"
+          : "border-stone-200 bg-white/90 text-stone-950 hover:border-stone-300 hover:bg-[#fbfaf7]"
       }`}
       onClick={onClick}
       type="button"
@@ -219,7 +225,7 @@ function ModeCard({
       </p>
       <p
         className={`mt-1 text-[0.8rem] leading-5 sm:text-sm ${
-          isActive ? "text-stone-300" : "text-stone-600"
+          isActive ? "text-stone-600" : "text-stone-600"
         }`}
       >
         {description}

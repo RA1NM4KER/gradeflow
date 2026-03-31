@@ -20,6 +20,9 @@ import {
 } from "@/lib/numeric-input";
 import { SingleAssessment } from "@/lib/types";
 
+const dialogPrimaryButtonClassName =
+  "border border-stone-200 bg-white text-stone-950 shadow-[0_10px_24px_rgba(28,25,23,0.08)] hover:bg-stone-50";
+
 interface SingleAssessmentDialogProps {
   assessment: SingleAssessment;
   moduleId: string;
@@ -189,7 +192,10 @@ export function SingleAssessmentDialog({
             >
               Delete assignment
             </Button>
-            <Button className="w-full sm:w-auto" type="submit">
+            <Button
+              className={`w-full sm:w-auto ${dialogPrimaryButtonClassName}`}
+              type="submit"
+            >
               Save changes
             </Button>
           </DialogFooter>

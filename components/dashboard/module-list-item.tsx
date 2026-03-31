@@ -1,6 +1,7 @@
 import { ArrowRight, CheckCircle2, CircleDashed } from "lucide-react";
 
 import { Progress } from "@/components/ui/progress";
+import { getCourseTheme } from "@/lib/course-theme";
 import { cn } from "@/lib/utils";
 import {
   formatPercent,
@@ -17,52 +18,6 @@ interface ModuleListItemProps {
   onSelect: () => void;
 }
 
-const cardThemes = [
-  {
-    band: "bg-[#e76f51]",
-    chip: "bg-[#f7e8e3] text-stone-600",
-    progressFill: "bg-[#e76f51]",
-  },
-  {
-    band: "bg-[#5ea6ea]",
-    chip: "bg-[#eef3f8] text-stone-600",
-    progressFill: "bg-[#5ea6ea]",
-  },
-  {
-    band: "bg-[#41b3a2]",
-    chip: "bg-[#e8f6f3] text-stone-600",
-    progressFill: "bg-[#41b3a2]",
-  },
-  {
-    band: "bg-[#d4a373]",
-    chip: "bg-[#f6eee6] text-stone-600",
-    progressFill: "bg-[#d4a373]",
-  },
-  {
-    band: "bg-[#e9c46a]",
-    chip: "bg-[#fbf4df] text-stone-600",
-    progressFill: "bg-[#e9c46a]",
-  },
-  {
-    band: "bg-[#9b5de5]",
-    chip: "bg-[#f1e9fd] text-stone-600",
-    progressFill: "bg-[#9b5de5]",
-  },
-  {
-    band: "bg-[#4caf50]",
-    chip: "bg-[#e7f5e8] text-stone-600",
-    progressFill: "bg-[#4caf50]",
-  },
-];
-
-function getCardTheme(course: Course) {
-  const seed = Array.from(course.id).reduce((total, character) => {
-    return total + character.charCodeAt(0);
-  }, 0);
-
-  return cardThemes[seed % cardThemes.length];
-}
-
 export function ModuleListItem({
   module,
   isActive,
@@ -73,7 +28,7 @@ export function ModuleListItem({
   const grade = getCourseCurrentGrade(module);
   const remainingWeight = getRemainingWeight(module);
   const progressValue = hasAssignments ? 100 - remainingWeight : 0;
-  const theme = getCardTheme(module);
+  const theme = getCourseTheme(module);
 
   return (
     <button

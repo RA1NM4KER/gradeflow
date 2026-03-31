@@ -3,6 +3,7 @@
 import React, { KeyboardEvent, useEffect, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
+import { getCourseTheme } from "@/lib/course-theme";
 import { sanitizePlainNumberInput } from "@/lib/numeric-input";
 import {
   calculateRequiredScore,
@@ -16,9 +17,12 @@ import {
   hasRecordedModuleGrade,
 } from "@/lib/grade-utils";
 import { Module, GradeBand } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const inlineInputClassName =
   "h-auto rounded-none border-0 bg-transparent px-0 py-0 text-inherit shadow-none focus-visible:ring-0";
+const neutralChartStripe =
+  "repeating-linear-gradient(135deg, rgba(214,211,209,0.62), rgba(214,211,209,0.62) 3px, transparent 3px, transparent 7px)";
 
 interface GradeBandPanelProps {
   module: Module;
@@ -40,6 +44,7 @@ export function GradeBandPanel({
   const ceiling = guaranteedGrade + remainingWeight;
   const completion = getCompletedWeight(module);
   const bands = getSortedGradeBands(module);
+  const theme = getCourseTheme(module);
 
   return (
     <div className="grid gap-3 sm:gap-4 min-[900px]:grid-cols-[280px_minmax(0,1fr)] min-[900px]:items-start">
@@ -51,12 +56,18 @@ export function GradeBandPanel({
           {hasAssessments ? (
             <>
               <div
-                className="absolute inset-x-0 top-0 bg-[repeating-linear-gradient(135deg,rgba(214,211,209,0.62),rgba(214,211,209,0.62)_3px,transparent_3px,transparent_7px)] transition-[height] duration-500 ease-out"
-                style={{ height: `${100 - getLinePosition(ceiling)}%` }}
+                className="absolute inset-x-0 top-0 transition-[height] duration-500 ease-out"
+                style={{
+                  backgroundImage: neutralChartStripe,
+                  height: `${100 - getLinePosition(ceiling)}%`,
+                }}
               />
               <div
-                className="absolute inset-x-0 bottom-0 bg-[repeating-linear-gradient(135deg,rgba(214,211,209,0.58),rgba(214,211,209,0.58)_3px,transparent_3px,transparent_7px)] transition-[height] duration-500 ease-out"
-                style={{ height: `${getLinePosition(guaranteedGrade)}%` }}
+                className="absolute inset-x-0 bottom-0 transition-[height] duration-500 ease-out"
+                style={{
+                  backgroundImage: neutralChartStripe,
+                  height: `${getLinePosition(guaranteedGrade)}%`,
+                }}
               />
             </>
           ) : null}
@@ -69,8 +80,10 @@ export function GradeBandPanel({
             ? bands.map((band) => (
                 <BandLine
                   band={band}
+                  isExperimenting={isExperimenting}
                   key={band.id}
                   state={getGradeBandState(module, band)}
+                  theme={theme}
                 />
               ))
             : null}
@@ -78,12 +91,14 @@ export function GradeBandPanel({
           {hasRecordedGrade ? (
             <CurrentLine
               isExperimenting={isExperimenting}
+              theme={theme}
               value={animatedCurrentGrade}
             />
           ) : null}
           {hasRecordedGrade ? (
             <CurrentPill
               isExperimenting={isExperimenting}
+              theme={theme}
               value={animatedCurrentGrade}
             />
           ) : null}
@@ -118,9 +133,14 @@ export function GradeBandPanel({
 
             return (
               <div
-                className={`grid gap-1.5 border-t border-stone-200 px-3 py-2.5 first:border-t-0 sm:px-4 sm:py-3 ${
-                  state === "unreachable" ? "text-stone-400" : "text-stone-700"
-                }`}
+                className={cn(
+                  "grid gap-1.5 border-t border-stone-200 px-3 py-2.5 first:border-t-0 sm:px-4 sm:py-3",
+                  state === "unreachable"
+                    ? "text-stone-400"
+                    : isExperimenting
+                      ? "text-violet-700"
+                      : theme.neededText,
+                )}
                 key={band.id}
               >
                 <div className="flex items-baseline justify-between gap-4">
@@ -130,7 +150,16 @@ export function GradeBandPanel({
                     </p>
                     <p className="text-[0.88rem] leading-none sm:text-base">
                       <span className="font-medium text-stone-500">for a </span>
-                      <span className="font-semibold text-stone-950">
+                      <span
+                        className={cn(
+                          "font-semibold",
+                          state === "unreachable"
+                            ? "text-stone-400"
+                            : isExperimenting
+                              ? "text-violet-700"
+                              : theme.neededText,
+                        )}
+                      >
                         {band.label}
                       </span>
                     </p>
@@ -183,10 +212,14 @@ function GuideLine({ value }: { value: number }) {
 
 function BandLine({
   band,
+  isExperimenting = false,
   state,
+  theme,
 }: {
   band: GradeBand;
+  isExperimenting?: boolean;
   state: "guaranteed" | "reachable" | "unreachable";
+  theme: ReturnType<typeof getCourseTheme>;
 }) {
   return (
     <div
@@ -194,19 +227,26 @@ function BandLine({
       style={{ bottom: `${getLinePosition(band.threshold)}%` }}
     >
       <div
-        className={`border-t transition-colors duration-300 ${
-          state === "unreachable"
-            ? "border-stone-300/80"
-            : "border-stone-500/90"
-        }`}
+        className={cn(
+          "border-t transition-colors duration-300",
+          isExperimenting
+            ? state === "unreachable"
+              ? "border-violet-200 opacity-60"
+              : "border-violet-600"
+            : state === "unreachable"
+              ? `${theme.markerLine} opacity-60`
+              : theme.markerLine,
+        )}
       />
       <div className="absolute inset-x-0 top-0 -translate-y-1/2 px-4">
         <span
-          className={`inline-flex h-7 w-7 items-center justify-center rounded-full border bg-white text-sm transition-colors duration-300 ${
-            state === "unreachable"
-              ? "border-stone-300 text-stone-400"
-              : "border-stone-500 text-stone-700"
-          }`}
+          className={cn(
+            "inline-flex h-7 w-7 items-center justify-center rounded-full border bg-white text-sm transition-colors duration-300",
+            isExperimenting
+              ? "border-violet-200 text-violet-700"
+              : `${theme.markerBorder} ${theme.markerText}`,
+            state === "unreachable" && "opacity-60",
+          )}
         >
           {band.label}
         </span>
@@ -218,15 +258,18 @@ function BandLine({
 function CurrentLine({
   value,
   isExperimenting = false,
+  theme,
 }: {
   value: number;
   isExperimenting?: boolean;
+  theme: ReturnType<typeof getCourseTheme>;
 }) {
   return (
     <div
-      className={`absolute inset-x-0 border-t-2 transition-[bottom] duration-500 ease-out ${
-        isExperimenting ? "border-sky-600" : "border-stone-500"
-      }`}
+      className={cn(
+        "absolute inset-x-0 border-t-2 transition-[bottom] duration-500 ease-out",
+        isExperimenting ? "border-violet-600" : theme.markerLine,
+      )}
       style={{ bottom: `${getLinePosition(value)}%` }}
     />
   );
@@ -235,9 +278,11 @@ function CurrentLine({
 function CurrentPill({
   value,
   isExperimenting = false,
+  theme,
 }: {
   value: number;
   isExperimenting?: boolean;
+  theme: ReturnType<typeof getCourseTheme>;
 }) {
   return (
     <div
@@ -245,14 +290,16 @@ function CurrentPill({
       style={{ bottom: `calc(${getLinePosition(value)}% - 20px)` }}
     >
       <div
-        className={`rounded-full border bg-white px-6 py-2 shadow-sm transition-shadow duration-300 ${
-          isExperimenting ? "border-sky-200" : "border-stone-500"
-        }`}
+        className={cn(
+          "rounded-full border bg-white px-6 py-2 shadow-sm transition-shadow duration-300",
+          isExperimenting ? "border-violet-200" : theme.markerBorder,
+        )}
       >
         <p
-          className={`text-[1.75rem] font-semibold leading-none tracking-tight ${
-            isExperimenting ? "text-sky-700" : "text-stone-700"
-          }`}
+          className={cn(
+            "text-[1.75rem] font-semibold leading-none tracking-tight",
+            isExperimenting ? "text-violet-700" : theme.markerText,
+          )}
         >
           {formatPercent(value)}
         </p>

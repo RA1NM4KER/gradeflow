@@ -23,6 +23,9 @@ import {
 } from "@/lib/grouped-assessment-utils";
 import { GroupedAssessment, GroupedAssessmentCategory } from "@/lib/types";
 
+const dialogPrimaryButtonClassName =
+  "border border-stone-200 bg-white text-stone-950 shadow-[0_10px_24px_rgba(28,25,23,0.08)] hover:bg-stone-50";
+
 interface GroupedAssessmentDialogProps {
   moduleId: string;
   category?: GroupedAssessmentCategory;
@@ -124,10 +127,10 @@ export function GroupedAssessmentDialog({
             onChange={setForm}
             value={form}
           />
-          <DialogFooter className="items-center justify-between border-t border-stone-200 bg-[#f7f4ee]/95 pt-4 sm:flex-row">
+          <DialogFooter className="grid grid-cols-2 gap-2 border-t border-stone-200 bg-[#f7f4ee]/95 pt-4 sm:flex sm:flex-row sm:items-center sm:justify-between">
             {assessment && onDeleteAssessment ? (
               <Button
-                className="w-full sm:w-auto"
+                className="w-full min-w-0 border-rose-200 bg-rose-50 px-3 text-rose-700 hover:bg-rose-100 sm:w-auto"
                 onClick={() => {
                   if (
                     window.confirm(
@@ -146,7 +149,10 @@ export function GroupedAssessmentDialog({
             ) : (
               <span />
             )}
-            <Button type="submit">
+            <Button
+              className={`w-full min-w-0 px-3 sm:w-auto ${dialogPrimaryButtonClassName}`}
+              type="submit"
+            >
               {assessment ? "Save changes" : `Create ${definition.label}`}
             </Button>
           </DialogFooter>

@@ -15,6 +15,9 @@ import {
 import { GradeBandEditor } from "@/components/workspace/grade-band-editor";
 import { GradeBand } from "@/lib/types";
 
+const dialogPrimaryButtonClassName =
+  "border border-stone-200 bg-white text-stone-950 shadow-[0_10px_24px_rgba(28,25,23,0.08)] hover:bg-stone-50";
+
 interface GradeBandDialogProps {
   bands: GradeBand[];
   onSave: (bands: GradeBand[]) => void;
@@ -52,6 +55,7 @@ export function GradeBandDialog({
         </div>
         <DialogFooter className="shrink-0 border-t border-stone-200 bg-[#f7f4ee]/95 pt-3">
           <Button
+            className={dialogPrimaryButtonClassName}
             onClick={() => {
               onSave(draftBands);
               setOpen(false);

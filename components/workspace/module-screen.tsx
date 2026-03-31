@@ -8,6 +8,8 @@ import { CourseMobileOverview } from "@/components/workspace/course-mobile-overv
 import { ExperimentModePill } from "@/components/workspace/experiment-mode-pill";
 import { GradeBandPanel } from "@/components/workspace/grade-band-panel";
 import { CourseHeader } from "@/components/workspace/module-header";
+import { getCourseTheme } from "@/lib/course-theme";
+import { cn } from "@/lib/utils";
 import { useCourses } from "@/components/workspace/workspace-provider";
 import { navigateCourses } from "@/lib/workspace-navigation";
 import { Assessment, Course } from "@/lib/types";
@@ -127,23 +129,34 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
         />
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 bg-[#f7f4ee]/95 backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200/80 bg-[#f8f5ef]/88 backdrop-blur-xl md:hidden">
         <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {semester.courses.map((course) => {
             const isActive = course.id === module.id;
+            const courseTheme = getCourseTheme(course);
 
             return (
               <button
-                className={`shrink-0 rounded-full border px-3.5 py-2 text-sm font-medium transition ${
+                className={cn(
+                  "group relative shrink-0 overflow-hidden rounded-lg border px-3.5 py-2.5 text-left shadow-sm transition-all duration-200",
                   isActive
-                    ? "border-stone-950 bg-stone-950 text-stone-50"
-                    : "border-stone-200 bg-white text-stone-600"
-                }`}
+                    ? "border-stone-200/70 bg-white text-stone-950 shadow-[0_10px_24px_rgba(28,25,23,0.08)]"
+                    : "border-stone-200/70 bg-white/82 text-stone-700 hover:-translate-y-0.5 hover:border-stone-300 hover:bg-white",
+                )}
                 key={course.id}
                 onClick={() => navigateCourses(`/courses/${course.id}`)}
                 type="button"
               >
-                <span className="block whitespace-nowrap">{course.code}</span>
+                <span
+                  className={cn(
+                    "absolute inset-x-0 bottom-0 h-1.5",
+                    courseTheme.band,
+                    !isActive && "opacity-65 group-hover:opacity-100",
+                  )}
+                />
+                <span className="block whitespace-nowrap text-sm font-semibold tracking-[-0.01em]">
+                  {course.code}
+                </span>
               </button>
             );
           })}

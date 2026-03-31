@@ -29,6 +29,7 @@ import {
   getGroupedAssessmentMetrics,
   isSingleAssessment,
 } from "@/lib/grade-utils";
+import { getCourseTheme } from "@/lib/course-theme";
 import {
   sanitizePlainNumberInput,
   sanitizeScoreExpressionInput,
@@ -39,6 +40,7 @@ import {
   GroupedAssessment,
   SingleAssessment,
 } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 interface AssessmentTableProps {
   module: Module;
@@ -68,19 +70,26 @@ export function AssessmentTable({
   onReorderAssessments,
 }: AssessmentTableProps) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const theme = getCourseTheme(module);
 
   return (
     <div className="grid min-h-0 content-start">
       <div className="hidden md:block">
         <WorkspaceTableFrame>
           <WorkspaceTable>
-            <WorkspaceTableHeader>
+            <WorkspaceTableHeader
+              className={
+                isExperimenting
+                  ? "bg-violet-50 text-violet-700"
+                  : theme.tableHeader
+              }
+            >
               <tr>
                 <WorkspaceTableHeaderCell className="w-7 px-1 text-center align-middle lg:w-8 lg:px-2 min-[1024px]:max-[1120px]:w-6 min-[1024px]:max-[1120px]:px-0.5">
                   <div className="flex justify-center">
                     <Button
                       aria-label="Start experiment mode"
-                      className="group relative h-auto w-auto rounded-none border-0 bg-transparent p-0 text-stone-400 shadow-none hover:bg-transparent hover:text-sky-600"
+                      className="group relative h-auto w-auto rounded-none border-0 bg-transparent p-0 text-stone-400 shadow-none hover:bg-transparent hover:text-violet-600"
                       disabled={isExperimenting}
                       onClick={onStartExperiment}
                       size="icon"
@@ -88,13 +97,13 @@ export function AssessmentTable({
                       type="button"
                       variant="ghost"
                     >
-                      <span className="pointer-events-none absolute -top-1 left-1/2 h-1.5 w-1.5 -translate-x-[7px] rounded-full bg-sky-400/0 opacity-0 transition-opacity duration-200 group-hover:bg-sky-400/80 group-hover:opacity-100 group-hover:animate-ping" />
+                      <span className="pointer-events-none absolute -top-1 left-1/2 h-1.5 w-1.5 -translate-x-[7px] rounded-full bg-violet-400/0 opacity-0 transition-opacity duration-200 group-hover:bg-violet-400/80 group-hover:opacity-100 group-hover:animate-ping" />
                       <span
-                        className="pointer-events-none absolute -top-2 left-1/2 h-1 w-1 -translate-x-[1px] rounded-full bg-sky-300/0 opacity-0 transition-opacity duration-200 group-hover:bg-sky-300/90 group-hover:opacity-100 group-hover:animate-ping"
+                        className="pointer-events-none absolute -top-2 left-1/2 h-1 w-1 -translate-x-[1px] rounded-full bg-violet-300/0 opacity-0 transition-opacity duration-200 group-hover:bg-violet-300/90 group-hover:opacity-100 group-hover:animate-ping"
                         style={{ animationDelay: "120ms" }}
                       />
                       <span
-                        className="pointer-events-none absolute -top-0.5 left-1/2 h-1 w-1 -translate-x-[5px] rounded-full bg-sky-200/0 opacity-0 transition-opacity duration-200 group-hover:bg-sky-200/90 group-hover:opacity-100 group-hover:animate-ping"
+                        className="pointer-events-none absolute -top-0.5 left-1/2 h-1 w-1 -translate-x-[5px] rounded-full bg-violet-200/0 opacity-0 transition-opacity duration-200 group-hover:bg-violet-200/90 group-hover:opacity-100 group-hover:animate-ping"
                         style={{ animationDelay: "240ms" }}
                       />
                       <FlaskConical className="-scale-x-100 h-4 w-4 transition-transform duration-300 group-hover:-rotate-12" />
@@ -167,7 +176,7 @@ export function AssessmentTable({
             <div className="flex items-center gap-2">
               <Button
                 aria-label="Start experiment mode"
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-[0.78rem] font-medium text-stone-600 shadow-none transition hover:bg-stone-50 hover:text-sky-600"
+                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-[0.78rem] font-medium text-stone-600 shadow-none transition hover:bg-stone-50 hover:text-violet-600"
                 disabled={isExperimenting}
                 onClick={onStartExperiment}
                 title="Experiment mode"
@@ -194,7 +203,14 @@ export function AssessmentTable({
             </div>
           </div>
 
-          <div className="grid grid-cols-[minmax(0,1fr)_90px_90px] border-t border-stone-200 bg-stone-50/70 px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-stone-500">
+          <div
+            className={cn(
+              "grid grid-cols-[minmax(0,1fr)_90px_90px] border-t border-stone-200 px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em]",
+              isExperimenting
+                ? "bg-violet-50 text-violet-700"
+                : theme.tableHeader,
+            )}
+          >
             <span>Assignment</span>
             <span className="text-center">Weight</span>
             <span className="text-right">Grade</span>
@@ -349,7 +365,7 @@ function MobileGroupedAssessmentRow({
         <span className="block w-full px-2 py-3 -mx-2 -my-3 text-center">
           <span
             className={`font-medium ${
-              isExperimenting ? "text-sky-700" : "text-stone-950"
+              isExperimenting ? "text-violet-700" : "text-stone-950"
             }`}
           >
             {assessment.weight}
@@ -361,7 +377,7 @@ function MobileGroupedAssessmentRow({
           ) : (
             <span
               className={`font-medium ${
-                isExperimenting ? "text-sky-700" : "text-stone-950"
+                isExperimenting ? "text-violet-700" : "text-stone-950"
               }`}
             >
               <span className="mr-1 text-stone-400">Av:</span>
@@ -612,7 +628,7 @@ function GroupedAssessmentRow({
         ) : (
           <div
             className={`font-medium ${
-              isExperimenting ? "text-sky-700" : "text-stone-950"
+              isExperimenting ? "text-violet-700" : "text-stone-950"
             }`}
           >
             <span className="text-stone-400">Av:</span>{" "}
@@ -825,7 +841,7 @@ function InlineNumber({
       >
         <span
           className={`font-medium ${
-            isExperimenting ? "text-sky-700" : "text-stone-950"
+            isExperimenting ? "text-violet-700" : "text-stone-950"
           }`}
         >
           {display}
@@ -907,7 +923,7 @@ function InlineAssessmentResult({
         ) : (
           <p
             className={`font-medium ${
-              isExperimenting ? "text-sky-700" : "text-stone-950"
+              isExperimenting ? "text-violet-700" : "text-stone-950"
             }`}
           >
             {formatPercent(getAssessmentPercent(assessment) ?? 0)}
