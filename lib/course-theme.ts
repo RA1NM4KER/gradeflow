@@ -62,6 +62,21 @@ const courseThemes = [
     neededMuted: "text-[#a18160]",
   },
   {
+    id: "pink",
+    name: "Pink",
+    band: "bg-[#f29cbc]",
+    chip: "bg-[#fdebf2] text-stone-600",
+    progressFill: "bg-[#f29cbc]",
+    tableHeader: "bg-[#fdebf2] text-[#b85d83]",
+    chartStripe:
+      "repeating-linear-gradient(135deg, rgba(242,156,188,0.3), rgba(242,156,188,0.3) 4px, rgba(255,246,250,0.96) 4px, rgba(255,246,250,0.96) 9px)",
+    markerBorder: "border-[#ea86af]",
+    markerText: "text-[#b85d83]",
+    markerLine: "border-[#ea86af]/70",
+    neededText: "text-[#b85d83]",
+    neededMuted: "text-[#c585a1]",
+  },
+  {
     id: "gold",
     name: "Gold",
     band: "bg-[#e9c46a]",

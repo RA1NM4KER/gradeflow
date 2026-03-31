@@ -132,7 +132,7 @@ export function SemesterScreen() {
           <h2 className="text-[1.55rem] font-semibold leading-none tracking-[-0.04em] text-stone-800 sm:text-[1.7rem]">
             Courses
           </h2>
-          <div className="mt-2.5 flex flex-col items-start gap-1 sm:mt-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+          <div className="mt-2.5 flex flex-row items-start gap-20 sm:mt-3 sm:items-end sm:justify-between sm:gap-4">
             <p className="text-[0.95rem] text-stone-600">
               {semester.courses.length} active, {completedCourses} complete
             </p>
