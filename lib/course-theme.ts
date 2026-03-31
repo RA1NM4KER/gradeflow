@@ -2,6 +2,8 @@ import { Course } from "@/lib/types";
 
 const courseThemes = [
   {
+    id: "coral",
+    name: "Coral",
     band: "bg-[#e76f51]",
     chip: "bg-[#f7e8e3] text-stone-600",
     progressFill: "bg-[#e76f51]",
@@ -15,6 +17,8 @@ const courseThemes = [
     neededMuted: "text-[#bf7a66]",
   },
   {
+    id: "blue",
+    name: "Blue",
     band: "bg-[#5ea6ea]",
     chip: "bg-[#eef3f8] text-stone-600",
     progressFill: "bg-[#5ea6ea]",
@@ -28,6 +32,8 @@ const courseThemes = [
     neededMuted: "text-[#7295b8]",
   },
   {
+    id: "teal",
+    name: "Teal",
     band: "bg-[#41b3a2]",
     chip: "bg-[#e8f6f3] text-stone-600",
     progressFill: "bg-[#41b3a2]",
@@ -41,6 +47,8 @@ const courseThemes = [
     neededMuted: "text-[#5b958c]",
   },
   {
+    id: "sand",
+    name: "Sand",
     band: "bg-[#d4a373]",
     chip: "bg-[#f6eee6] text-stone-600",
     progressFill: "bg-[#d4a373]",
@@ -54,6 +62,8 @@ const courseThemes = [
     neededMuted: "text-[#a18160]",
   },
   {
+    id: "gold",
+    name: "Gold",
     band: "bg-[#e9c46a]",
     chip: "bg-[#fbf4df] text-stone-600",
     progressFill: "bg-[#e9c46a]",
@@ -67,6 +77,8 @@ const courseThemes = [
     neededMuted: "text-[#ab9150]",
   },
   {
+    id: "violet",
+    name: "Violet",
     band: "bg-[#9b5de5]",
     chip: "bg-[#f1e9fd] text-stone-600",
     progressFill: "bg-[#9b5de5]",
@@ -80,6 +92,8 @@ const courseThemes = [
     neededMuted: "text-[#8767af]",
   },
   {
+    id: "green",
+    name: "Green",
     band: "bg-[#4caf50]",
     chip: "bg-[#e7f5e8] text-stone-600",
     progressFill: "bg-[#4caf50]",
@@ -94,7 +108,19 @@ const courseThemes = [
   },
 ];
 
+export const courseThemeOptions = courseThemes;
+
+export function getCourseThemeById(themeId: string) {
+  return courseThemes.find((theme) => theme.id === themeId) ?? null;
+}
+
 export function getCourseTheme(course: Course) {
+  const selectedTheme = getCourseThemeById(course.accent);
+
+  if (selectedTheme) {
+    return selectedTheme;
+  }
+
   const seed = Array.from(course.id).reduce((total, character) => {
     return total + character.charCodeAt(0);
   }, 0);

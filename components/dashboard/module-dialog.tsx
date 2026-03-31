@@ -18,8 +18,14 @@ import {
   GradeBandEditor,
   GRADE_BAND_PRESETS,
 } from "@/components/workspace/grade-band-editor";
+import { courseThemeOptions, getCourseTheme } from "@/lib/course-theme";
 import { sanitizeIntegerInput } from "@/lib/numeric-input";
+import { cn } from "@/lib/utils";
 import { Course, GradeBand } from "@/lib/types";
+
+const selectableCourseThemeOptions = courseThemeOptions.filter(
+  (theme) => theme.id !== "violet",
+);
 
 interface CourseDialogProps {
   onSaveCourse: (course: Course) => void;
@@ -46,6 +52,7 @@ export function CourseDialog({
     name: course?.name ?? "",
     instructor: course?.instructor ?? "",
     credits: String(course?.credits ?? 12),
+    accent: getInitialCourseThemeId(course),
   });
   const [gradeBands, setGradeBands] = useState<GradeBand[]>(
     course?.gradeBands ?? getDefaultGradeBands(course?.code ?? ""),
@@ -75,6 +82,7 @@ export function CourseDialog({
         name: course?.name ?? "",
         instructor: course?.instructor ?? "",
         credits: String(course?.credits ?? 12),
+        accent: getInitialCourseThemeId(course),
       });
       setGradeBands(
         course?.gradeBands ?? getDefaultGradeBands(course?.code ?? ""),
@@ -96,7 +104,7 @@ export function CourseDialog({
       name: form.name,
       instructor: form.instructor,
       credits: Number(form.credits),
-      accent: course?.accent ?? "from-stone-950 via-stone-900 to-stone-700",
+      accent: form.accent,
       gradeBands: gradeBands.map((band) => ({
         ...band,
         id: `${(form.code || course?.code || "course").toLowerCase()}-${band.label.toLowerCase().replace(/[^a-z0-9+-]/g, "")}`,
@@ -110,6 +118,7 @@ export function CourseDialog({
       name: course?.name ?? "",
       instructor: course?.instructor ?? "",
       credits: String(course?.credits ?? 12),
+      accent: getInitialCourseThemeId(course),
     });
     setGradeBands(
       course?.gradeBands ?? getDefaultGradeBands(course?.code ?? ""),
@@ -226,6 +235,41 @@ export function CourseDialog({
                   value={form.instructor}
                 />
               </div>
+              <div className="space-y-2">
+                <Label>Course color</Label>
+                <div className="flex flex-wrap gap-2.5">
+                  {selectableCourseThemeOptions.map((theme) => {
+                    const isSelected = form.accent === theme.id;
+
+                    return (
+                      <button
+                        className={cn(
+                          "rounded-full border bg-white p-1 transition",
+                          isSelected
+                            ? "border-stone-300 shadow-[0_10px_24px_rgba(28,25,23,0.08)]"
+                            : "border-stone-200 hover:border-stone-300 hover:bg-stone-50/70",
+                        )}
+                        aria-label={`${theme.name} course color`}
+                        key={theme.id}
+                        onClick={() =>
+                          setForm((current) => ({
+                            ...current,
+                            accent: theme.id,
+                          }))
+                        }
+                        type="button"
+                      >
+                        <span
+                          className={cn(
+                            "block h-8 w-8 rounded-full border border-white/70 shadow-inner",
+                            theme.band,
+                          )}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </>
           ) : (
             <GradeBandEditor bands={gradeBands} onChange={setGradeBands} />
@@ -267,4 +311,17 @@ function getDefaultGradeBands(courseCode: string) {
     label: band.label,
     threshold: band.threshold,
   }));
+}
+
+function getInitialCourseThemeId(course?: Course) {
+  const resolvedThemeId = course ? getCourseTheme(course).id : undefined;
+
+  if (
+    resolvedThemeId &&
+    selectableCourseThemeOptions.some((theme) => theme.id === resolvedThemeId)
+  ) {
+    return resolvedThemeId;
+  }
+
+  return selectableCourseThemeOptions[0].id;
 }
