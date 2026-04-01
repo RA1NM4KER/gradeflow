@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { FlaskConical, GripVertical, Pencil, Plus } from "lucide-react";
 
+import { useTheme } from "@/components/theme/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AssessmentComposerDialog } from "@/components/workspace/assessment-composer-dialog";
@@ -36,6 +37,7 @@ import {
   sanitizePlainNumberInput,
   sanitizeScoreExpressionInput,
 } from "@/lib/numeric-input";
+import { getExperimentTheme } from "@/lib/experiment-theme";
 import {
   Assessment,
   Module,
@@ -72,7 +74,9 @@ export function AssessmentTable({
   onReorderAssessments,
 }: AssessmentTableProps) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
-  const theme = getCourseTheme(module);
+  const { resolvedTheme } = useTheme();
+  const theme = getCourseTheme(module, resolvedTheme);
+  const experimentTheme = getExperimentTheme(resolvedTheme);
 
   return (
     <div className="grid min-h-0 content-start">
@@ -82,8 +86,8 @@ export function AssessmentTable({
             <WorkspaceTableHeader
               className={
                 isExperimenting
-                  ? "bg-violet-50 text-violet-700"
-                  : theme.tableHeader
+                  ? `${experimentTheme.headerBackground} ${experimentTheme.accentText}`
+                  : theme.tableHeaderAccent
               }
             >
               <tr>
@@ -91,7 +95,7 @@ export function AssessmentTable({
                   <div className="flex justify-center">
                     <Button
                       aria-label="Start experiment mode"
-                      className="group relative h-auto w-auto rounded-none border-0 bg-transparent p-0 text-ink-subtle shadow-none hover:bg-transparent hover:text-violet-600"
+                      className="group relative h-auto w-auto rounded-none border-0 bg-transparent p-0 text-current shadow-none hover:bg-transparent"
                       disabled={isExperimenting}
                       onClick={onStartExperiment}
                       size="icon"
@@ -99,13 +103,30 @@ export function AssessmentTable({
                       type="button"
                       variant="ghost"
                     >
-                      <span className="pointer-events-none absolute -top-1 left-1/2 h-1.5 w-1.5 -translate-x-[7px] rounded-full bg-violet-400/0 opacity-0 transition-opacity duration-200 group-hover:bg-violet-400/80 group-hover:opacity-100 group-hover:animate-ping" />
                       <span
-                        className="pointer-events-none absolute -top-2 left-1/2 h-1 w-1 -translate-x-[1px] rounded-full bg-violet-300/0 opacity-0 transition-opacity duration-200 group-hover:bg-violet-300/90 group-hover:opacity-100 group-hover:animate-ping"
+                        className={cn(
+                          "pointer-events-none absolute -top-1 left-1/2 h-1.5 w-1.5 -translate-x-[7px] rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:animate-ping",
+                          resolvedTheme === "dark"
+                            ? "bg-violet-300/0 group-hover:bg-violet-300/65"
+                            : "bg-violet-400/0 group-hover:bg-violet-400/80",
+                        )}
+                      />
+                      <span
+                        className={cn(
+                          "pointer-events-none absolute -top-2 left-1/2 h-1 w-1 -translate-x-[1px] rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:animate-ping",
+                          resolvedTheme === "dark"
+                            ? "bg-violet-200/0 group-hover:bg-violet-200/70"
+                            : "bg-violet-300/0 group-hover:bg-violet-300/90",
+                        )}
                         style={{ animationDelay: "120ms" }}
                       />
                       <span
-                        className="pointer-events-none absolute -top-0.5 left-1/2 h-1 w-1 -translate-x-[5px] rounded-full bg-violet-200/0 opacity-0 transition-opacity duration-200 group-hover:bg-violet-200/90 group-hover:opacity-100 group-hover:animate-ping"
+                        className={cn(
+                          "pointer-events-none absolute -top-0.5 left-1/2 h-1 w-1 -translate-x-[5px] rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:animate-ping",
+                          resolvedTheme === "dark"
+                            ? "bg-violet-100/0 group-hover:bg-violet-100/80"
+                            : "bg-violet-200/0 group-hover:bg-violet-200/90",
+                        )}
                         style={{ animationDelay: "240ms" }}
                       />
                       <FlaskConical className="-scale-x-100 h-4 w-4 transition-transform duration-300 group-hover:-rotate-12" />
@@ -178,7 +199,7 @@ export function AssessmentTable({
             <div className="flex items-center gap-2">
               <Button
                 aria-label="Start experiment mode"
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-line bg-surface px-3 text-[0.78rem] font-medium text-ink-soft shadow-none transition hover:bg-surface-muted hover:text-violet-600"
+                className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-line bg-surface px-3 text-[0.78rem] font-medium text-ink-soft shadow-none transition hover:bg-surface-muted ${experimentTheme.hoverText}`}
                 disabled={isExperimenting}
                 onClick={onStartExperiment}
                 title="Experiment mode"
@@ -209,8 +230,8 @@ export function AssessmentTable({
             className={cn(
               "grid grid-cols-[minmax(0,1fr)_90px_90px] border-t border-line px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em]",
               isExperimenting
-                ? "bg-violet-50 text-violet-700"
-                : theme.tableHeader,
+                ? `${experimentTheme.headerBackground} ${experimentTheme.accentText}`
+                : theme.tableHeaderAccent,
             )}
           >
             <span>Assignment</span>
@@ -344,6 +365,8 @@ function MobileGroupedAssessmentRow({
 }) {
   const [open, setOpen] = useState(false);
   const metrics = getGroupedAssessmentMetrics(assessment);
+  const { resolvedTheme } = useTheme();
+  const experimentTheme = getExperimentTheme(resolvedTheme);
 
   return (
     <>
@@ -367,7 +390,7 @@ function MobileGroupedAssessmentRow({
         <span className="block w-full px-2 py-3 -mx-2 -my-3 text-center">
           <span
             className={`font-medium ${
-              isExperimenting ? "text-violet-700" : "text-foreground"
+              isExperimenting ? experimentTheme.accentText : "text-foreground"
             }`}
           >
             {assessment.weight}
@@ -379,7 +402,7 @@ function MobileGroupedAssessmentRow({
           ) : (
             <span
               className={`font-medium ${
-                isExperimenting ? "text-violet-700" : "text-foreground"
+                isExperimenting ? experimentTheme.accentText : "text-foreground"
               }`}
             >
               <span className="mr-1 text-ink-subtle">Av:</span>
@@ -561,6 +584,8 @@ function GroupedAssessmentRow({
 }) {
   const [open, setOpen] = useState(false);
   const metrics = getGroupedAssessmentMetrics(assessment);
+  const { resolvedTheme } = useTheme();
+  const experimentTheme = getExperimentTheme(resolvedTheme);
 
   return (
     <WorkspaceTableRow
@@ -630,7 +655,7 @@ function GroupedAssessmentRow({
         ) : (
           <div
             className={`font-medium ${
-              isExperimenting ? "text-violet-700" : "text-foreground"
+              isExperimenting ? experimentTheme.accentText : "text-foreground"
             }`}
           >
             <span className="text-ink-subtle">Av:</span>{" "}
@@ -743,6 +768,8 @@ function InlineNumber({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value));
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { resolvedTheme } = useTheme();
+  const experimentTheme = getExperimentTheme(resolvedTheme);
 
   useEffect(() => {
     setDraft(String(value));
@@ -764,7 +791,7 @@ function InlineNumber({
       >
         <span
           className={`font-medium ${
-            isExperimenting ? "text-violet-700" : "text-foreground"
+            isExperimenting ? experimentTheme.accentText : "text-foreground"
           }`}
         >
           {display}
@@ -815,6 +842,8 @@ function InlineAssessmentResult({
         ),
   );
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { resolvedTheme } = useTheme();
+  const experimentTheme = getExperimentTheme(resolvedTheme);
 
   useEffect(() => {
     setDraft(
@@ -846,7 +875,7 @@ function InlineAssessmentResult({
         ) : (
           <p
             className={`font-medium ${
-              isExperimenting ? "text-violet-700" : "text-foreground"
+              isExperimenting ? experimentTheme.accentText : "text-foreground"
             }`}
           >
             {formatPercent(getAssessmentPercent(assessment) ?? 0)}

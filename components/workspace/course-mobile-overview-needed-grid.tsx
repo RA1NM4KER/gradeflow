@@ -2,9 +2,15 @@
 
 import { Pencil } from "lucide-react";
 
+import { useTheme } from "@/components/theme/theme-provider";
 import { GradeBandDialog } from "@/components/workspace/grade-band-dialog";
 import { getCourseTheme } from "@/lib/course-theme";
-import { calculateRequiredScore, formatPercent } from "@/lib/grade-utils";
+import { getExperimentTheme } from "@/lib/experiment-theme";
+import {
+  calculateRequiredScore,
+  formatPercent,
+  getGradeBandState,
+} from "@/lib/grade-utils";
 import { cn } from "@/lib/utils";
 import { Course, GradeBand } from "@/lib/types";
 
@@ -19,7 +25,9 @@ export function CourseMobileOverviewNeededGrid({
   module: Course;
   onSaveBandsAction: (bands: GradeBand[]) => void;
 }) {
-  const theme = getCourseTheme(module);
+  const { resolvedTheme } = useTheme();
+  const theme = getCourseTheme(module, resolvedTheme);
+  const experimentTheme = getExperimentTheme(resolvedTheme);
 
   return (
     <div className="grid gap-2.5">
@@ -37,8 +45,8 @@ export function CourseMobileOverviewNeededGrid({
               className={cn(
                 "inline-flex h-7 w-7 items-center justify-center rounded-full border bg-surface transition hover:bg-surface-muted",
                 isExperimenting
-                  ? "border-violet-200 text-violet-700"
-                  : `${theme.markerBorder} ${theme.markerText}`,
+                  ? `${experimentTheme.accentBorder} ${experimentTheme.accentText}`
+                  : `${theme.chartAccentBorder} ${theme.chartAccentText}`,
               )}
               type="button"
             >
@@ -50,6 +58,9 @@ export function CourseMobileOverviewNeededGrid({
       <div className="grid auto-cols-[minmax(76px,1fr)] grid-flow-col gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {bands.map((band) => {
           const result = calculateRequiredScore(module, band.threshold);
+          const state = module.assessments.length
+            ? getGradeBandState(module, band)
+            : "unreachable";
           const needed = !module.assessments.length
             ? "Not set"
             : result.remainingWeight === 0 && !result.achievable
@@ -57,19 +68,24 @@ export function CourseMobileOverviewNeededGrid({
               : result.achievable && result.neededAverage <= 0
                 ? formatPercent(band.threshold)
                 : `${result.neededAverage}%`;
+          const isAttainable = state !== "unreachable";
 
           return (
             <div
               className={cn(
                 "rounded-[16px] px-2 py-2.5 text-center",
-                "bg-surface",
+                isAttainable ? "bg-surface" : "bg-surface",
               )}
               key={band.id}
             >
               <p
                 className={cn(
                   "text-[0.72rem]",
-                  isExperimenting ? "text-violet-500" : theme.neededMuted,
+                  !isAttainable
+                    ? "text-ink-subtle"
+                    : isExperimenting
+                      ? experimentTheme.accentTextMuted
+                      : theme.neededAccentText,
                 )}
               >
                 {band.label}
@@ -77,7 +93,11 @@ export function CourseMobileOverviewNeededGrid({
               <p
                 className={cn(
                   "mt-1.5 text-[0.92rem] font-semibold tracking-[-0.03em]",
-                  isExperimenting ? "text-violet-700" : theme.neededText,
+                  !isAttainable
+                    ? "text-foreground"
+                    : isExperimenting
+                      ? experimentTheme.accentText
+                      : theme.neededAccentText,
                 )}
               >
                 {needed}

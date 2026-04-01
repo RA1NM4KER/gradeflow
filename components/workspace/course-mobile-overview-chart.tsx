@@ -1,11 +1,13 @@
 "use client";
 
+import { useTheme } from "@/components/theme/theme-provider";
 import { getCourseTheme } from "@/lib/course-theme";
+import { getExperimentTheme } from "@/lib/experiment-theme";
 import { formatPercent, getGradeBandState } from "@/lib/grade-utils";
 import { Course, GradeBand } from "@/lib/types";
 
 const neutralChartStripe =
-  "repeating-linear-gradient(135deg, rgba(214,211,209,0.62), rgba(214,211,209,0.62) 3px, transparent 3px, transparent 7px)";
+  "repeating-linear-gradient(135deg, rgb(var(--chart-stripe-rgb) / 0.62), rgb(var(--chart-stripe-rgb) / 0.62) 3px, transparent 3px, transparent 7px)";
 
 export function CourseMobileOverviewChart({
   bands,
@@ -26,7 +28,9 @@ export function CourseMobileOverviewChart({
   isExperimenting?: boolean;
   module: Course;
 }) {
-  const theme = getCourseTheme(module);
+  const { resolvedTheme } = useTheme();
+  const theme = getCourseTheme(module, resolvedTheme);
+  const experimentTheme = getExperimentTheme(resolvedTheme);
 
   return (
     <div className="relative h-20 overflow-hidden rounded-[18px] border border-line bg-surface">
@@ -60,15 +64,15 @@ export function CourseMobileOverviewChart({
       <div className="absolute inset-y-0 right-0 border-r border-line-strong" />
       <div
         className={`absolute bottom-0 left-0 top-0 border-l-2 ${
-          isExperimenting ? "border-violet-600" : theme.markerLine
+          isExperimenting ? experimentTheme.accentLine : theme.chartAccentLine
         }`}
         style={{ left: `${Math.min(Math.max(currentGrade, 0), 100)}%` }}
       />
       <div
         className={`absolute top-2 -translate-x-1/2 rounded-full border bg-surface px-2 py-1 text-sm font-semibold shadow-sm ${
           isExperimenting
-            ? "border-violet-200 text-violet-700"
-            : `${theme.markerBorder} ${theme.markerText}`
+            ? `${experimentTheme.accentBorder} ${experimentTheme.accentText}`
+            : `${theme.chartAccentBorder} ${theme.chartAccentText}`
         }`}
         style={{ left: `${Math.min(Math.max(currentGrade, 8), 92)}%` }}
       >
@@ -82,8 +86,8 @@ export function CourseMobileOverviewChart({
             <span
               className={`absolute inline-flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border bg-surface text-[0.68rem] font-medium ${
                 isExperimenting
-                  ? "border-violet-200 text-violet-700"
-                  : `${theme.markerBorder} ${theme.markerText} ${state === "unreachable" ? "opacity-60" : ""}`
+                  ? `${experimentTheme.accentBorder} ${experimentTheme.accentText}`
+                  : `${theme.chartAccentBorder} ${theme.chartAccentText} ${state === "unreachable" ? "opacity-60" : ""}`
               }`}
               key={band.id}
               style={{

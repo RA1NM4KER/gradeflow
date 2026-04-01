@@ -2,8 +2,10 @@
 
 import React, { KeyboardEvent, useEffect, useRef, useState } from "react";
 
+import { useTheme } from "@/components/theme/theme-provider";
 import { Input } from "@/components/ui/input";
 import { getCourseTheme } from "@/lib/course-theme";
+import { getExperimentTheme } from "@/lib/experiment-theme";
 import { sanitizePlainNumberInput } from "@/lib/numeric-input";
 import {
   calculateRequiredScore,
@@ -22,7 +24,7 @@ import { cn } from "@/lib/utils";
 const inlineInputClassName =
   "h-auto rounded-none border-0 bg-transparent px-0 py-0 text-inherit shadow-none focus-visible:ring-0";
 const neutralChartStripe =
-  "repeating-linear-gradient(135deg, rgba(214,211,209,0.62), rgba(214,211,209,0.62) 3px, transparent 3px, transparent 7px)";
+  "repeating-linear-gradient(135deg, rgb(var(--chart-stripe-rgb) / 0.62), rgb(var(--chart-stripe-rgb) / 0.62) 3px, transparent 3px, transparent 7px)";
 
 interface GradeBandPanelProps {
   module: Module;
@@ -44,7 +46,9 @@ export function GradeBandPanel({
   const ceiling = guaranteedGrade + remainingWeight;
   const completion = getCompletedWeight(module);
   const bands = getSortedGradeBands(module);
-  const theme = getCourseTheme(module);
+  const { resolvedTheme } = useTheme();
+  const theme = getCourseTheme(module, resolvedTheme);
+  const experimentTheme = getExperimentTheme(resolvedTheme);
 
   return (
     <div className="grid gap-3 sm:gap-4 min-[900px]:grid-cols-[280px_minmax(0,1fr)] min-[900px]:items-start">
@@ -138,8 +142,8 @@ export function GradeBandPanel({
                   state === "unreachable"
                     ? "text-ink-subtle"
                     : isExperimenting
-                      ? "text-violet-700"
-                      : theme.neededText,
+                      ? experimentTheme.accentText
+                      : theme.neededAccentText,
                 )}
                 key={band.id}
               >
@@ -156,8 +160,8 @@ export function GradeBandPanel({
                           state === "unreachable"
                             ? "text-ink-subtle"
                             : isExperimenting
-                              ? "text-violet-700"
-                              : theme.neededText,
+                              ? experimentTheme.accentText
+                              : theme.neededAccentText,
                         )}
                       >
                         {band.label}
@@ -221,6 +225,9 @@ function BandLine({
   state: "guaranteed" | "reachable" | "unreachable";
   theme: ReturnType<typeof getCourseTheme>;
 }) {
+  const { resolvedTheme } = useTheme();
+  const experimentTheme = getExperimentTheme(resolvedTheme);
+
   return (
     <div
       className="absolute inset-x-0 transition-[bottom] duration-500 ease-out"
@@ -231,11 +238,11 @@ function BandLine({
           "border-t transition-colors duration-300",
           isExperimenting
             ? state === "unreachable"
-              ? "border-violet-200 opacity-60"
-              : "border-violet-600"
+              ? `${experimentTheme.accentBorder} opacity-60`
+              : experimentTheme.accentLine
             : state === "unreachable"
-              ? `${theme.markerLine} opacity-60`
-              : theme.markerLine,
+              ? `${theme.chartAccentLine} opacity-60`
+              : theme.chartAccentLine,
         )}
       />
       <div className="absolute inset-x-0 top-0 -translate-y-1/2 px-4">
@@ -243,8 +250,8 @@ function BandLine({
           className={cn(
             "inline-flex h-7 w-7 items-center justify-center rounded-full border bg-surface text-sm transition-colors duration-300",
             isExperimenting
-              ? "border-violet-200 text-violet-700"
-              : `${theme.markerBorder} ${theme.markerText}`,
+              ? `${experimentTheme.accentBorder} bg-surface ${experimentTheme.accentText}`
+              : `${theme.chartAccentBorder} ${theme.chartAccentText}`,
             state === "unreachable" && "opacity-60",
           )}
         >
@@ -264,11 +271,14 @@ function CurrentLine({
   isExperimenting?: boolean;
   theme: ReturnType<typeof getCourseTheme>;
 }) {
+  const { resolvedTheme } = useTheme();
+  const experimentTheme = getExperimentTheme(resolvedTheme);
+
   return (
     <div
       className={cn(
         "absolute inset-x-0 border-t-2 transition-[bottom] duration-500 ease-out",
-        isExperimenting ? "border-violet-600" : theme.markerLine,
+        isExperimenting ? experimentTheme.accentLine : theme.chartAccentLine,
       )}
       style={{ bottom: `${getLinePosition(value)}%` }}
     />
@@ -284,6 +294,9 @@ function CurrentPill({
   isExperimenting?: boolean;
   theme: ReturnType<typeof getCourseTheme>;
 }) {
+  const { resolvedTheme } = useTheme();
+  const experimentTheme = getExperimentTheme(resolvedTheme);
+
   return (
     <div
       className="absolute left-1/2 -translate-x-1/2 transition-[bottom] duration-500 ease-out"
@@ -292,13 +305,17 @@ function CurrentPill({
       <div
         className={cn(
           "rounded-full border bg-surface px-6 py-2 shadow-sm transition-shadow duration-300",
-          isExperimenting ? "border-violet-200" : theme.markerBorder,
+          isExperimenting
+            ? `${experimentTheme.accentBorder} bg-surface`
+            : theme.chartAccentBorder,
         )}
       >
         <p
           className={cn(
             "text-[1.75rem] font-semibold leading-none tracking-tight",
-            isExperimenting ? "text-violet-700" : theme.markerText,
+            isExperimenting
+              ? experimentTheme.accentText
+              : theme.chartAccentText,
           )}
         >
           {formatPercent(value)}

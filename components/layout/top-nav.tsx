@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BookOpenText } from "lucide-react";
 
 import { LocalBackupDialog } from "@/components/pwa/local-backup-dialog";
+import { ThemeSelect } from "@/components/theme/theme-select";
 import { useCourses } from "@/components/workspace/courses-provider";
 
 export function TopNav() {
@@ -32,6 +33,7 @@ export function TopNav() {
 
         <div className="flex min-w-0 flex-1 items-center justify-end">
           <nav className="flex items-center gap-1 sm:gap-2">
+            <ThemeSelect />
             <LocalBackupDialog
               appState={appState}
               onRestoreAppStateAction={replaceAppState}

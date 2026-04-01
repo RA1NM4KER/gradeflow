@@ -65,13 +65,12 @@ export function MinimalLanding() {
           Your semesters
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-soft sm:text-[0.98rem]">
-          Create a semester, add your courses, and track grades without guessing
-          what you still need.
+          A private, local-first grade tracker that keeps your academic data
+          with you.
         </p>
         <div className="mt-4 inline-flex max-w-full items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 text-[0.78rem] font-medium text-ink-soft shadow-card">
           <span className="h-2 w-2 rounded-full bg-[#41b3a2]" />
-          Privacy-first and local-first. Your data stays on this device unless
-          you export it.
+          Stored on this device by default. Export only when you choose to.
         </div>
       </div>
 
