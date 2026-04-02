@@ -23,11 +23,11 @@ export const metadata: Metadata = {
     title: "GradeLog",
   },
   icons: {
-    shortcut: "/favicon.ico",
+    shortcut: "/favicon.png",
     apple: "/apple-icon.png",
     icon: [
       {
-        url: "/favicon.ico",
+        url: "/favicon.png",
         sizes: "64x64",
         type: "image/png",
       },

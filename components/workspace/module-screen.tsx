@@ -208,7 +208,11 @@ function CourseSwitcher({
                 : "border-line/70 bg-surface/82 text-ink-soft hover:-translate-y-0.5 hover:border-line-strong hover:bg-surface",
             )}
             key={course.id}
-            onClick={() => navigateCourses(`/courses/${course.id}`)}
+            onClick={() =>
+              navigateCourses(
+                `/courses?course=${encodeURIComponent(course.id)}`,
+              )
+            }
             type="button"
           >
             <span

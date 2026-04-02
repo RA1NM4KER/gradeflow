@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
+import { isNativeApp } from "@/lib/platform";
+
 function buildCurrentRouteUrl(pathname: string, searchParams: URLSearchParams) {
   const queryString = searchParams.toString();
   return queryString ? `${pathname}?${queryString}` : pathname;
@@ -16,6 +18,7 @@ export function RouteCacheWarmup() {
   useEffect(() => {
     if (
       typeof window === "undefined" ||
+      isNativeApp() ||
       !("serviceWorker" in navigator) ||
       process.env.NODE_ENV !== "production" ||
       !navigator.onLine

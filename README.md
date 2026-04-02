@@ -1,6 +1,10 @@
 # GradeLog
 
-GradeLog is a local-first grade tracker for people who want control over their academic data.
+GradeLog is a simple grade tracker that keeps your marks on your device.
+
+No accounts. No cloud. No syncing to someone else's database.
+
+Just your semesters, modules, and assignments, stored locally and available offline.
 
 The core idea is simple:
 
@@ -11,6 +15,16 @@ The core idea is simple:
 This project exists because grades feel more private than most student tools treat them. A lot of academic software assumes your marks should live in somebody else's database by default. GradeLog takes the opposite stance: your grades should stay with you unless you explicitly choose otherwise.
 
 Right now the app is built to run locally and persist inside the browser with IndexedDB. If this ever becomes a deployed product, grades should not just be "stored securely" in vague marketing terms. They should be end-to-end encrypted so the server is not casually trusted with the raw data.
+
+## Platforms
+
+GradeLog runs as:
+
+- a web app
+- an installable PWA (works offline after first load)
+- a native mobile app via Capacitor (Android and iOS shells)
+
+All versions share the same local-first data model. Your data stays on-device unless you explicitly export it.
 
 ## What the project is trying to be
 
@@ -115,7 +129,8 @@ GradeLog includes a lightweight local backup flow in the app chrome.
 
 High-level layout:
 
-- `app/` — routes, manifest, service worker, and app metadata
+- `app/` — routes and app metadata
+- `public/` — manifest, icons, and service worker
 - `components/landing/` — semester-first root page
 - `components/workspace/` — semester and module workspace UI
 - `components/dashboard/` — shared module and form components

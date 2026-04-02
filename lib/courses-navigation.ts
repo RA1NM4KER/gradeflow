@@ -1,10 +1,13 @@
 "use client";
 
+import { isNativeApp } from "@/lib/platform";
+
 const WORKSPACE_NAVIGATION_EVENT = "gradeflow:workspace-navigation";
 
 function warmCoursesRoute(url: string) {
   if (
     typeof window === "undefined" ||
+    isNativeApp() ||
     !("serviceWorker" in navigator) ||
     process.env.NODE_ENV !== "production" ||
     !navigator.onLine

@@ -128,7 +128,7 @@ export function ThemeSelect() {
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={`Theme: ${selectedOption.label}`}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] border border-white/28 bg-white/52 text-foreground shadow-[0_10px_24px_-18px_rgba(15,23,42,0.18)] backdrop-blur-sm transition hover:bg-white/72 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/14 sm:h-10 sm:w-10"
+        className="inline-flex h-9 w-9 items-center justify-center text-foreground sm:h-10 sm:w-10"
         onClick={() => setOpen((current) => !current)}
         type="button"
       >

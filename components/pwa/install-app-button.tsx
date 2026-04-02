@@ -4,6 +4,7 @@ import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { isNativeApp } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -69,6 +70,7 @@ export function InstallAppButton({
   className?: string;
   onInstalled?: () => void;
 }) {
+  const nativeApp = isNativeApp();
   const [promptEvent, setPromptEvent] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -79,6 +81,10 @@ export function InstallAppButton({
   } | null>(null);
 
   useEffect(() => {
+    if (nativeApp) {
+      return;
+    }
+
     setIsInstalled(isStandalone());
     setInstallHint(getInstallHint());
 
@@ -103,7 +109,11 @@ export function InstallAppButton({
       );
       window.removeEventListener("appinstalled", handleAppInstalled);
     };
-  }, [onInstalled]);
+  }, [nativeApp, onInstalled]);
+
+  if (nativeApp) {
+    return null;
+  }
 
   if (isInstalled || !promptEvent) {
     if (!isInstalled && installHint) {

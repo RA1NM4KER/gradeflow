@@ -15,12 +15,15 @@ function readWorkspaceLocation() {
   }
 
   const pathname = window.location.pathname;
+  const searchParams = new URLSearchParams(window.location.search);
   const moduleMatch =
     pathname.match(/^\/courses\/([^/]+)$/) ??
     pathname.match(/^\/workspace\/modules\/([^/]+)$/);
 
   return {
-    moduleId: moduleMatch ? decodeURIComponent(moduleMatch[1]) : null,
+    moduleId:
+      searchParams.get("course") ??
+      (moduleMatch ? decodeURIComponent(moduleMatch[1]) : null),
     pathname,
   };
 }

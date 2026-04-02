@@ -48,7 +48,7 @@ export function SemesterScreen() {
 
   function handleSaveCourse(course: Course) {
     addCourse(course);
-    navigateCourses(`/courses/${course.id}`);
+    navigateCourses(`/courses?course=${encodeURIComponent(course.id)}`);
   }
 
   useEffect(() => {
@@ -142,7 +142,11 @@ export function SemesterScreen() {
                   course={module}
                   isActive={false}
                   key={module.id}
-                  onSelect={() => navigateCourses(`/courses/${module.id}`)}
+                  onSelect={() =>
+                    navigateCourses(
+                      `/courses?course=${encodeURIComponent(module.id)}`,
+                    )
+                  }
                 />
               ))}
               <CourseDialog
