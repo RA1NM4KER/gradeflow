@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSyncConnection } from "@/components/sync/sync-provider";
+import { selectorCardClassName } from "@/lib/selector-card-styles";
 import { formatLastSyncedAt, getSyncStatusLabel } from "@/lib/sync-status";
 import { cn } from "@/lib/utils";
 
@@ -243,13 +244,13 @@ export function ConnectDevicesDialog({
             </div>
           ) : (
             <form className="grid gap-4" onSubmit={handleSubmit}>
-              <div className="flex rounded-full border border-white/30 bg-white/60 p-1 shadow-card dark:border-white/10 dark:bg-white/8">
+              <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                 <button
                   className={cn(
-                    "flex-1 rounded-full px-3 py-2 text-sm font-medium transition",
+                    "rounded-[18px] border px-3 py-3 text-left text-sm font-medium transition sm:rounded-[20px] sm:px-4 sm:py-3.5",
                     mode === "sign-up"
-                      ? "border border-stone-300/80 bg-stone-900 text-white shadow-[0_10px_24px_-16px_rgba(15,23,42,0.28)] dark:border-white/14 dark:bg-white/18 dark:text-white"
-                      : "text-ink-soft hover:bg-white/55 hover:text-foreground dark:hover:bg-white/10",
+                      ? selectorCardClassName.active
+                      : selectorCardClassName.inactive,
                   )}
                   onClick={() => {
                     setMode("sign-up");
@@ -261,10 +262,10 @@ export function ConnectDevicesDialog({
                 </button>
                 <button
                   className={cn(
-                    "flex-1 rounded-full px-3 py-2 text-sm font-medium transition",
+                    "rounded-[18px] border px-3 py-3 text-left text-sm font-medium transition sm:rounded-[20px] sm:px-4 sm:py-3.5",
                     mode === "sign-in"
-                      ? "border border-stone-300/80 bg-stone-900 text-white shadow-[0_10px_24px_-16px_rgba(15,23,42,0.28)] dark:border-white/14 dark:bg-white/18 dark:text-white"
-                      : "text-ink-soft hover:bg-white/55 hover:text-foreground dark:hover:bg-white/10",
+                      ? selectorCardClassName.active
+                      : selectorCardClassName.inactive,
                   )}
                   onClick={() => {
                     setMode("sign-in");

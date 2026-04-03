@@ -22,7 +22,7 @@ import {
 import { SingleAssessment } from "@/lib/types";
 
 const dialogPrimaryButtonClassName =
-  "border border-white/35 bg-white/70 text-foreground shadow-[0_10px_24px_rgba(28,25,23,0.08)] backdrop-blur-sm hover:bg-white/85 dark:border-white/10 dark:bg-white/8 dark:hover:bg-white/12";
+  "border border-stone-300/80 bg-stone-900 text-white shadow-[0_12px_28px_-16px_rgba(15,23,42,0.4)] hover:bg-stone-800 dark:border-white/14 dark:bg-white/18 dark:text-white dark:hover:bg-white/24";
 
 interface SingleAssessmentDialogProps {
   assessment: SingleAssessment;
@@ -44,6 +44,8 @@ export function SingleAssessmentDialog({
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(getFormState(assessment));
   const [dueDateError, setDueDateError] = useState("");
+  const isSubmitEnabled =
+    form.name.trim().length > 0 && Number(form.weight || 0) > 0;
   const useTextDateInput = useMemo(() => {
     if (typeof window === "undefined") {
       return false;
@@ -103,7 +105,7 @@ export function SingleAssessmentDialog({
           <div className="grid min-h-0 content-start gap-4 overflow-y-auto pr-1 pb-4">
             <div className="space-y-2">
               <Label htmlFor={`assignment-name-${assessment.id}`}>
-                Assignment name
+                Assignment name *
               </Label>
               <Input
                 id={`assignment-name-${assessment.id}`}
@@ -119,7 +121,7 @@ export function SingleAssessmentDialog({
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor={`assignment-weight-${assessment.id}`}>
-                  Weight (%)
+                  Weight (%) *
                 </Label>
                 <Input
                   id={`assignment-weight-${assessment.id}`}
@@ -196,7 +198,12 @@ export function SingleAssessmentDialog({
               Delete assignment
             </Button>
             <Button
-              className={`w-full sm:w-auto ${dialogPrimaryButtonClassName}`}
+              className={`w-full sm:w-auto ${
+                isSubmitEnabled
+                  ? dialogPrimaryButtonClassName
+                  : "border border-white/20 bg-white/40 text-ink-muted shadow-[0_10px_24px_rgba(28,25,23,0.04)] backdrop-blur-sm hover:bg-white/40 dark:border-white/10 dark:bg-white/5 dark:text-ink-muted dark:hover:bg-white/5"
+              }`}
+              disabled={!isSubmitEnabled}
               type="submit"
             >
               Save changes

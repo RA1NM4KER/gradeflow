@@ -19,12 +19,11 @@ import {
 import {
   buildGroupedAssessment,
   getGroupedAssessmentDefaults,
-  getGroupedAssessmentDefinition,
 } from "@/lib/grouped-assessment-utils";
 import { GroupedAssessment, GroupedAssessmentCategory } from "@/lib/types";
 
 const dialogPrimaryButtonClassName =
-  "border border-white/35 bg-white/70 text-foreground shadow-[0_10px_24px_rgba(28,25,23,0.08)] backdrop-blur-sm hover:bg-white/85 dark:border-white/10 dark:bg-white/8 dark:hover:bg-white/12";
+  "border border-stone-300/80 bg-stone-900 text-white shadow-[0_12px_28px_-16px_rgba(15,23,42,0.4)] hover:bg-stone-800 dark:border-white/14 dark:bg-white/18 dark:text-white dark:hover:bg-white/24";
 
 interface GroupedAssessmentDialogProps {
   moduleId: string;
@@ -53,9 +52,6 @@ export function GroupedAssessmentDialog({
   triggerAsChild = false,
   triggerChildren,
 }: GroupedAssessmentDialogProps) {
-  const definition = getGroupedAssessmentDefinition(
-    assessment?.category ?? category,
-  );
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = open !== undefined;
   const dialogOpen = isControlled ? open : internalOpen;
@@ -64,6 +60,10 @@ export function GroupedAssessmentDialog({
       ? getGroupedAssessmentEditorValue(assessment)
       : getGroupedAssessmentDefaults(category),
   );
+  const isSubmitEnabled =
+    form.name.trim().length > 0 &&
+    Number(form.weight || 0) > 0 &&
+    form.itemCount > 0;
 
   useEffect(() => {
     if (dialogOpen) {
@@ -115,11 +115,13 @@ export function GroupedAssessmentDialog({
       <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
-            {assessment
-              ? `Edit ${definition.label}`
-              : `Create ${definition.label}`}
+            {assessment ? "Edit category" : "Create category"}
           </DialogTitle>
-          <DialogDescription>Grouped category assessment</DialogDescription>
+          <DialogDescription>
+            {assessment
+              ? "Update the category name, weighting, and included items."
+              : "Create one weighted category containing smaller marks."}
+          </DialogDescription>
         </DialogHeader>
         <form className="flex min-h-0 flex-1 flex-col gap-5" onSubmit={submit}>
           <GroupedAssessmentEditor
@@ -150,10 +152,15 @@ export function GroupedAssessmentDialog({
               <span />
             )}
             <Button
-              className={`w-full min-w-0 px-3 sm:w-auto ${dialogPrimaryButtonClassName}`}
+              className={`w-full min-w-0 px-3 sm:w-auto ${
+                isSubmitEnabled
+                  ? dialogPrimaryButtonClassName
+                  : "border border-white/20 bg-white/40 text-ink-muted shadow-[0_10px_24px_rgba(28,25,23,0.04)] backdrop-blur-sm hover:bg-white/40 dark:border-white/10 dark:bg-white/5 dark:text-ink-muted dark:hover:bg-white/5"
+              }`}
+              disabled={!isSubmitEnabled}
               type="submit"
             >
-              {assessment ? "Save changes" : `Create ${definition.label}`}
+              {assessment ? "Save changes" : "Create category"}
             </Button>
           </DialogFooter>
         </form>

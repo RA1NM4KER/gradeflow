@@ -20,11 +20,12 @@ import {
   getGroupedAssessmentDefaults,
 } from "@/lib/grouped-assessment-utils";
 import { sanitizePlainNumberInput } from "@/lib/numeric-input";
+import { selectorCardClassName } from "@/lib/selector-card-styles";
 import { Assessment, Module, SingleAssessment } from "@/lib/types";
 import { createUuid } from "@/lib/uuid";
 
 const dialogPrimaryButtonClassName =
-  "border border-white/35 bg-white/70 text-foreground shadow-[0_10px_24px_rgba(28,25,23,0.08)] backdrop-blur-sm hover:bg-white/85 dark:border-white/10 dark:bg-white/8 dark:hover:bg-white/12";
+  "border border-stone-300/80 bg-stone-900 text-white shadow-[0_12px_28px_-16px_rgba(15,23,42,0.4)] hover:bg-stone-800 dark:border-white/14 dark:bg-white/18 dark:text-white dark:hover:bg-white/24";
 
 interface AssessmentComposerDialogProps {
   module: Module;
@@ -57,6 +58,14 @@ export function AssessmentComposerDialog({
       setMode("single");
     }
   }, [open]);
+
+  const isSingleValid =
+    singleForm.name.trim().length > 0 && Number(singleForm.weight) > 0;
+  const isGroupValid =
+    groupForm.name.trim().length > 0 &&
+    Number(groupForm.weight) > 0 &&
+    groupForm.itemCount > 0;
+  const isSubmitEnabled = mode === "single" ? isSingleValid : isGroupValid;
 
   function submit(event: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
     event.preventDefault();
@@ -130,7 +139,7 @@ export function AssessmentComposerDialog({
             {mode === "single" ? (
               <div className="grid gap-4 rounded-[20px] border border-white/28 bg-white/42 p-3.5 backdrop-blur-sm sm:rounded-[28px] sm:p-4 dark:border-white/10 dark:bg-white/5">
                 <div className="space-y-2">
-                  <Label htmlFor="single-name">Assignment name</Label>
+                  <Label htmlFor="single-name">Assignment name *</Label>
                   <Input
                     id="single-name"
                     onChange={(event) =>
@@ -145,7 +154,7 @@ export function AssessmentComposerDialog({
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="single-weight">Weight (%)</Label>
+                    <Label htmlFor="single-weight">Weight (%) *</Label>
                     <Input
                       id="single-weight"
                       min={0}
@@ -188,7 +197,12 @@ export function AssessmentComposerDialog({
 
           <DialogFooter className="shrink-0 pt-3">
             <Button
-              className={`w-full sm:w-auto ${dialogPrimaryButtonClassName}`}
+              className={`w-full sm:w-auto ${
+                isSubmitEnabled
+                  ? dialogPrimaryButtonClassName
+                  : "border border-white/20 bg-white/40 text-ink-muted shadow-[0_10px_24px_rgba(28,25,23,0.04)] backdrop-blur-sm hover:bg-white/40 dark:border-white/10 dark:bg-white/5 dark:text-ink-muted dark:hover:bg-white/5"
+              }`}
+              disabled={!isSubmitEnabled}
               type="submit"
             >
               {mode === "single" ? "Save assignment" : "Create Tutorials"}
@@ -214,9 +228,7 @@ function ModeCard({
   return (
     <button
       className={`rounded-[20px] border px-3 py-3 text-left transition sm:rounded-[24px] sm:px-4 sm:py-4 ${
-        isActive
-          ? "border-white/35 bg-white/62 text-foreground shadow-[0_10px_24px_rgba(28,25,23,0.08)] backdrop-blur-sm dark:border-white/10 dark:bg-white/10"
-          : "border-white/22 bg-white/28 text-foreground hover:border-white/35 hover:bg-white/42 dark:border-white/8 dark:bg-white/4 dark:hover:bg-white/8"
+        isActive ? selectorCardClassName.active : selectorCardClassName.inactive
       }`}
       onClick={onClick}
       type="button"

@@ -100,44 +100,7 @@ export function AssessmentTable({
               <tr>
                 <WorkspaceTableHeaderCell className="w-7 px-1 text-center align-middle lg:w-8 lg:px-2 min-[1024px]:max-[1120px]:w-6 min-[1024px]:max-[1120px]:px-0.5">
                   <div className="flex justify-center">
-                    <Button
-                      aria-label="Start experiment mode"
-                      className="group relative h-auto w-auto rounded-none border-0 bg-transparent p-0 text-current shadow-none hover:bg-transparent"
-                      disabled={isExperimenting}
-                      onClick={onStartExperiment}
-                      size="icon"
-                      title="Experiment mode"
-                      type="button"
-                      variant="ghost"
-                    >
-                      <span
-                        className={cn(
-                          "pointer-events-none absolute -top-1 left-1/2 h-1.5 w-1.5 -translate-x-[7px] rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:animate-ping",
-                          resolvedTheme === "dark"
-                            ? "bg-violet-300/0 group-hover:bg-violet-300/65"
-                            : "bg-violet-400/0 group-hover:bg-violet-400/80",
-                        )}
-                      />
-                      <span
-                        className={cn(
-                          "pointer-events-none absolute -top-2 left-1/2 h-1 w-1 -translate-x-[1px] rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:animate-ping",
-                          resolvedTheme === "dark"
-                            ? "bg-violet-200/0 group-hover:bg-violet-200/70"
-                            : "bg-violet-300/0 group-hover:bg-violet-300/90",
-                        )}
-                        style={{ animationDelay: "120ms" }}
-                      />
-                      <span
-                        className={cn(
-                          "pointer-events-none absolute -top-0.5 left-1/2 h-1 w-1 -translate-x-[5px] rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:animate-ping",
-                          resolvedTheme === "dark"
-                            ? "bg-violet-100/0 group-hover:bg-violet-100/80"
-                            : "bg-violet-200/0 group-hover:bg-violet-200/90",
-                        )}
-                        style={{ animationDelay: "240ms" }}
-                      />
-                      <FlaskConical className="-scale-x-100 h-4 w-4 transition-transform duration-300 group-hover:-rotate-12" />
-                    </Button>
+                    <span className="sr-only">Experiment mode</span>
                   </div>
                 </WorkspaceTableHeaderCell>
                 <WorkspaceTableHeaderCell className="w-[40%] min-[1024px]:max-[1120px]:px-2">
