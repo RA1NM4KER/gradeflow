@@ -51,6 +51,12 @@ interface AssessmentTableProps {
   isExperimenting: boolean;
   onStartExperiment: () => void;
   onDeleteAssessment: (courseId: string, assessmentId: string) => void;
+  onRecordGrade: (
+    moduleId: string,
+    assessmentId: string,
+    scoreAchieved: number,
+    totalPossible: number,
+  ) => void;
   onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
   onReorderAssessments: (
     moduleId: string,
@@ -70,6 +76,7 @@ export function AssessmentTable({
   isExperimenting,
   onStartExperiment,
   onDeleteAssessment,
+  onRecordGrade,
   onSaveAssessment,
   onReorderAssessments,
 }: AssessmentTableProps) {
@@ -165,6 +172,7 @@ export function AssessmentTable({
                     onDropRow={(fromId, toId) =>
                       onReorderAssessments(module.id, fromId, toId)
                     }
+                    onRecordGrade={onRecordGrade}
                     onSaveAssessment={onSaveAssessment}
                   />
                 ) : (
@@ -247,6 +255,7 @@ export function AssessmentTable({
                 key={assessment.id}
                 moduleId={module.id}
                 onDeleteAssessment={onDeleteAssessment}
+                onRecordGrade={onRecordGrade}
                 onSaveAssessment={onSaveAssessment}
               />
             ))}
@@ -279,12 +288,19 @@ function MobileAssessmentRow({
   assessment,
   isExperimenting,
   onDeleteAssessment,
+  onRecordGrade,
   onSaveAssessment,
 }: {
   moduleId: string;
   assessment: Assessment;
   isExperimenting: boolean;
   onDeleteAssessment: (courseId: string, assessmentId: string) => void;
+  onRecordGrade: (
+    moduleId: string,
+    assessmentId: string,
+    scoreAchieved: number,
+    totalPossible: number,
+  ) => void;
   onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
 }) {
   if (isSingleAssessment(assessment)) {
@@ -327,12 +343,14 @@ function MobileAssessmentRow({
           assessment={assessment}
           isExperimenting={isExperimenting}
           onCommit={(scoreAchieved) =>
-            onSaveAssessment(moduleId, {
-              ...assessment,
-              scoreAchieved,
-              totalPossible: 100,
-              status: scoreAchieved === null ? "ongoing" : "completed",
-            })
+            scoreAchieved === null
+              ? onSaveAssessment(moduleId, {
+                  ...assessment,
+                  scoreAchieved: null,
+                  totalPossible: 100,
+                  status: "ongoing",
+                })
+              : onRecordGrade(moduleId, assessment.id, scoreAchieved, 100)
           }
         />
       </div>
@@ -465,6 +483,7 @@ function SingleAssessmentRow({
   assessment,
   isExperimenting = false,
   onDeleteAssessment,
+  onRecordGrade,
   onSaveAssessment,
   draggingId,
   onDragStart,
@@ -475,6 +494,12 @@ function SingleAssessmentRow({
   assessment: SingleAssessment;
   isExperimenting?: boolean;
   onDeleteAssessment: (courseId: string, assessmentId: string) => void;
+  onRecordGrade: (
+    moduleId: string,
+    assessmentId: string,
+    scoreAchieved: number,
+    totalPossible: number,
+  ) => void;
   onSaveAssessment: (moduleId: string, assessment: Assessment) => void;
   draggingId: string | null;
   onDragStart: () => void;
@@ -536,12 +561,14 @@ function SingleAssessmentRow({
           assessment={assessment}
           isExperimenting={isExperimenting}
           onCommit={(scoreAchieved) =>
-            onSaveAssessment(module.id, {
-              ...assessment,
-              scoreAchieved,
-              totalPossible: 100,
-              status: scoreAchieved === null ? "ongoing" : "completed",
-            })
+            scoreAchieved === null
+              ? onSaveAssessment(module.id, {
+                  ...assessment,
+                  scoreAchieved: null,
+                  totalPossible: 100,
+                  status: "ongoing",
+                })
+              : onRecordGrade(module.id, assessment.id, scoreAchieved, 100)
           }
         />
       </WorkspaceTableCell>

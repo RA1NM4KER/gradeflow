@@ -23,6 +23,7 @@ import { courseThemeOptions, getCourseTheme } from "@/lib/course-theme";
 import { sanitizeIntegerInput } from "@/lib/numeric-input";
 import { cn } from "@/lib/utils";
 import { Course, GradeBand } from "@/lib/types";
+import { ensureUuid, createUuid } from "@/lib/uuid";
 
 const selectableCourseThemeOptions = courseThemeOptions.filter(
   (theme) => theme.id !== "violet",
@@ -92,7 +93,7 @@ export function CourseDialog({
     }
 
     const nextCourse: Course = {
-      id: course?.id ?? crypto.randomUUID(),
+      id: course?.id ?? createUuid(),
       code: form.code.toUpperCase(),
       name: form.name,
       instructor: form.instructor,
@@ -100,7 +101,7 @@ export function CourseDialog({
       accent: form.accent,
       gradeBands: gradeBands.map((band) => ({
         ...band,
-        id: `${(form.code || course?.code || "course").toLowerCase()}-${band.label.toLowerCase().replace(/[^a-z0-9+-]/g, "")}`,
+        id: ensureUuid(band.id),
       })),
       assessments: course?.assessments ?? [],
     };
@@ -292,7 +293,7 @@ function getDefaultGradeBands(courseCode: string) {
   return GRADE_BAND_PRESETS.filter((band) =>
     ["A", "B", "C", "D"].includes(band.label),
   ).map((band) => ({
-    id: `${(courseCode || "course").toLowerCase()}-${band.label.toLowerCase()}`,
+    id: createUuid(),
     label: band.label,
     threshold: band.threshold,
   }));

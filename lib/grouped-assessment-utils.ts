@@ -4,6 +4,7 @@ import {
   GroupedAssessmentDefinition,
   GroupedAssessmentItem,
 } from "@/lib/types";
+import { createUuid } from "@/lib/uuid";
 
 const GROUPED_DEFINITIONS: Record<
   GroupedAssessmentCategory,
@@ -44,7 +45,7 @@ export function buildGroupedAssessmentItems(
 
     return (
       existingItem ?? {
-        id: crypto.randomUUID(),
+        id: createUuid(),
         label: `${definition.itemPrefix} ${index + 1}`,
         scoreAchieved: null,
         totalPossible: 100,
@@ -93,7 +94,7 @@ export function buildGroupedAssessment(
   const items = buildGroupedAssessmentItems(category, itemCount, values.items);
 
   return {
-    id: values.id ?? crypto.randomUUID(),
+    id: values.id ?? createUuid(),
     kind: "group",
     category,
     name: values.name || definition.defaultName,

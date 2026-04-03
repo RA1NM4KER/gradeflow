@@ -76,6 +76,8 @@ export interface Semester {
   name: string;
   periodLabel: string;
   courses: Course[];
+  // Legacy mirror kept for UI compatibility while the codebase moves to
+  // `courses` as the canonical model.
   modules: Course[];
 }
 export interface RequiredScoreResult {

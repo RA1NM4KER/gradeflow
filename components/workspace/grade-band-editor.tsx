@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { sanitizePlainNumberInput } from "@/lib/numeric-input";
 import { GradeBand } from "@/lib/types";
+import { createUuid } from "@/lib/uuid";
 
 export const GRADE_BAND_PRESETS = [
   { label: "A+", threshold: 90 },
@@ -48,7 +49,7 @@ export function GradeBandEditor({ bands, onChange }: GradeBandEditorProps) {
     onChange([
       ...bands,
       {
-        id: `grade-band-${label.toLowerCase().replace(/[^a-z0-9+-]/g, "")}`,
+        id: createUuid(),
         label: preset.label,
         threshold: preset.threshold,
       },

@@ -6,6 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { TopNav } from "@/components/layout/top-nav";
 import { RouteCacheWarmup } from "@/components/pwa/route-cache-warmup";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
+import { SyncProvider } from "@/components/sync/sync-provider";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { CoursesProvider } from "@/components/workspace/courses-provider";
 import { THEME_STORAGE_KEY } from "@/lib/theme";
@@ -82,13 +83,15 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <script dangerouslySetInnerHTML={{ __html: themeInitializerScript }} />
         <ThemeProvider>
-          <CoursesProvider>
-            <AppShell>
-              <RouteCacheWarmup />
-              <TopNav />
-              {children}
-            </AppShell>
-          </CoursesProvider>
+          <SyncProvider>
+            <CoursesProvider>
+              <AppShell>
+                <RouteCacheWarmup />
+                <TopNav />
+                {children}
+              </AppShell>
+            </CoursesProvider>
+          </SyncProvider>
         </ThemeProvider>
         <Analytics />
         <ServiceWorkerRegistration />

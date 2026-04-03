@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { DatabaseBackup, Menu } from "lucide-react";
+import { DatabaseBackup, LoaderCircle, Menu, Smartphone } from "lucide-react";
 import { useState } from "react";
 
 import { InstallAppButton } from "@/components/pwa/install-app-button";
 import { LocalBackupDialog } from "@/components/pwa/local-backup-dialog";
+import { ConnectDevicesDialog } from "@/components/sync/connect-devices-dialog";
+import { useSyncConnection } from "@/components/sync/sync-provider";
+import { formatLastSyncedAt, getSyncStatusLabel } from "@/lib/sync-status";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +22,37 @@ import { useCourses } from "@/components/workspace/courses-provider";
 
 export function TopNav() {
   const { appState, replaceAppState } = useCourses();
+  const { isAuthenticated, lastSyncedAt, status } = useSyncConnection();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const syncLabel = isAuthenticated
+    ? getSyncStatusLabel(status)
+    : "Connect devices";
+  const syncDetail =
+    isAuthenticated && status === "up-to-date"
+      ? formatLastSyncedAt(lastSyncedAt)
+      : null;
+
+  function renderSyncIndicator() {
+    if (status === "syncing" || status === "connecting") {
+      return (
+        <LoaderCircle className="h-3.5 w-3.5 animate-spin text-ink-muted" />
+      );
+    }
+
+    return (
+      <span
+        className={
+          status === "up-to-date"
+            ? "h-2 w-2 rounded-full bg-emerald-500"
+            : status === "offline-pending"
+              ? "h-2 w-2 rounded-full bg-amber-500"
+              : status === "error"
+                ? "h-2 w-2 rounded-full bg-rose-500"
+                : "h-2 w-2 rounded-full bg-ink-muted/40"
+        }
+      />
+    );
+  }
 
   return (
     <header className="sticky top-0 z-30 border-b border-line/60 bg-surface-overlay/96 backdrop-blur-sm">
@@ -51,6 +84,23 @@ export function TopNav() {
           <nav className="flex items-center gap-1 sm:gap-2">
             <div className="hidden sm:block">
               <ThemeSelect />
+            </div>
+            <div className="hidden sm:block">
+              <ConnectDevicesDialog
+                triggerAsChild
+                triggerChildren={
+                  <button
+                    className="rounded-md px-3 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-muted hover:text-foreground"
+                    type="button"
+                    title={syncDetail ?? undefined}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      {renderSyncIndicator()}
+                      {syncLabel}
+                    </span>
+                  </button>
+                }
+              />
             </div>
             <div className="hidden sm:block">
               <LocalBackupDialog
@@ -111,6 +161,21 @@ export function TopNav() {
                   >
                     <DatabaseBackup className="h-4 w-4" />
                     Backup and restore
+                  </Button>
+                }
+              />
+              <ConnectDevicesDialog
+                triggerAsChild
+                triggerChildren={
+                  <Button
+                    className="w-full justify-start gap-2 rounded-[18px] border-white/24 bg-white/44 px-4 text-left shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/6"
+                    variant="outline"
+                  >
+                    <Smartphone className="h-4 w-4" />
+                    <span className="inline-flex items-center gap-2">
+                      {renderSyncIndicator()}
+                      {isAuthenticated ? syncLabel : "Connect your devices"}
+                    </span>
                   </Button>
                 }
               />

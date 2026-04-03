@@ -20,6 +20,7 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
     addAssessment,
     deleteAssessment,
     isExperimenting,
+    recordGrade,
     reorderAssessments,
     startExperiment,
     stopExperiment,
@@ -123,6 +124,7 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
           onDeleteAssessment={deleteAssessment}
           module={module}
           isExperimenting={isExperimenting}
+          onRecordGrade={recordGrade}
           onStartExperiment={startExperiment}
           onReorderAssessments={reorderAssessments}
           onSaveAssessment={saveAssessment}
@@ -144,6 +146,7 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
             onDeleteAssessment={deleteAssessment}
             module={module}
             isExperimenting={isExperimenting}
+            onRecordGrade={recordGrade}
             onStartExperiment={startExperiment}
             onReorderAssessments={reorderAssessments}
             onSaveAssessment={saveAssessment}

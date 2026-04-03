@@ -2,7 +2,9 @@
 
 GradeLog is a simple grade tracker that keeps your marks on your device.
 
-No accounts. No cloud. No syncing to someone else's database.
+No accounts required. No cloud by default.
+
+You can optionally connect your devices to keep your data in sync across devices.
 
 Just your semesters, modules, and assignments, stored locally and available offline.
 
@@ -25,6 +27,19 @@ GradeLog runs as:
 - a native mobile app via Capacitor (Android and iOS shells)
 
 All versions share the same local-first data model. Your data stays on-device unless you explicitly export it.
+
+## Sync (optional)
+
+GradeLog works fully offline with no account.
+
+If you want to use it across multiple devices, you can choose to connect your devices.
+
+- syncing is optional
+- your local device remains the primary working copy
+- changes sync when you are online
+- you can disconnect at any time
+
+Note: synced data is not yet end-to-end encrypted. Encryption is planned so that servers cannot read your grades.
 
 ## What the project is trying to be
 
@@ -72,10 +87,13 @@ Current behavior:
 - the app does not require a remote database to function
 - the app shell can reopen offline after it has been loaded once
 - backups can be exported to and restored from local JSON files
+- optional sync can be enabled to keep data in sync across connected devices
+- when sync is used today, data is stored on a remote service to enable cross-device syncing
+- synced data is not yet end-to-end encrypted
 
 This is not a temporary implementation detail. It is part of the product direction.
 
-If a hosted version is ever built, the standard should be:
+The long-term standard for this project is:
 
 - grades are end-to-end encrypted
 - raw academic data is not readable by the server by default

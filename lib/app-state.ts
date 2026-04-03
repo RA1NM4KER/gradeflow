@@ -7,6 +7,7 @@ import {
   Semester,
   SingleAssessment,
 } from "@/lib/types";
+import { createUuid, ensureUuid } from "@/lib/uuid";
 
 export interface AppState {
   semesters: Semester[];
@@ -30,7 +31,7 @@ export const APP_STATE_VERSION = 2;
 
 export function getDefaultAppState(): AppState {
   const initialSemester: Semester = {
-    id: "semester-1-2026",
+    id: createUuid(),
     name: "Semester 1 2026",
     periodLabel: "January to June",
     courses: [],
@@ -67,7 +68,7 @@ function normalizeGradeBand(rawBand: unknown, index: number): GradeBand {
   const band = isRecord(rawBand) ? rawBand : {};
 
   return {
-    id: getString(band.id, `grade-band-${index + 1}`),
+    id: ensureUuid(band.id),
     label: getString(band.label, `Band ${index + 1}`),
     threshold: getNumber(band.threshold, 0),
   };
@@ -80,7 +81,7 @@ function normalizeGroupedAssessmentItem(
   const item = isRecord(rawItem) ? rawItem : {};
 
   return {
-    id: getString(item.id, `tutorial-item-${index + 1}`),
+    id: ensureUuid(item.id),
     label: getString(item.label, `Item ${index + 1}`),
     scoreAchieved:
       item.scoreAchieved === null
@@ -95,7 +96,7 @@ function normalizeSingleAssessment(
   index: number,
 ): SingleAssessment {
   return {
-    id: getString(rawAssessment.id, `assessment-${index + 1}`),
+    id: ensureUuid(rawAssessment.id),
     kind: "single",
     name: getString(rawAssessment.name, `Assessment ${index + 1}`),
     weight: getNumber(rawAssessment.weight, 0),
@@ -121,7 +122,7 @@ function normalizeGroupedAssessment(
   index: number,
 ): GroupedAssessment {
   return {
-    id: getString(rawAssessment.id, `grouped-assessment-${index + 1}`),
+    id: ensureUuid(rawAssessment.id),
     kind: "group",
     name: getString(rawAssessment.name, `Tutorials ${index + 1}`),
     weight: getNumber(rawAssessment.weight, 0),
@@ -152,7 +153,7 @@ function normalizeCourse(rawCourse: unknown, index: number): Course {
   const course = isRecord(rawCourse) ? rawCourse : {};
 
   return {
-    id: getString(course.id, `course-${index + 1}`),
+    id: ensureUuid(course.id),
     code: getString(course.code, `CRS${index + 1}`),
     name: getString(course.name, `Course ${index + 1}`),
     instructor: getString(course.instructor),
@@ -183,20 +184,42 @@ function normalizeSemester(rawSemester: unknown, index: number): Semester {
   );
 
   return {
-    id: getString(semester.id, `semester-${index + 1}`),
+    id: ensureUuid(semester.id),
     name: getString(semester.name, `Semester ${index + 1}`),
     periodLabel: getString(semester.periodLabel),
     courses,
+    // `modules` remains a local mirror for existing UI paths. `courses` is the
+    // canonical model and the only collection sync code should treat as source of truth.
     modules: courses,
   };
 }
 
 function extractRawAppState(rawState: RecordValue): AppState {
+  const rawSemesters = getArray(rawState.semesters);
+  const selectedSemesterId = getString(rawState.selectedSemesterId);
+  const normalizedSemesters = rawSemesters.map((semester, index) =>
+    normalizeSemester(semester, index),
+  );
+  const migratedSelectedSemesterId =
+    rawSemesters.reduce<string | null>((matchedId, rawSemester, index) => {
+      if (matchedId) {
+        return matchedId;
+      }
+
+      const semester = isRecord(rawSemester) ? rawSemester : {};
+      const legacySemesterId = getString(semester.id);
+
+      if (!legacySemesterId || legacySemesterId !== selectedSemesterId) {
+        return null;
+      }
+
+      // Preserve selection when a legacy non-UUID id is normalized into a UUID.
+      return normalizedSemesters[index]?.id ?? null;
+    }, null) ?? selectedSemesterId;
+
   return {
-    semesters: getArray(rawState.semesters).map((semester, index) =>
-      normalizeSemester(semester, index),
-    ),
-    selectedSemesterId: getString(rawState.selectedSemesterId),
+    semesters: normalizedSemesters,
+    selectedSemesterId: migratedSelectedSemesterId,
   };
 }
 

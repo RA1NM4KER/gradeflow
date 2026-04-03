@@ -1,4 +1,5 @@
 import { Semester } from "@/lib/types";
+import { createUuid } from "@/lib/uuid";
 
 export interface SemesterSuggestion {
   name: string;
@@ -12,7 +13,7 @@ export function createSemester({
   const courses: Semester["courses"] = [];
 
   return {
-    id: crypto.randomUUID(),
+    id: createUuid(),
     name,
     periodLabel,
     courses,

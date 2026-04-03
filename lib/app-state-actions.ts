@@ -139,6 +139,24 @@ export function updateCourse(
   );
 }
 
+export function deleteCourse(
+  state: AppState,
+  semesterId: string,
+  courseId: string,
+): AppState {
+  return updateSemesterById(state, semesterId, (semester) => {
+    const nextCourses = semester.courses.filter(
+      (course) => course.id !== courseId,
+    );
+
+    return {
+      ...semester,
+      courses: nextCourses,
+      modules: nextCourses,
+    };
+  });
+}
+
 export function addAssessment(
   state: AppState,
   semesterId: string,

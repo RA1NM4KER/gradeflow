@@ -21,6 +21,7 @@ import {
 } from "@/lib/grouped-assessment-utils";
 import { sanitizePlainNumberInput } from "@/lib/numeric-input";
 import { Assessment, Module, SingleAssessment } from "@/lib/types";
+import { createUuid } from "@/lib/uuid";
 
 const dialogPrimaryButtonClassName =
   "border border-white/35 bg-white/70 text-foreground shadow-[0_10px_24px_rgba(28,25,23,0.08)] backdrop-blur-sm hover:bg-white/85 dark:border-white/10 dark:bg-white/8 dark:hover:bg-white/12";
@@ -62,7 +63,7 @@ export function AssessmentComposerDialog({
 
     if (mode === "single") {
       const nextAssessment: SingleAssessment = {
-        id: crypto.randomUUID(),
+        id: createUuid(),
         kind: "single",
         name: singleForm.name,
         weight: Number(singleForm.weight),

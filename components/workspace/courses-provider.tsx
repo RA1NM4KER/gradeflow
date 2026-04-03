@@ -7,14 +7,30 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { usePathname } from "next/navigation";
 
 import { CoursesBootState } from "@/components/workspace/courses-boot-state";
+import { useSyncConnection } from "@/components/sync/sync-provider";
 import { AppState } from "@/lib/app-state";
 import * as appStateActions from "@/lib/app-state-actions";
 import { createSemester } from "@/lib/semester-utils";
+import {
+  buildAssessmentCreateOperation,
+  buildAssessmentDeleteOperation,
+  buildAssessmentReorderOperation,
+  buildAssessmentUpdateOperation,
+  buildCourseCreateOperation,
+  buildCourseUpdateOperation,
+  buildRecordGradeOperation,
+  buildSemesterCreateOperation,
+  buildSemesterDeleteOperation,
+  buildSemesterUpdateOperation,
+} from "@/lib/sync-operation-builders";
+import { loadSyncMeta } from "@/lib/sync-storage";
+import { SyncMetaRecord, SyncOperation } from "@/lib/sync-types";
 import { usePersistedAppState } from "@/lib/use-persisted-app-state";
 import { Assessment, Course, Semester } from "@/lib/types";
 
@@ -56,6 +72,10 @@ interface CoursesContextValue {
 }
 
 const CoursesContext = createContext<CoursesContextValue | null>(null);
+type BuiltSyncOperation = {
+  nextMeta: SyncMetaRecord;
+  operation: SyncOperation;
+} | null;
 
 export function CoursesProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -65,12 +85,29 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     isHydrated,
     replaceAppState: replacePersistedAppState,
   } = usePersistedAppState();
+  const { enqueueOperation, registerSyncAdapter } = useSyncConnection();
   const [experimentAppState, setExperimentAppState] = useState<AppState | null>(
     null,
   );
+  const persistedAppStateRef = useRef<AppState | null>(persistedAppState);
 
   const isExperimenting = experimentAppState !== null;
   const activeAppState = experimentAppState ?? persistedAppState;
+
+  useEffect(() => {
+    persistedAppStateRef.current = persistedAppState;
+  }, [persistedAppState]);
+
+  const syncAdapter = useMemo(
+    () => ({
+      applyRemoteState: (state: AppState) => {
+        setExperimentAppState(null);
+        replacePersistedAppState(state);
+      },
+      getAppState: () => persistedAppStateRef.current,
+    }),
+    [replacePersistedAppState],
+  );
 
   useEffect(() => {
     if (
@@ -81,6 +118,14 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
       setExperimentAppState(null);
     }
   }, [experimentAppState, pathname]);
+
+  useEffect(() => {
+    registerSyncAdapter(syncAdapter);
+
+    return () => {
+      registerSyncAdapter(null);
+    };
+  }, [registerSyncAdapter, syncAdapter]);
 
   const applyWorkspaceState = useCallback(
     (updater: AppState | ((current: AppState) => AppState)) => {
@@ -101,6 +146,31 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
       replacePersistedAppState(updater);
     },
     [experimentAppState, persistedAppState, replacePersistedAppState],
+  );
+
+  const applyPersistedDataChange = useCallback(
+    async (
+      updateState: (currentState: AppState) => AppState,
+      buildOperation: (currentState: AppState) => Promise<BuiltSyncOperation>,
+    ) => {
+      if (!persistedAppState) {
+        return;
+      }
+
+      const currentState = persistedAppState;
+      const nextState = updateState(currentState);
+      replacePersistedAppState(nextState);
+      const builtOperation = await buildOperation(currentState);
+
+      if (builtOperation) {
+        void enqueueOperation(
+          currentState,
+          builtOperation.operation,
+          builtOperation.nextMeta,
+        );
+      }
+    },
+    [enqueueOperation, persistedAppState, replacePersistedAppState],
   );
 
   const value = useMemo<CoursesContextValue | null>(() => {
@@ -139,18 +209,59 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
         setExperimentAppState(null);
       },
       addSemester: (nextSemester) => {
-        applyWorkspaceState((currentState) =>
-          appStateActions.addSemester(currentState, nextSemester),
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.addSemester(currentState, nextSemester),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.addSemester(currentState, nextSemester),
+          async () => {
+            const syncMeta = await loadSyncMeta();
+            return buildSemesterCreateOperation(syncMeta, nextSemester);
+          },
         );
       },
       deleteSemester: (semesterId) => {
-        applyWorkspaceState((currentState) =>
-          appStateActions.deleteSemester(currentState, semesterId),
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.deleteSemester(currentState, semesterId),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.deleteSemester(currentState, semesterId),
+          async () => {
+            const syncMeta = await loadSyncMeta();
+            return buildSemesterDeleteOperation(syncMeta, semesterId);
+          },
         );
       },
       updateSemester: (semesterId, updates) => {
-        applyWorkspaceState((currentState) =>
-          appStateActions.updateSemester(currentState, semesterId, updates),
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.updateSemester(currentState, semesterId, updates),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.updateSemester(currentState, semesterId, updates),
+          async () => {
+            const syncMeta = await loadSyncMeta();
+            const built = buildSemesterUpdateOperation(
+              syncMeta,
+              semesterId,
+              updates,
+            );
+            return built.operation.fieldMask.length > 0 ? built : null;
+          },
         );
       },
       selectSemester: (semesterId) => {
@@ -159,76 +270,245 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
         );
       },
       addCourse: (course) => {
-        applyWorkspaceState((currentState) =>
-          appStateActions.addCourse(currentState, semester.id, course),
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.addCourse(currentState, semester.id, course),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.addCourse(currentState, semester.id, course),
+          async () => {
+            const syncMeta = await loadSyncMeta();
+            return buildCourseCreateOperation(syncMeta, semester.id, course);
+          },
         );
       },
       updateCourse: (courseId, updates) => {
-        applyWorkspaceState((currentState) =>
-          appStateActions.updateCourse(
-            currentState,
-            semester.id,
-            courseId,
-            updates,
-          ),
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.updateCourse(
+              currentState,
+              semester.id,
+              courseId,
+              updates,
+            ),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.updateCourse(
+              currentState,
+              semester.id,
+              courseId,
+              updates,
+            ),
+          async () => {
+            const syncMeta = await loadSyncMeta();
+            const built = buildCourseUpdateOperation(
+              syncMeta,
+              semester.id,
+              courseId,
+              updates,
+            );
+            return built.operation.fieldMask.length > 0 ? built : null;
+          },
         );
       },
       addAssessment: (courseId, assessment) => {
-        applyWorkspaceState((currentState) =>
-          appStateActions.addAssessment(
-            currentState,
-            semester.id,
-            courseId,
-            assessment,
-          ),
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.addAssessment(
+              currentState,
+              semester.id,
+              courseId,
+              assessment,
+            ),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.addAssessment(
+              currentState,
+              semester.id,
+              courseId,
+              assessment,
+            ),
+          async () => {
+            const syncMeta = await loadSyncMeta();
+            return buildAssessmentCreateOperation(
+              syncMeta,
+              semester.id,
+              courseId,
+              assessment,
+            );
+          },
         );
       },
       deleteAssessment: (courseId, assessmentId) => {
-        applyWorkspaceState((currentState) =>
-          appStateActions.deleteAssessment(
-            currentState,
-            semester.id,
-            courseId,
-            assessmentId,
-          ),
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.deleteAssessment(
+              currentState,
+              semester.id,
+              courseId,
+              assessmentId,
+            ),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.deleteAssessment(
+              currentState,
+              semester.id,
+              courseId,
+              assessmentId,
+            ),
+          async () => {
+            const syncMeta = await loadSyncMeta();
+            return buildAssessmentDeleteOperation(
+              syncMeta,
+              semester.id,
+              courseId,
+              assessmentId,
+            );
+          },
         );
       },
       updateAssessment: (courseId, nextAssessment) => {
-        applyWorkspaceState((currentState) =>
-          appStateActions.updateAssessment(
-            currentState,
-            semester.id,
-            courseId,
-            nextAssessment,
-          ),
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.updateAssessment(
+              currentState,
+              semester.id,
+              courseId,
+              nextAssessment,
+            ),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.updateAssessment(
+              currentState,
+              semester.id,
+              courseId,
+              nextAssessment,
+            ),
+          async (currentState) => {
+            const currentAssessment =
+              currentState.semesters
+                .find((item) => item.id === semester.id)
+                ?.courses.find((course) => course.id === courseId)
+                ?.assessments.find(
+                  (assessment) => assessment.id === nextAssessment.id,
+                ) ?? null;
+
+            if (!currentAssessment) {
+              return null;
+            }
+
+            const syncMeta = await loadSyncMeta();
+            const built = buildAssessmentUpdateOperation(
+              syncMeta,
+              semester.id,
+              courseId,
+              currentAssessment,
+              nextAssessment,
+            );
+
+            return built.operation.fieldMask.length > 0 ? built : null;
+          },
         );
       },
       reorderAssessments: (courseId, fromAssessmentId, toAssessmentId) => {
-        applyWorkspaceState((currentState) =>
-          appStateActions.reorderAssessments(
-            currentState,
-            semester.id,
-            courseId,
-            fromAssessmentId,
-            toAssessmentId,
-          ),
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.reorderAssessments(
+              currentState,
+              semester.id,
+              courseId,
+              fromAssessmentId,
+              toAssessmentId,
+            ),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.reorderAssessments(
+              currentState,
+              semester.id,
+              courseId,
+              fromAssessmentId,
+              toAssessmentId,
+            ),
+          async () => {
+            const syncMeta = await loadSyncMeta();
+            return buildAssessmentReorderOperation(
+              syncMeta,
+              semester.id,
+              courseId,
+              fromAssessmentId,
+              toAssessmentId,
+            );
+          },
         );
       },
       recordGrade: (courseId, assessmentId, scoreAchieved, totalPossible) => {
-        applyWorkspaceState((currentState) =>
-          appStateActions.recordGrade(
-            currentState,
-            semester.id,
-            courseId,
-            assessmentId,
-            scoreAchieved,
-            totalPossible,
-          ),
-        );
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.recordGrade(
+              currentState,
+              semester.id,
+              courseId,
+              assessmentId,
+              scoreAchieved,
+              totalPossible,
+            ),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.recordGrade(
+              currentState,
+              semester.id,
+              courseId,
+              assessmentId,
+              scoreAchieved,
+              totalPossible,
+            ),
+          async () => {
+            const syncMeta = await loadSyncMeta();
+            return buildRecordGradeOperation(
+              syncMeta,
+              semester.id,
+              courseId,
+              assessmentId,
+              scoreAchieved,
+              totalPossible,
+            );
+          },
+        ).catch((error) => {
+          console.error("Failed to enqueue synced grade update.", error);
+        });
       },
     };
   }, [
     activeAppState,
+    applyPersistedDataChange,
     applyWorkspaceState,
     isExperimenting,
     persistedAppState,
