@@ -75,7 +75,7 @@ export function getGroupedAssessmentItemPrefix(name: string) {
 }
 
 export function buildGroupedAssessmentItems(
-  category: GroupedAssessmentCategory,
+  _category: GroupedAssessmentCategory,
   count: number,
   name: string,
   existing?: GroupedAssessmentItem[],

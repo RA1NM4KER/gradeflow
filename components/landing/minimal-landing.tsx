@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -165,6 +166,24 @@ export function MinimalLanding() {
                   GradeLog stays free, local-first, and account-free. If it has
                   been useful to you, you can help support development.
                 </p>
+                <div className="mt-2">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <Link
+                      className="text-sm text-ink-muted underline decoration-line underline-offset-4 transition hover:text-foreground"
+                      href="/privacy"
+                      prefetch={false}
+                    >
+                      Privacy policy
+                    </Link>
+                    <Link
+                      className="text-sm text-ink-muted underline decoration-line underline-offset-4 transition hover:text-foreground"
+                      href="/terms"
+                      prefetch={false}
+                    >
+                      Terms of service
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
 

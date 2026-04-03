@@ -180,6 +180,10 @@ This project is opinionated.
 
 GradeLog is active and evolving. The current focus is product clarity, UI consistency, and preserving the local-first privacy model while the semester/module/assignment flow gets tighter.
 
+## License
+
+MIT. See [`LICENSE`](./LICENSE).
+
 ## Support
 
 If you found this useful, you can support development:
