@@ -1,17 +1,21 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { Calculator } from "lucide-react";
+import { AlertTriangle, X } from "lucide-react";
 
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { AssessmentTable } from "@/components/workspace/assessment-table";
 import { CourseMobileOverview } from "@/components/workspace/course-mobile-overview";
 import { ExperimentModePill } from "@/components/workspace/experiment-mode-pill";
+import { FloatingStatusPill } from "@/components/workspace/floating-status-pill";
 import { GradeBandPanel } from "@/components/workspace/grade-band-panel";
 import { CourseHeader } from "@/components/workspace/module-header";
 import { getCourseTheme } from "@/lib/course-theme";
 import { cn } from "@/lib/utils";
 import { useCourses } from "@/components/workspace/courses-provider";
 import { navigateCourses } from "@/lib/courses-navigation";
+import { formatPercent, getAssignedWeight } from "@/lib/grade-utils";
 import { Assessment, Course } from "@/lib/types";
 
 export function CourseScreen({ moduleId }: { moduleId?: string }) {
@@ -28,18 +32,60 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
     updateCourse,
   } = useCourses();
   const module = semester.courses.find((item) => item.id === moduleId) ?? null;
+  const [showWeightWarning, setShowWeightWarning] = useState(false);
+
+  const assignedWeight = useMemo(
+    () => (module ? getAssignedWeight(module) : 0),
+    [module],
+  );
+  const hasOverweightAssignments = assignedWeight > 100;
+
+  useEffect(() => {
+    if (!hasOverweightAssignments) {
+      setShowWeightWarning(false);
+    }
+  }, [hasOverweightAssignments]);
+
+  useEffect(() => {
+    setShowWeightWarning(false);
+  }, [module?.id]);
+
+  function maybeShowWeightWarning(
+    previousAssessments: Course["assessments"],
+    nextAssessments: Course["assessments"],
+  ) {
+    const previousAssignedWeight = previousAssessments.reduce(
+      (sum, assessment) => {
+        return sum + assessment.weight;
+      },
+      0,
+    );
+    const nextAssignedWeight = nextAssessments.reduce((sum, assessment) => {
+      return sum + assessment.weight;
+    }, 0);
+
+    setShowWeightWarning(
+      previousAssignedWeight <= 100 && nextAssignedWeight > 100,
+    );
+  }
 
   function saveAssessment(nextModuleId: string, assessment: Assessment) {
     const exists = module?.assessments.some(
       (item) => item.id === assessment.id,
     );
+    const nextAssessments = exists
+      ? (module?.assessments.map((item) =>
+          item.id === assessment.id ? assessment : item,
+        ) ?? [])
+      : [...(module?.assessments ?? []), assessment];
 
     if (exists) {
       updateAssessment(nextModuleId, assessment);
-      return;
+    } else {
+      addAssessment(nextModuleId, assessment);
     }
 
-    addAssessment(nextModuleId, assessment);
+    maybeShowWeightWarning(module?.assessments ?? [], nextAssessments);
   }
 
   function updateGradeBand(bandId: string, threshold: number) {
@@ -110,11 +156,27 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
         />
       </div>
 
-      {isExperimenting ? (
-        <div className="pointer-events-none fixed left-1/2 top-[4.7rem] z-40 w-[calc(100%-2rem)] max-w-max -translate-x-1/2 sm:top-[5.25rem]">
-          <div className="pointer-events-auto">
-            <ExperimentModePill onStopAction={stopExperiment} />
-          </div>
+      {isExperimenting ||
+      (module && hasOverweightAssignments && showWeightWarning) ? (
+        <div className="pointer-events-none fixed left-1/2 top-[4.7rem] z-40 flex w-[calc(100%-2rem)] max-w-[min(100%,44rem)] -translate-x-1/2 flex-col items-center gap-2 sm:top-[5.25rem]">
+          {isExperimenting ? (
+            <div className="pointer-events-auto">
+              <ExperimentModePill onStopAction={stopExperiment} />
+            </div>
+          ) : null}
+          {module && hasOverweightAssignments && showWeightWarning ? (
+            <div className="pointer-events-auto w-full max-w-max">
+              <FloatingStatusPill
+                actionIcon={<X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
+                actionLabel="Dismiss"
+                icon={<AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
+                onAction={() => setShowWeightWarning(false)}
+                subtitle={`This course is set to ${formatPercent(assignedWeight)} in total. Course weights should usually add up to 100%.`}
+                title="Assignment weights are over 100%"
+                tone="danger"
+              />
+            </div>
+          ) : null}
         </div>
       ) : null}
 

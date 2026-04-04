@@ -157,6 +157,15 @@ export function getCompletedWeight(course: Course) {
   }, 0);
 }
 
+export function getAssignedWeight(course: Course) {
+  return round(
+    course.assessments.reduce((sum, assessment) => {
+      return sum + assessment.weight;
+    }, 0),
+    2,
+  );
+}
+
 export function getSecuredContribution(course: Course) {
   return course.assessments.reduce((sum, assessment) => {
     return sum + getAssessmentWeightedContribution(assessment);
