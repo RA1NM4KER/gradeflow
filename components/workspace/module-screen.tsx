@@ -23,6 +23,7 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
     semester,
     addAssessment,
     deleteAssessment,
+    deleteCourse,
     isExperimenting,
     recordGrade,
     reorderAssessments,
@@ -139,6 +140,10 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
         <CourseHeader
           isExperimenting={isExperimenting}
           module={module}
+          onDeleteCourse={(courseId) => {
+            deleteCourse(courseId);
+            navigateCourses("/courses");
+          }}
           onToggleExperiment={() =>
             isExperimenting ? stopExperiment() : startExperiment()
           }

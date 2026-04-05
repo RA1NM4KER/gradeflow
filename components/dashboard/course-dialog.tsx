@@ -31,6 +31,7 @@ const selectableCourseThemeOptions = courseThemeOptions.filter(
 
 interface CourseDialogProps {
   onSaveCourse: (course: Course) => void;
+  onDeleteCourse?: (courseId: string) => void;
   triggerLabel?: string;
   triggerVariant?: ButtonProps["variant"];
   course?: Course;
@@ -40,6 +41,7 @@ interface CourseDialogProps {
 
 export function CourseDialog({
   onSaveCourse,
+  onDeleteCourse,
   triggerLabel = "Add course",
   triggerVariant = "default",
   course,
@@ -92,6 +94,23 @@ export function CourseDialog({
     };
 
     onSaveCourse(nextCourse);
+    setOpen(false);
+  }
+
+  function handleDeleteCourse() {
+    if (!course || !onDeleteCourse) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete ${course.name} and all its assessments? This cannot be undone.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    onDeleteCourse(course.id);
     setOpen(false);
   }
 
@@ -248,23 +267,37 @@ export function CourseDialog({
           {!usesStepper && showsCutoffEditor ? (
             <GradeBandEditor bands={gradeBands} onChange={setGradeBands} />
           ) : null}
-          <DialogFooter>
-            {usesStepper && showsCutoffEditor && step === 2 ? (
-              <Button
-                onClick={() => setStep(1)}
-                type="button"
-                variant="outline"
-              >
-                Back
+          <DialogFooter className="sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              {course ? (
+                <Button
+                  className="border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-950/60 dark:bg-red-950/30 dark:text-red-200 dark:hover:bg-red-950/40"
+                  onClick={handleDeleteCourse}
+                  type="button"
+                  variant="outline"
+                >
+                  Delete course
+                </Button>
+              ) : null}
+            </div>
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+              {usesStepper && showsCutoffEditor && step === 2 ? (
+                <Button
+                  onClick={() => setStep(1)}
+                  type="button"
+                  variant="outline"
+                >
+                  Back
+                </Button>
+              ) : null}
+              <Button type="submit">
+                {usesStepper && showsCutoffEditor && step === 1
+                  ? "Next"
+                  : course
+                    ? "Save changes"
+                    : "Create course"}
               </Button>
-            ) : null}
-            <Button type="submit">
-              {usesStepper && showsCutoffEditor && step === 1
-                ? "Next"
-                : course
-                  ? "Save changes"
-                  : "Create course"}
-            </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -23,6 +23,7 @@ import {
   buildAssessmentReorderOperation,
   buildAssessmentUpdateOperation,
   buildCourseCreateOperation,
+  buildCourseDeleteOperation,
   buildCourseUpdateOperation,
   buildRecordGradeOperation,
   buildSemesterCreateOperation,
@@ -51,6 +52,7 @@ interface CoursesContextValue {
   ) => void;
   selectSemester: (semesterId: string) => void;
   addCourse: (course: Course) => void;
+  deleteCourse: (courseId: string) => void;
   updateCourse: (
     courseId: string,
     updates: Partial<Omit<Course, "id" | "assessments">>,
@@ -283,6 +285,23 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
           async () => {
             const syncMeta = await loadSyncMeta();
             return buildCourseCreateOperation(syncMeta, semester.id, course);
+          },
+        );
+      },
+      deleteCourse: (courseId) => {
+        if (isExperimenting) {
+          applyWorkspaceState((currentState) =>
+            appStateActions.deleteCourse(currentState, semester.id, courseId),
+          );
+          return;
+        }
+
+        void applyPersistedDataChange(
+          (currentState) =>
+            appStateActions.deleteCourse(currentState, semester.id, courseId),
+          async () => {
+            const syncMeta = await loadSyncMeta();
+            return buildCourseDeleteOperation(syncMeta, semester.id, courseId);
           },
         );
       },

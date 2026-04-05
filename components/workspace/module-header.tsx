@@ -14,12 +14,14 @@ export function CourseHeader({
   onToggleExperiment,
   semesterName,
   onSaveCourse,
+  onDeleteCourse,
 }: {
   isExperimenting: boolean;
   module: Course;
   onToggleExperiment: () => void;
   semesterName: string;
   onSaveCourse: (course: Course) => void;
+  onDeleteCourse: (courseId: string) => void;
 }) {
   const { resolvedTheme } = useTheme();
   const experimentTheme = getExperimentTheme(resolvedTheme);
@@ -41,6 +43,7 @@ export function CourseHeader({
           </h1>
           <CourseDialog
             course={module}
+            onDeleteCourse={onDeleteCourse}
             onSaveCourse={onSaveCourse}
             triggerAsChild
             triggerChildren={
