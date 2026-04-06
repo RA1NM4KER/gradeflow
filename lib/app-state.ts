@@ -95,6 +95,8 @@ function normalizeSingleAssessment(
   rawAssessment: RecordValue,
   index: number,
 ): SingleAssessment {
+  const rawSubminimum = getNullableNumber(rawAssessment.subminimumPercent);
+
   return {
     id: ensureUuid(rawAssessment.id),
     kind: "single",
@@ -106,6 +108,8 @@ function normalizeSingleAssessment(
       rawAssessment.scoreAchieved === null
         ? null
         : getNullableNumber(rawAssessment.scoreAchieved),
+    subminimumPercent:
+      rawSubminimum !== null && rawSubminimum > 0 ? rawSubminimum : null,
     totalPossible: getNumber(rawAssessment.totalPossible, 100),
     category:
       rawAssessment.category === "exam" ||

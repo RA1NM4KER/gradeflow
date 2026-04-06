@@ -78,6 +78,7 @@ export function SingleAssessmentDialog({
       weight: Number(form.weight || 0),
       dueDate: form.dueDate,
       scoreAchieved: parsedGrade,
+      subminimumPercent: parseOptionalPercent(form.subminimumPercent),
       totalPossible: 100,
       status: parsedGrade === null ? "ongoing" : "completed",
     });
@@ -137,6 +138,28 @@ export function SingleAssessmentDialog({
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor={`assignment-subminimum-${assessment.id}`}>
+                  Subminimum (%) optional
+                </Label>
+                <Input
+                  id={`assignment-subminimum-${assessment.id}`}
+                  inputMode="decimal"
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      subminimumPercent: sanitizePlainNumberInput(
+                        event.target.value,
+                      ),
+                    }))
+                  }
+                  placeholder="e.g. 45"
+                  type="text"
+                  value={form.subminimumPercent}
+                />
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
                 <Label htmlFor={`assignment-grade-${assessment.id}`}>
                   Grade
                 </Label>
@@ -154,28 +177,28 @@ export function SingleAssessmentDialog({
                   value={form.grade}
                 />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`assignment-due-date-${assessment.id}`}>
-                Due date
-              </Label>
-              <Input
-                id={`assignment-due-date-${assessment.id}`}
-                onChange={(event) => {
-                  setForm((current) => ({
-                    ...current,
-                    dueDate: event.target.value,
-                  }));
-                  setDueDateError("");
-                }}
-                inputMode={useTextDateInput ? "numeric" : undefined}
-                placeholder={useTextDateInput ? "YYYY-MM-DD" : "Optional"}
-                type={useTextDateInput ? "text" : "date"}
-                value={form.dueDate}
-              />
-              {dueDateError ? (
-                <p className="text-xs text-rose-600">{dueDateError}</p>
-              ) : null}
+              <div className="space-y-2">
+                <Label htmlFor={`assignment-due-date-${assessment.id}`}>
+                  Due date
+                </Label>
+                <Input
+                  id={`assignment-due-date-${assessment.id}`}
+                  onChange={(event) => {
+                    setForm((current) => ({
+                      ...current,
+                      dueDate: event.target.value,
+                    }));
+                    setDueDateError("");
+                  }}
+                  inputMode={useTextDateInput ? "numeric" : undefined}
+                  placeholder={useTextDateInput ? "YYYY-MM-DD" : "Optional"}
+                  type={useTextDateInput ? "text" : "date"}
+                  value={form.dueDate}
+                />
+                {dueDateError ? (
+                  <p className="text-xs text-rose-600">{dueDateError}</p>
+                ) : null}
+              </div>
             </div>
           </div>
 
@@ -226,8 +249,22 @@ function getFormState(assessment: SingleAssessment) {
             assessment.scoreAchieved,
             assessment.totalPossible,
           ),
+    subminimumPercent:
+      assessment.subminimumPercent === null
+        ? ""
+        : String(assessment.subminimumPercent),
     dueDate: assessment.dueDate || "",
   };
+}
+
+function parseOptionalPercent(value: string) {
+  const numeric = Number(value.trim());
+
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    return null;
+  }
+
+  return Math.min(numeric, 100);
 }
 
 function validateDueDate(value: string) {

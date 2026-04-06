@@ -229,6 +229,9 @@ function buildAssessmentChanges(current: Assessment, next: Assessment) {
     if (current.scoreAchieved !== next.scoreAchieved) {
       changes.scoreAchieved = next.scoreAchieved;
     }
+    if (current.subminimumPercent !== next.subminimumPercent) {
+      changes.subminimumPercent = next.subminimumPercent;
+    }
     if (current.totalPossible !== next.totalPossible) {
       changes.totalPossible = next.totalPossible;
     }
@@ -274,6 +277,7 @@ export function buildAssessmentCreateOperation(
             "status",
             "category",
             "scoreAchieved",
+            "subminimumPercent",
             "totalPossible",
           ],
     opType: "assessment.create",

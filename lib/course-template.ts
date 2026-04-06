@@ -17,6 +17,7 @@ export interface CourseTemplateSingleAssessment {
   category: "exam" | "project" | "quiz" | "assignment" | "presentation";
   dueDate: string;
   name: string;
+  subminimumPercent?: number | null;
   totalPossible: number;
   weight: number;
 }
@@ -127,6 +128,7 @@ export function buildCourseTemplatePayload(
             category: assessment.category,
             dueDate: assessment.dueDate,
             name: assessment.name,
+            subminimumPercent: assessment.subminimumPercent,
             totalPossible: assessment.totalPossible,
             weight: assessment.weight,
           }
@@ -246,6 +248,12 @@ export function instantiateCourseFromTemplate(
             name: assessment.name,
             scoreAchieved: null,
             status: "ongoing",
+            subminimumPercent:
+              assessment.subminimumPercent !== undefined &&
+              assessment.subminimumPercent !== null &&
+              assessment.subminimumPercent > 0
+                ? assessment.subminimumPercent
+                : null,
             totalPossible: assessment.totalPossible,
             weight: assessment.weight,
           }

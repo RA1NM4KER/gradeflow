@@ -77,6 +77,7 @@ export function AssessmentComposerDialog({
         name: singleForm.name,
         weight: Number(singleForm.weight),
         scoreAchieved: null,
+        subminimumPercent: parseOptionalPercent(singleForm.subminimumPercent),
         totalPossible: 100,
         dueDate: singleForm.dueDate,
         category: "assignment",
@@ -171,6 +172,28 @@ export function AssessmentComposerDialog({
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="single-subminimum">
+                      Subminimum (%) optional
+                    </Label>
+                    <Input
+                      id="single-subminimum"
+                      inputMode="decimal"
+                      onChange={(event) =>
+                        setSingleForm((current) => ({
+                          ...current,
+                          subminimumPercent: sanitizePlainNumberInput(
+                            event.target.value,
+                          ),
+                        }))
+                      }
+                      placeholder="e.g. 45"
+                      type="text"
+                      value={singleForm.subminimumPercent}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
                     <Label htmlFor="single-due-date">Due date</Label>
                     <Input
                       id="single-due-date"
@@ -247,6 +270,17 @@ function getDefaultSingleForm() {
   return {
     name: "",
     weight: "20",
+    subminimumPercent: "",
     dueDate: "",
   };
+}
+
+function parseOptionalPercent(value: string) {
+  const numeric = Number(value.trim());
+
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    return null;
+  }
+
+  return Math.min(numeric, 100);
 }

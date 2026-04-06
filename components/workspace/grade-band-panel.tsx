@@ -16,6 +16,7 @@ import {
   getCompletedWeight,
   getModuleCurrentGrade,
   getModuleGuaranteedGrade,
+  getCourseSubminimumRequirements,
   getGradeBandState,
   getRemainingWeight,
   getSortedGradeBands,
@@ -52,6 +53,7 @@ export function GradeBandPanel({
   const isLockedRange = Math.abs(ceiling - guaranteedGrade) < 0.01;
   const completion = getCompletedWeight(module);
   const bands = getSortedGradeBands(module);
+  const subminimumRequirements = getCourseSubminimumRequirements(module);
   const { resolvedTheme } = useTheme();
   const theme = getCourseTheme(module, resolvedTheme);
   const experimentTheme = getExperimentTheme(resolvedTheme);
@@ -180,6 +182,51 @@ export function GradeBandPanel({
       </div>
 
       <div className="min-w-0">
+        {subminimumRequirements.length > 0 ? (
+          <div className="mb-3 overflow-hidden rounded-[20px] border border-line bg-surface/90 sm:mb-4 sm:rounded-[24px]">
+            <div className="border-b border-line px-3 py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-ink-subtle sm:px-4">
+              Subminimum rules
+            </div>
+            <div className="grid gap-0">
+              {subminimumRequirements.map((requirement) => (
+                <div
+                  className="flex items-center justify-between gap-3 border-t border-line px-3 py-2.5 first:border-t-0 sm:px-4 sm:py-3"
+                  key={requirement.assessmentId}
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {requirement.assessmentName}
+                    </p>
+                    <p className="text-xs text-ink-soft">
+                      Need at least {formatPercent(requirement.minimumPercent)}
+                    </p>
+                  </div>
+                  <p
+                    className={cn(
+                      "shrink-0 text-xs font-semibold uppercase tracking-[0.14em]",
+                      requirement.status === "failed"
+                        ? "text-rose-600 dark:text-rose-300"
+                        : requirement.status === "met"
+                          ? "text-emerald-600"
+                          : "text-amber-600",
+                    )}
+                  >
+                    {requirement.status === "failed"
+                      ? requirement.achievedPercent === null
+                        ? "Failed"
+                        : `${formatPercent(requirement.achievedPercent)}`
+                      : requirement.status === "met"
+                        ? requirement.achievedPercent === null
+                          ? "Met"
+                          : `${formatPercent(requirement.achievedPercent)}`
+                        : "--"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         <p className="mb-2.5 text-center text-[0.82rem] text-ink-soft sm:mb-3 sm:text-sm">
           Remainder of grades must average:
         </p>
@@ -237,6 +284,22 @@ export function GradeBandPanel({
                     }
                   />
                 </div>
+                {result.subminimumRequirements.length > 0 ? (
+                  <p
+                    className={cn(
+                      "text-xs",
+                      result.hasFailedSubminimums
+                        ? "text-rose-600 dark:text-rose-300"
+                        : "text-ink-soft",
+                    )}
+                  >
+                    {result.hasFailedSubminimums
+                      ? `Blocked by ${getSubminimumSummary(result)}`
+                      : result.hasPendingSubminimums
+                        ? `Meet submin: ${getSubminimumSummary(result)}`
+                        : "Submin met"}
+                  </p>
+                ) : null}
               </div>
             );
           })}
@@ -257,6 +320,24 @@ function renderNeededValue(value: string) {
       <span className="text-base font-medium text-ink-soft">%</span>
     </>
   );
+}
+
+function getSubminimumSummary(
+  result: ReturnType<typeof calculateRequiredScore>,
+) {
+  return result.subminimumRequirements
+    .filter((requirement) =>
+      result.hasFailedSubminimums
+        ? requirement.status === "failed"
+        : requirement.status === "pending",
+    )
+    .map(
+      (requirement) =>
+        `${requirement.assessmentName} >= ${formatPercent(
+          requirement.minimumPercent,
+        )}`,
+    )
+    .join(" · ");
 }
 
 function getLinePosition(value: number) {

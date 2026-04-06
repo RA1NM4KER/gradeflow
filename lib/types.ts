@@ -17,6 +17,7 @@ export interface AssessmentBase {
 export interface SingleAssessment extends AssessmentBase {
   kind: "single";
   scoreAchieved: number | null;
+  subminimumPercent: number | null;
   totalPossible: number;
   category: SingleAssessmentCategory;
 }
@@ -82,8 +83,19 @@ export interface Semester {
 }
 export interface RequiredScoreResult {
   achievable: boolean;
+  hasFailedSubminimums: boolean;
+  hasPendingSubminimums: boolean;
   neededAverage: number;
   neededPoints: number;
   remainingWeight: number;
+  subminimumRequirements: SubminimumRequirement[];
   message: string;
+}
+
+export interface SubminimumRequirement {
+  achievedPercent: number | null;
+  assessmentId: string;
+  assessmentName: string;
+  minimumPercent: number;
+  status: "failed" | "met" | "pending";
 }

@@ -67,6 +67,7 @@ export interface AssessmentPatch {
   dueDate?: string;
   status?: AssessmentStatus;
   scoreAchieved?: number | null;
+  subminimumPercent?: number | null;
   totalPossible?: number;
   category?: Assessment["category"];
   dropLowest?: number;

@@ -3,6 +3,7 @@ import {
   Course,
   GradeBand,
   GroupedAssessment,
+  SubminimumRequirement,
   RequiredScoreResult,
   Semester,
   SingleAssessment,
@@ -64,6 +65,32 @@ function getSinglePercent(assessment: SingleAssessment) {
   return (assessment.scoreAchieved / assessment.totalPossible) * 100;
 }
 
+function getSingleSubminimumRequirement(
+  assessment: SingleAssessment,
+): SubminimumRequirement | null {
+  if (
+    assessment.subminimumPercent === null ||
+    assessment.subminimumPercent <= 0
+  ) {
+    return null;
+  }
+
+  const achievedPercent = getSinglePercent(assessment);
+
+  return {
+    achievedPercent: achievedPercent === null ? null : round(achievedPercent),
+    assessmentId: assessment.id,
+    assessmentName: assessment.name,
+    minimumPercent: round(assessment.subminimumPercent),
+    status:
+      achievedPercent === null
+        ? "pending"
+        : achievedPercent >= assessment.subminimumPercent
+          ? "met"
+          : "failed",
+  };
+}
+
 export function getGroupedAssessmentMetrics(assessment: GroupedAssessment) {
   const gradedItems = assessment.items.filter(
     (item) => item.scoreAchieved !== null,
@@ -117,6 +144,17 @@ export function getAssessmentPercent(assessment: Assessment) {
   }
 
   return getGroupedAssessmentMetrics(assessment).currentPercent;
+}
+
+export function getCourseSubminimumRequirements(course: Course) {
+  return course.assessments.flatMap((assessment) => {
+    if (!isSingleAssessment(assessment)) {
+      return [];
+    }
+
+    const requirement = getSingleSubminimumRequirement(assessment);
+    return requirement ? [requirement] : [];
+  });
 }
 
 export function getAssessmentCurrentWeight(assessment: Assessment) {
@@ -207,30 +245,70 @@ export function getGradeBandState(
   course: Course,
   band: GradeBand,
 ): "guaranteed" | "reachable" | "unreachable" {
-  if (getCourseGuaranteedGrade(course) >= band.threshold) {
+  const result = calculateRequiredScore(course, band.threshold);
+
+  if (!result.achievable) {
+    return "unreachable";
+  }
+
+  if (
+    getCourseGuaranteedGrade(course) >= band.threshold &&
+    !result.hasPendingSubminimums
+  ) {
     return "guaranteed";
   }
 
-  return calculateRequiredScore(course, band.threshold).achievable
-    ? "reachable"
-    : "unreachable";
+  return "reachable";
 }
 
 export function calculateRequiredScore(
   course: Course,
   targetGrade: number,
 ): RequiredScoreResult {
+  const subminimumRequirements = getCourseSubminimumRequirements(course);
+  const hasFailedSubminimums = subminimumRequirements.some(
+    (requirement) => requirement.status === "failed",
+  );
+  const hasPendingSubminimums = subminimumRequirements.some(
+    (requirement) => requirement.status === "pending",
+  );
   const securedContribution = getSecuredContribution(course);
   const remainingWeight = getRemainingWeight(course);
   const neededPoints = targetGrade - securedContribution;
 
+  if (hasFailedSubminimums) {
+    const failedRequirements = subminimumRequirements.filter(
+      (requirement) => requirement.status === "failed",
+    );
+    const failedLabel = failedRequirements
+      .map(
+        (requirement) =>
+          `${requirement.assessmentName} needs ${requirement.minimumPercent}%`,
+      )
+      .join("; ");
+
+    return {
+      achievable: false,
+      hasFailedSubminimums,
+      hasPendingSubminimums,
+      neededAverage: 0,
+      neededPoints: round(Math.max(neededPoints, 0)),
+      remainingWeight,
+      subminimumRequirements,
+      message: `This target is blocked by subminimum rules: ${failedLabel}.`,
+    };
+  }
+
   if (remainingWeight <= 0) {
     const achieved = round(securedContribution);
     return {
-      achievable: achieved >= targetGrade,
+      achievable: achieved >= targetGrade && !hasFailedSubminimums,
+      hasFailedSubminimums,
+      hasPendingSubminimums,
       neededAverage: 0,
       neededPoints: 0,
       remainingWeight: 0,
+      subminimumRequirements,
       message:
         achieved >= targetGrade
           ? `This course is already closed above your ${targetGrade}% target.`
@@ -243,29 +321,42 @@ export function calculateRequiredScore(
   if (neededAverage <= 0) {
     return {
       achievable: true,
+      hasFailedSubminimums,
+      hasPendingSubminimums,
       neededAverage: 0,
       neededPoints: round(Math.max(neededPoints, 0)),
       remainingWeight,
-      message: "You have already secured enough to finish above this target.",
+      subminimumRequirements,
+      message: hasPendingSubminimums
+        ? "You have already secured enough on average, but you still need to satisfy the remaining subminimums."
+        : "You have already secured enough to finish above this target.",
     };
   }
 
   if (neededAverage > 100) {
     return {
       achievable: false,
+      hasFailedSubminimums,
+      hasPendingSubminimums,
       neededAverage,
       neededPoints: round(neededPoints),
       remainingWeight,
+      subminimumRequirements,
       message: `You would need ${neededAverage}% across the remaining work, which is not feasible.`,
     };
   }
 
   return {
     achievable: true,
+    hasFailedSubminimums,
+    hasPendingSubminimums,
     neededAverage,
     neededPoints: round(neededPoints),
     remainingWeight,
-    message: `You need an average of ${neededAverage}% across the remaining ${remainingWeight}% of the course.`,
+    subminimumRequirements,
+    message: hasPendingSubminimums
+      ? `You need an average of ${neededAverage}% across the remaining ${remainingWeight}% of the course, while still meeting the subminimum rules.`
+      : `You need an average of ${neededAverage}% across the remaining ${remainingWeight}% of the course.`,
   };
 }
 

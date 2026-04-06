@@ -9,6 +9,7 @@ import { getExperimentTheme } from "@/lib/experiment-theme";
 import {
   calculateRequiredScore,
   formatPercent,
+  getCourseSubminimumRequirements,
   getGradeBandState,
 } from "@/lib/grade-utils";
 import { cn } from "@/lib/utils";
@@ -28,9 +29,50 @@ export function CourseMobileOverviewNeededGrid({
   const { resolvedTheme } = useTheme();
   const theme = getCourseTheme(module, resolvedTheme);
   const experimentTheme = getExperimentTheme(resolvedTheme);
+  const subminimumRequirements = getCourseSubminimumRequirements(module);
 
   return (
     <div className="grid gap-2.5">
+      {subminimumRequirements.length > 0 ? (
+        <div className="rounded-[18px] border border-line bg-surface px-3 py-3">
+          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-ink-subtle">
+            Subminimum rules
+          </p>
+          <div className="mt-2 grid gap-2">
+            {subminimumRequirements.map((requirement) => (
+              <div
+                className="flex items-center justify-between gap-3"
+                key={requirement.assessmentId}
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {requirement.assessmentName}
+                  </p>
+                  <p className="text-xs text-ink-soft">
+                    Need {formatPercent(requirement.minimumPercent)}
+                  </p>
+                </div>
+                <p
+                  className={cn(
+                    "shrink-0 text-xs font-semibold uppercase tracking-[0.14em]",
+                    requirement.status === "failed"
+                      ? "text-rose-600 dark:text-rose-300"
+                      : requirement.status === "met"
+                        ? "text-emerald-600"
+                        : "text-amber-600",
+                  )}
+                >
+                  {requirement.status === "pending"
+                    ? "--"
+                    : requirement.achievedPercent === null
+                      ? requirement.status
+                      : formatPercent(requirement.achievedPercent)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
       <div className="flex items-center justify-between gap-3">
         <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-ink-subtle">
           What do I need?
@@ -102,6 +144,17 @@ export function CourseMobileOverviewNeededGrid({
               >
                 {needed}
               </p>
+              {result.subminimumRequirements.length > 0 ? (
+                result.hasFailedSubminimums ? (
+                  <p
+                    className={cn(
+                      "mt-1 text-[0.68rem] leading-tight text-rose-600 dark:text-rose-300",
+                    )}
+                  >
+                    Submin failed
+                  </p>
+                ) : null
+              ) : null}
             </div>
           );
         })}

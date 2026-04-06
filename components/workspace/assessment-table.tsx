@@ -273,9 +273,17 @@ function MobileAssessmentRow({
           <div className="min-w-0 flex-1">
             <InlineText
               display={
-                <span className="block truncate font-medium text-foreground">
-                  {assessment.name}
-                </span>
+                <div>
+                  <span className="block truncate font-medium text-foreground">
+                    {assessment.name}
+                  </span>
+                  {assessment.subminimumPercent !== null ? (
+                    <span className="block truncate text-[0.72rem] text-ink-subtle">
+                      Need {formatPercent(assessment.subminimumPercent)} in this
+                      assignment
+                    </span>
+                  ) : null}
+                </div>
               }
               onCommit={(name) =>
                 onSaveAssessment(moduleId, { ...assessment, name })
@@ -379,7 +387,7 @@ function MobileGroupedAssessmentRow({
         </span>
         <span className="block w-full px-2 py-3 -mx-2 -my-3 text-center">
           {metrics.currentPercent === null ? (
-            <span className="text-ink-subtle">Pending</span>
+            <span className="text-ink-subtle">--</span>
           ) : (
             <span
               className={`font-medium ${
@@ -494,9 +502,14 @@ function SingleAssessmentRow({
         <InlineText
           align="left"
           display={
-            <p className="cursor-text font-medium text-foreground">
-              {assessment.name}
-            </p>
+            <div className="cursor-text">
+              <p className="font-medium text-foreground">{assessment.name}</p>
+              {assessment.subminimumPercent !== null ? (
+                <p className="text-xs text-ink-subtle">
+                  Need {formatPercent(assessment.subminimumPercent)} here
+                </p>
+              ) : null}
+            </div>
           }
           onCommit={(name) =>
             onSaveAssessment(module.id, { ...assessment, name })
@@ -641,7 +654,7 @@ function GroupedAssessmentRow({
       </WorkspaceTableCell>
       <WorkspaceTableCell className="px-3 py-3 text-sm text-ink-soft lg:px-5 lg:py-4 min-[1024px]:max-[1120px]:px-2">
         {metrics.currentPercent === null ? (
-          <span className="text-ink-subtle">Pending</span>
+          <span className="text-ink-subtle">--</span>
         ) : (
           <div
             className={`font-medium ${
@@ -854,6 +867,12 @@ function InlineAssessmentResult({
   }, [editing]);
 
   if (!editing) {
+    const percent = getAssessmentPercent(assessment);
+    const failedSubminimum =
+      assessment.subminimumPercent !== null &&
+      percent !== null &&
+      percent < assessment.subminimumPercent;
+
     return (
       <button
         className={`block w-full cursor-text px-2 py-3 -mx-2 -my-3 ${align === "center" ? "text-center" : "text-left"}`}
@@ -861,15 +880,33 @@ function InlineAssessmentResult({
         type="button"
       >
         {assessment.scoreAchieved === null ? (
-          <span className="text-ink-subtle">Pending</span>
+          <span className="text-ink-subtle">--</span>
         ) : (
-          <p
-            className={`font-medium ${
-              isExperimenting ? experimentTheme.accentText : "text-foreground"
-            }`}
-          >
-            {formatPercent(getAssessmentPercent(assessment) ?? 0)}
-          </p>
+          <div>
+            <p
+              className={`font-medium ${
+                failedSubminimum
+                  ? "text-rose-600 dark:text-rose-300"
+                  : isExperimenting
+                    ? experimentTheme.accentText
+                    : "text-foreground"
+              }`}
+            >
+              {formatPercent(percent ?? 0)}
+            </p>
+            {assessment.subminimumPercent !== null ? (
+              <p
+                className={cn(
+                  "text-[0.72rem]",
+                  failedSubminimum
+                    ? "text-rose-600 dark:text-rose-300"
+                    : "text-ink-subtle",
+                )}
+              >
+                Min {formatPercent(assessment.subminimumPercent)}
+              </p>
+            ) : null}
+          </div>
         )}
       </button>
     );
