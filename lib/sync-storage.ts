@@ -108,32 +108,6 @@ export async function loadLocalTombstones() {
 
   return result as SyncTombstoneRecord[];
 }
-
-export async function saveLocalTombstone(tombstone: SyncTombstoneRecord) {
-  await withStore(TOMBSTONES_STORE_NAME, "readwrite", (store) =>
-    store.put(tombstone, `${tombstone.entityType}:${tombstone.entityId}`),
-  );
-
-  return tombstone;
-}
-
-export async function deleteLocalTombstone(
-  entityType: SyncTombstoneRecord["entityType"],
-  entityId: string,
-) {
-  await withStore(TOMBSTONES_STORE_NAME, "readwrite", (store) =>
-    store.delete(`${entityType}:${entityId}`),
-  );
-}
-
-export async function getAppliedSyncOperation(clientOpId: string) {
-  const result = await withStore(APPLIED_OPS_STORE_NAME, "readonly", (store) =>
-    store.get(clientOpId),
-  );
-
-  return (result as AppliedSyncOperationRecord | undefined) ?? null;
-}
-
 export async function loadAppliedSyncOperations() {
   const result = await withStore(APPLIED_OPS_STORE_NAME, "readonly", (store) =>
     store.getAll(),
@@ -161,15 +135,6 @@ export async function loadEntityVersionStates() {
 
   return result as SyncEntityVersionState[];
 }
-
-export async function saveEntityVersionState(record: SyncEntityVersionState) {
-  await withStore(ENTITY_VERSIONS_STORE_NAME, "readwrite", (store) =>
-    store.put(record, `${record.entityType}:${record.entityId}`),
-  );
-
-  return record;
-}
-
 export async function replaceEntityVersionStates(
   records: SyncEntityVersionState[],
 ) {
@@ -191,15 +156,6 @@ export async function replaceLocalTombstones(records: SyncTombstoneRecord[]) {
     return store.getAllKeys();
   });
 }
-
-export const SYNC_STORE_NAMES = {
-  appliedOps: APPLIED_OPS_STORE_NAME,
-  entityVersions: ENTITY_VERSIONS_STORE_NAME,
-  pendingOps: PENDING_OPS_STORE_NAME,
-  syncMeta: SYNC_META_STORE_NAME,
-  tombstones: TOMBSTONES_STORE_NAME,
-} as const;
-
 export async function resetLocalSyncState() {
   await Promise.all([
     clearStore(PENDING_OPS_STORE_NAME),

@@ -65,10 +65,10 @@ function getInstallHint() {
 
 export function InstallAppButton({
   className,
-  onInstalled,
+  onInstalledAction,
 }: {
   className?: string;
-  onInstalled?: () => void;
+  onInstalledAction?: () => void;
 }) {
   const nativeApp = isNativeApp();
   const [promptEvent, setPromptEvent] =
@@ -96,7 +96,7 @@ export function InstallAppButton({
     function handleAppInstalled() {
       setIsInstalled(true);
       setPromptEvent(null);
-      onInstalled?.();
+      onInstalledAction?.();
     }
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -109,7 +109,7 @@ export function InstallAppButton({
       );
       window.removeEventListener("appinstalled", handleAppInstalled);
     };
-  }, [nativeApp, onInstalled]);
+  }, [nativeApp, onInstalledAction]);
 
   if (nativeApp) {
     return null;
@@ -153,7 +153,7 @@ export function InstallAppButton({
 
           if (result.outcome === "accepted") {
             setPromptEvent(null);
-            onInstalled?.();
+            onInstalledAction?.();
           }
         } finally {
           setIsPrompting(false);

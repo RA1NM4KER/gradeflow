@@ -15,9 +15,6 @@ import {
 import { GradeBandEditor } from "@/components/workspace/grade-band-editor";
 import { GradeBand } from "@/lib/types";
 
-const dialogPrimaryButtonClassName =
-  "border border-black/10 bg-black text-white shadow-[0_10px_24px_rgba(28,25,23,0.12)] hover:bg-black/90 dark:border-white/10 dark:bg-white dark:text-black dark:hover:bg-white/90";
-
 interface GradeBandDialogProps {
   bands: GradeBand[];
   onSave: (bands: GradeBand[]) => void;
@@ -43,7 +40,7 @@ export function GradeBandDialog({
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild={triggerAsChild}>{triggerChildren}</DialogTrigger>
-      <DialogContent className="flex max-h-[92vh] w-[min(94vw,640px)] flex-col overflow-hidden rounded-[28px] p-4 sm:rounded-[32px] sm:p-6">
+      <DialogContent layout="workspace">
         <DialogHeader className="shrink-0">
           <DialogTitle>Edit cutoffs</DialogTitle>
           <DialogDescription>
@@ -55,12 +52,12 @@ export function GradeBandDialog({
         </div>
         <DialogFooter className="shrink-0 pt-3">
           <Button
-            className={dialogPrimaryButtonClassName}
             onClick={() => {
               onSave(draftBands);
               setOpen(false);
             }}
             type="button"
+            variant="contrast"
           >
             Save cutoffs
           </Button>

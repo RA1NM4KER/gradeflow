@@ -12,6 +12,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { SectionLabel } from "@/components/ui/section-label";
 import { Course } from "@/lib/types";
 import {
   buildCourseTemplateQrCode,
@@ -148,10 +150,12 @@ export function ShareCourseTemplateDialog({
             Course sharing needs Supabase to be configured in this build.
           </div>
         ) : isLoading ? (
-          <div className="flex min-h-[18rem] flex-col items-center justify-center gap-3 rounded-[24px] border border-line bg-surface-panel/60">
-            <LoaderCircle className="h-6 w-6 animate-spin text-ink-muted" />
-            <p className="text-sm text-ink-soft">Preparing your share link</p>
-          </div>
+          <Card className="rounded-[24px]" variant="surface-panel">
+            <CardContent className="flex min-h-[18rem] flex-col items-center justify-center gap-3 p-6">
+              <LoaderCircle className="h-6 w-6 animate-spin text-ink-muted" />
+              <p className="text-sm text-ink-soft">Preparing your share link</p>
+            </CardContent>
+          </Card>
         ) : errorMessage ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-950/40 dark:bg-red-950/20 dark:text-red-200">
             {errorMessage}
@@ -159,32 +163,34 @@ export function ShareCourseTemplateDialog({
         ) : shareData ? (
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
-              <div className="flex flex-col items-center justify-center rounded-[24px] border border-line bg-surface-panel/70 p-4">
-                {qrCodeDataUrl ? (
-                  <img
-                    alt="QR code for the course template share link"
-                    className="h-40 w-40 rounded-2xl bg-white p-2"
-                    src={qrCodeDataUrl}
-                  />
-                ) : (
-                  <div className="flex h-40 w-40 items-center justify-center rounded-2xl border border-dashed border-line bg-surface text-ink-muted">
-                    <QrCode className="h-10 w-10" />
-                  </div>
-                )}
-                <p className="mt-3 text-center text-xs text-ink-soft">
-                  Scan to open this course setup on another device.
-                </p>
-              </div>
+              <Card className="rounded-[24px]" variant="surface-panel">
+                <CardContent className="flex flex-col items-center justify-center p-4">
+                  {qrCodeDataUrl ? (
+                    <img
+                      alt="QR code for the course template share link"
+                      className="h-40 w-40 rounded-2xl bg-white p-2"
+                      src={qrCodeDataUrl}
+                    />
+                  ) : (
+                    <div className="flex h-40 w-40 items-center justify-center rounded-2xl border border-dashed border-line bg-surface text-ink-muted">
+                      <QrCode className="h-10 w-10" />
+                    </div>
+                  )}
+                  <p className="mt-3 text-center text-xs text-ink-soft">
+                    Scan to open this course setup on another device.
+                  </p>
+                </CardContent>
+              </Card>
 
               <div className="space-y-4">
-                <div className="rounded-[24px] border border-line bg-surface-panel/70 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                    Share link
-                  </p>
-                  <p className="mt-2 break-all text-sm text-foreground">
-                    {shareData.shareUrl}
-                  </p>
-                </div>
+                <Card className="rounded-[24px]" variant="surface-panel">
+                  <CardContent className="p-4">
+                    <SectionLabel>Share link</SectionLabel>
+                    <p className="mt-2 break-all text-sm text-foreground">
+                      {shareData.shareUrl}
+                    </p>
+                  </CardContent>
+                </Card>
 
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <Button
@@ -212,10 +218,12 @@ export function ShareCourseTemplateDialog({
                   ) : null}
                 </div>
 
-                <div className="rounded-[24px] border border-line bg-surface-panel/70 p-4 text-sm text-ink-soft">
-                  This shares the course layout, assignments, and grading scale.
-                  It does not share your marks.
-                </div>
+                <Card className="rounded-[24px]" variant="surface-panel">
+                  <CardContent className="p-4 text-sm text-ink-soft">
+                    This shares the course layout, assignments, and grading
+                    scale. It does not share your marks.
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>

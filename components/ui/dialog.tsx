@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { cva, type VariantProps } from "class-variance-authority";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -7,6 +8,24 @@ import { cn } from "@/lib/utils";
 const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
 const DialogPortal = DialogPrimitive.Portal;
+const dialogContentVariants = cva(
+  "fixed left-[50%] top-[50%] z-50 grid w-[calc(100vw-1rem)] max-w-[640px] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-hidden rounded-[28px] border border-white/30 bg-surface-dialog/82 p-4 shadow-[0_22px_70px_-38px_rgba(15,23,42,0.28),0_1px_0_rgba(255,255,255,0.5)_inset] backdrop-blur-xl duration-200 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-20 before:bg-gradient-to-b before:from-white/38 before:via-white/12 before:to-transparent sm:w-[min(92vw,640px)] sm:rounded-[32px] sm:p-6 dark:border-white/10 dark:before:from-white/8 dark:before:via-white/2",
+  {
+    variants: {
+      layout: {
+        default: "",
+        workspace: "flex max-h-[92vh] w-[min(94vw,640px)] flex-col",
+        "workspace-compact": "flex max-h-[92vh] w-[min(94vw,560px)] flex-col",
+        "workspace-wide":
+          "flex max-h-[92vh] w-[min(94vw,640px)] flex-col sm:max-w-4xl",
+      },
+    },
+    defaultVariants: {
+      layout: "default",
+    },
+  },
+);
+
 const DialogOverlay = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
@@ -24,16 +43,14 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const DialogContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, onClick, onPointerDown, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
+    VariantProps<typeof dialogContentVariants>
+>(({ className, children, layout, onClick, onPointerDown, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-[calc(100vw-1rem)] max-w-[640px] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-hidden rounded-[28px] border border-white/30 bg-surface-dialog/82 p-4 shadow-[0_22px_70px_-38px_rgba(15,23,42,0.28),0_1px_0_rgba(255,255,255,0.5)_inset] backdrop-blur-xl duration-200 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-20 before:bg-gradient-to-b before:from-white/38 before:via-white/12 before:to-transparent sm:w-[min(92vw,640px)] sm:rounded-[32px] sm:p-6 dark:border-white/10 dark:before:from-white/8 dark:before:via-white/2",
-        className,
-      )}
+      className={cn(dialogContentVariants({ layout }), className)}
       onClick={(event) => {
         event.stopPropagation();
         onClick?.(event);
@@ -115,4 +132,5 @@ export {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  dialogContentVariants,
 };

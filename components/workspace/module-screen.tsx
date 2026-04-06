@@ -259,8 +259,6 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
   );
 }
 
-export const ModuleScreen = CourseScreen;
-
 function CourseSwitcher({
   semesterCourses,
   activeCourseId,

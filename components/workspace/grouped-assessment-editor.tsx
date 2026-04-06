@@ -13,7 +13,6 @@ import {
   WorkspaceTableRow,
 } from "@/components/workspace/courses-table";
 import {
-  getGroupedAssessmentDefinition,
   getGroupedAssessmentItemPrefix,
   normalizeDropLowest,
   resizeGroupedAssessmentItems,
@@ -28,12 +27,6 @@ import {
   GroupedAssessmentCategory,
   GroupedAssessmentItem,
 } from "@/lib/types";
-
-const inlineGroupedInputClassName =
-  "h-auto w-full rounded-none border-0 bg-transparent px-0 py-0 text-center text-sm font-medium leading-normal text-foreground shadow-none focus-visible:ring-0";
-
-const inlineGroupedNumberInputClassName =
-  "h-auto w-full rounded-none border-0 bg-transparent px-0 py-0 text-sm font-medium leading-normal text-foreground shadow-none [appearance:textfield] focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
 
 interface GroupedAssessmentEditorProps {
   category: GroupedAssessmentCategory;
@@ -237,11 +230,12 @@ export function GroupedAssessmentEditor({
                 key={item.id}
               >
                 <Input
-                  className="h-auto rounded-none border-0 bg-transparent px-0 py-0 text-left text-base font-medium text-foreground shadow-none focus-visible:ring-0"
+                  className="text-left"
                   id={`${category}-label-${item.id}`}
                   onChange={(event) =>
                     updateItem(item.id, { label: event.target.value })
                   }
+                  variant="inline-heading"
                   value={item.label}
                 />
                 <GroupedScoreInput
@@ -276,11 +270,12 @@ export function GroupedAssessmentEditor({
                 <WorkspaceTableRow key={item.id}>
                   <WorkspaceTableCell className="py-2.5 lg:px-5 lg:py-3">
                     <Input
-                      className={inlineGroupedInputClassName}
+                      className="text-center"
                       id={`${category}-label-${item.id}`}
                       onChange={(event) =>
                         updateItem(item.id, { label: event.target.value })
                       }
+                      variant="inline"
                       value={item.label}
                     />
                   </WorkspaceTableCell>
@@ -334,7 +329,7 @@ function GroupedScoreInput({
   return (
     <div className="relative ml-auto w-[88px] sm:mx-auto">
       <Input
-        className={`${inlineGroupedNumberInputClassName} pr-5 text-center`}
+        className="pr-5 text-center"
         id={id}
         inputMode="decimal"
         onBlur={() => {
@@ -357,6 +352,7 @@ function GroupedScoreInput({
         }}
         placeholder="--"
         type="text"
+        variant="inline-number"
         value={draft}
       />
       {draft.trim() !== "" && !draft.includes("/") ? (

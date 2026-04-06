@@ -551,13 +551,6 @@ function applyOperation(
   }
 }
 
-export function createEmptySyncMergeContext(): SyncMergeContext {
-  return {
-    tombstones: new Map(),
-    entityVersions: new Map(),
-  };
-}
-
 export function applyLocalSyncOperation(
   state: AppState,
   operation: SyncOperation,

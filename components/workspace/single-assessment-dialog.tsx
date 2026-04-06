@@ -14,15 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { parseOptionalPercent } from "@/lib/assessment-form-utils";
 import { formatEditablePercent, parsePercentInput } from "@/lib/grade-utils";
 import {
   sanitizePlainNumberInput,
   sanitizeScoreExpressionInput,
 } from "@/lib/numeric-input";
 import { SingleAssessment } from "@/lib/types";
-
-const dialogPrimaryButtonClassName =
-  "border border-stone-300/80 bg-stone-900 text-white shadow-[0_12px_28px_-16px_rgba(15,23,42,0.4)] hover:bg-stone-800 dark:border-white/14 dark:bg-white/18 dark:text-white dark:hover:bg-white/24";
 
 interface SingleAssessmentDialogProps {
   assessment: SingleAssessment;
@@ -90,7 +88,7 @@ export function SingleAssessmentDialog({
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild={triggerAsChild}>{triggerChildren}</DialogTrigger>
       <DialogContent
-        className="flex max-h-[92vh] w-[min(94vw,560px)] flex-col overflow-hidden rounded-[28px] p-4 sm:rounded-[32px] sm:p-6"
+        layout="workspace-compact"
         onInteractOutside={(event) => {
           event.preventDefault();
         }}
@@ -221,13 +219,10 @@ export function SingleAssessmentDialog({
               Delete assignment
             </Button>
             <Button
-              className={`w-full sm:w-auto ${
-                isSubmitEnabled
-                  ? dialogPrimaryButtonClassName
-                  : "border border-white/20 bg-white/40 text-ink-muted shadow-[0_10px_24px_rgba(28,25,23,0.04)] backdrop-blur-sm hover:bg-white/40 dark:border-white/10 dark:bg-white/5 dark:text-ink-muted dark:hover:bg-white/5"
-              }`}
+              className="w-full sm:w-auto"
               disabled={!isSubmitEnabled}
               type="submit"
+              variant={isSubmitEnabled ? "dialog-primary" : "dialog-muted"}
             >
               Save changes
             </Button>
@@ -255,16 +250,6 @@ function getFormState(assessment: SingleAssessment) {
         : String(assessment.subminimumPercent),
     dueDate: assessment.dueDate || "",
   };
-}
-
-function parseOptionalPercent(value: string) {
-  const numeric = Number(value.trim());
-
-  if (!Number.isFinite(numeric) || numeric <= 0) {
-    return null;
-  }
-
-  return Math.min(numeric, 100);
 }
 
 function validateDueDate(value: string) {

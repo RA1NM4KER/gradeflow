@@ -3,7 +3,6 @@ import { AppState, getDefaultAppState } from "@/lib/app-state";
 import {
   applyLocalSyncOperation,
   applyRemoteSyncOperation,
-  createEmptySyncMergeContext,
 } from "@/lib/sync-reducer";
 import { getSyncEntityKey } from "@/lib/sync-schema";
 import {

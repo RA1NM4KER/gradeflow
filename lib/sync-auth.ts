@@ -1,4 +1,4 @@
-import type { Session, User } from "@supabase/supabase-js";
+import type { Session } from "@supabase/supabase-js";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 
@@ -75,12 +75,6 @@ export async function getCurrentSyncSession(): Promise<Session | null> {
 
   return data.session;
 }
-
-export async function getCurrentSyncUser(): Promise<User | null> {
-  const session = await getCurrentSyncSession();
-  return session?.user ?? null;
-}
-
 export function markPasswordRecoverySession() {
   if (typeof window === "undefined") {
     return;

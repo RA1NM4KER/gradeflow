@@ -6,8 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { PageIntro } from "@/components/ui/page-intro";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { SectionLabel } from "@/components/ui/section-label";
 import { useCourses } from "@/components/workspace/courses-provider";
 import {
   fetchCourseTemplateByToken,
@@ -127,21 +129,16 @@ export function CourseTemplateImportScreen() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-8 sm:py-8">
-      <div className="mb-5 sm:mb-7">
-        <p className="text-[0.76rem] font-semibold uppercase tracking-[0.16em] text-ink-muted">
-          Course setup
-        </p>
-        <h1 className="mt-2 text-[1.8rem] font-semibold tracking-[-0.05em] text-foreground sm:text-[2.2rem]">
-          Add this course to a semester
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-ink-soft sm:text-base">
-          Review what is included, choose a semester, and add your own copy of
-          this course to GradeLog.
-        </p>
-      </div>
+      <PageIntro
+        badge="Course setup"
+        className="mb-5 sm:mb-7"
+        descriptionClassName="max-w-2xl text-sm sm:text-base"
+        description="Review what is included, choose a semester, and add your own copy of this course to GradeLog."
+        title="Add this course to a semester"
+      />
 
       {isLoading ? (
-        <Card className="rounded-[28px] border-line/80 bg-surface-panel/70">
+        <Card className="rounded-[28px]" variant="surface-panel">
           <CardContent className="flex min-h-[18rem] flex-col items-center justify-center gap-3 p-6">
             <LoaderCircle className="h-6 w-6 animate-spin text-ink-muted" />
             <p className="text-sm text-ink-soft">Loading course setup</p>
@@ -163,13 +160,13 @@ export function CourseTemplateImportScreen() {
         </Card>
       ) : templateRecord ? (
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]">
-          <Card className="rounded-[28px] border-line/80 bg-surface-panel/70">
+          <Card className="rounded-[28px]" variant="surface-panel">
             <CardContent className="p-5 sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+                  <SectionLabel className="text-[0.72rem]">
                     Course setup preview
-                  </p>
+                  </SectionLabel>
                   <h2 className="mt-2 text-[1.45rem] font-semibold tracking-[-0.04em] text-foreground sm:text-[1.7rem]">
                     {templateRecord.payload.name}
                   </h2>
@@ -185,81 +182,81 @@ export function CourseTemplateImportScreen() {
               </div>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-[22px] border border-line bg-surface/70 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                    Grade bands
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {templateRecord.payload.gradeBands.map((band) => (
-                      <span
-                        className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-foreground"
-                        key={`${band.label}-${band.threshold}`}
-                      >
-                        {band.label} {band.threshold}%
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                <Card className="rounded-[22px]" variant="surface-subtle">
+                  <CardContent className="p-4">
+                    <SectionLabel>Grade bands</SectionLabel>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {templateRecord.payload.gradeBands.map((band) => (
+                        <span
+                          className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-foreground"
+                          key={`${band.label}-${band.threshold}`}
+                        >
+                          {band.label} {band.threshold}%
+                        </span>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
 
-                <div className="rounded-[22px] border border-line bg-surface/70 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                    Included
-                  </p>
-                  <p className="mt-3 text-sm text-ink-soft">
-                    Assessment structure, weights, grade cutoffs, and grouped
-                    items are included. Marks and scores are not.
-                  </p>
-                </div>
+                <Card className="rounded-[22px]" variant="surface-subtle">
+                  <CardContent className="p-4">
+                    <SectionLabel>Included</SectionLabel>
+                    <p className="mt-3 text-sm text-ink-soft">
+                      Assessment structure, weights, grade cutoffs, and grouped
+                      items are included. Marks and scores are not.
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
 
-              <div className="mt-5 rounded-[24px] border border-line bg-surface/70 p-4 sm:p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                  Included assignments
-                </p>
-                <div className="mt-4 grid gap-3">
-                  {templateRecord.payload.assessments.map(
-                    (assessment, index) => (
-                      <div
-                        className="rounded-[18px] border border-line bg-surface px-4 py-3"
-                        key={`${assessment.name}-${index}`}
-                      >
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <div>
-                            <p className="text-sm font-semibold text-foreground">
-                              {assessment.name}
-                            </p>
-                            <p className="mt-1 text-xs text-ink-soft">
-                              {assessment.kind === "group"
-                                ? "Tutorial group"
-                                : assessment.category}
-                              {assessment.dueDate
-                                ? ` · Due ${assessment.dueDate}`
-                                : ""}
-                            </p>
+              <Card className="mt-5 rounded-[24px]" variant="surface-subtle">
+                <CardContent className="p-4 sm:p-5">
+                  <SectionLabel>Included assignments</SectionLabel>
+                  <div className="mt-4 grid gap-3">
+                    {templateRecord.payload.assessments.map(
+                      (assessment, index) => (
+                        <div
+                          className="rounded-[18px] border border-line bg-surface px-4 py-3"
+                          key={`${assessment.name}-${index}`}
+                        >
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div>
+                              <p className="text-sm font-semibold text-foreground">
+                                {assessment.name}
+                              </p>
+                              <p className="mt-1 text-xs text-ink-soft">
+                                {assessment.kind === "group"
+                                  ? "Tutorial group"
+                                  : assessment.category}
+                                {assessment.dueDate
+                                  ? ` · Due ${assessment.dueDate}`
+                                  : ""}
+                              </p>
+                            </div>
+                            <span className="rounded-full border border-line bg-surface-panel px-2.5 py-1 text-xs font-medium text-ink-soft">
+                              {assessment.weight}%
+                            </span>
                           </div>
-                          <span className="rounded-full border border-line bg-surface-panel px-2.5 py-1 text-xs font-medium text-ink-soft">
-                            {assessment.weight}%
-                          </span>
+                          {assessment.kind === "group" ? (
+                            <p className="mt-2 text-xs text-ink-soft">
+                              {assessment.items.length} items · drop lowest{" "}
+                              {assessment.dropLowest}
+                            </p>
+                          ) : (
+                            <p className="mt-2 text-xs text-ink-soft">
+                              Total possible: {assessment.totalPossible}
+                            </p>
+                          )}
                         </div>
-                        {assessment.kind === "group" ? (
-                          <p className="mt-2 text-xs text-ink-soft">
-                            {assessment.items.length} items · drop lowest{" "}
-                            {assessment.dropLowest}
-                          </p>
-                        ) : (
-                          <p className="mt-2 text-xs text-ink-soft">
-                            Total possible: {assessment.totalPossible}
-                          </p>
-                        )}
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
+                      ),
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </CardContent>
           </Card>
 
-          <Card className="h-max rounded-[28px] border-line/80 bg-surface-panel/70">
+          <Card className="h-max rounded-[28px]" variant="surface-panel">
             <CardContent className="p-5 sm:p-6">
               <div className="flex items-center gap-2 text-foreground">
                 <Share2 className="h-4 w-4 text-ink-muted" />
@@ -289,11 +286,13 @@ export function CourseTemplateImportScreen() {
                 </div>
               ) : null}
 
-              <div className="mt-4 rounded-[20px] border border-line bg-surface/70 p-4 text-sm text-ink-soft">
-                This adds your own copy of the course to your semester. It will
-                not replace anything you already have, and it will not stay
-                linked to the original.
-              </div>
+              <Card className="mt-4 rounded-[20px]" variant="surface-subtle">
+                <CardContent className="p-4 text-sm text-ink-soft">
+                  This adds your own copy of the course to your semester. It
+                  will not replace anything you already have, and it will not
+                  stay linked to the original.
+                </CardContent>
+              </Card>
 
               <Button
                 className="mt-5 w-full"

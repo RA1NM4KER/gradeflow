@@ -3,6 +3,7 @@
 import { Check, MonitorCog, Moon, Sun } from "lucide-react";
 import { ReactNode, useEffect, useRef, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme/theme-provider";
 import { ThemeMode } from "@/lib/theme";
 import { cn } from "@/lib/utils";
@@ -124,16 +125,17 @@ export function ThemeSelect() {
 
   return (
     <div className="relative" ref={containerRef}>
-      <button
+      <Button
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={`Theme: ${selectedOption.label}`}
-        className="inline-flex h-9 w-9 items-center justify-center text-foreground sm:h-10 sm:w-10"
         onClick={() => setOpen((current) => !current)}
+        size="icon-responsive"
         type="button"
+        variant="ghost"
       >
         <SelectedIcon className="h-4 w-4" />
-      </button>
+      </Button>
 
       {open ? (
         <div

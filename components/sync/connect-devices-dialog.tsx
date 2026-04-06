@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { ReactNode, SyntheticEvent, useMemo, useState } from "react";
 import {
   ChevronDown,
   Cloud,
@@ -21,8 +21,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SelectableCardButton } from "@/components/ui/selectable-card-button";
 import { useSyncConnection } from "@/components/sync/sync-provider";
-import { selectorCardClassName } from "@/lib/selector-card-styles";
 import { formatLastSyncedAt, getSyncStatusLabel } from "@/lib/sync-status";
 import { cn } from "@/lib/utils";
 
@@ -100,7 +100,9 @@ export function ConnectDevicesDialog({
     return "Keep using GradeLog locally. This device can now push and pull your grades when you sync.";
   }, [lastSyncedAt, status]);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: SyntheticEvent<HTMLFormElement, SubmitEvent>,
+  ) {
     event.preventDefault();
     setIsSubmitting(true);
     setSubmitError(null);
@@ -401,38 +403,30 @@ export function ConnectDevicesDialog({
           ) : (
             <form className="grid gap-4" onSubmit={handleSubmit}>
               <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                <button
-                  className={cn(
-                    "rounded-[18px] border px-3 py-3 text-left text-sm font-medium transition sm:rounded-[20px] sm:px-4 sm:py-3.5",
-                    mode === "sign-up"
-                      ? selectorCardClassName.active
-                      : selectorCardClassName.inactive,
-                  )}
+                <SelectableCardButton
+                  className={cn("text-left text-sm font-medium")}
                   onClick={() => {
                     setMode("sign-up");
                     setSubmitError(null);
                     setResetNotice(null);
                   }}
-                  type="button"
+                  size="compact"
+                  tone={mode === "sign-up" ? "active" : "inactive"}
                 >
                   Create account
-                </button>
-                <button
-                  className={cn(
-                    "rounded-[18px] border px-3 py-3 text-left text-sm font-medium transition sm:rounded-[20px] sm:px-4 sm:py-3.5",
-                    mode === "sign-in"
-                      ? selectorCardClassName.active
-                      : selectorCardClassName.inactive,
-                  )}
+                </SelectableCardButton>
+                <SelectableCardButton
+                  className={cn("text-left text-sm font-medium")}
                   onClick={() => {
                     setMode("sign-in");
                     setSubmitError(null);
                     setResetNotice(null);
                   }}
-                  type="button"
+                  size="compact"
+                  tone={mode === "sign-in" ? "active" : "inactive"}
                 >
                   Sign in
-                </button>
+                </SelectableCardButton>
               </div>
 
               <div className="grid gap-4 rounded-[24px] border border-white/28 bg-white/52 p-4 shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/6">
@@ -517,14 +511,9 @@ export function ConnectDevicesDialog({
 
               <DialogFooter>
                 <Button
-                  className={cn(
-                    isFormValid
-                      ? "border border-stone-300/80 bg-stone-900 text-white shadow-[0_10px_24px_-16px_rgba(15,23,42,0.28)] hover:bg-stone-800 dark:border-white/14 dark:bg-white/18 dark:text-white dark:hover:bg-white/24"
-                      : "border border-white/35 bg-white/82 text-ink-muted shadow-[0_10px_24px_-18px_rgba(15,23,42,0.14)] hover:bg-white/82 dark:border-white/12 dark:bg-white/10 dark:text-ink-muted dark:hover:bg-white/10",
-                  )}
                   disabled={isSubmitting || !isFormValid}
                   type="submit"
-                  variant="outline"
+                  variant={isFormValid ? "glass-strong" : "glass-muted"}
                 >
                   {isSubmitting ? (
                     <LoaderCircle className="h-4 w-4 animate-spin" />

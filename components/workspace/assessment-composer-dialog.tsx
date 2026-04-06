@@ -14,18 +14,16 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SelectableCardButton } from "@/components/ui/selectable-card-button";
 import { GroupedAssessmentEditor } from "@/components/workspace/grouped-assessment-editor";
+import { parseOptionalPercent } from "@/lib/assessment-form-utils";
 import {
   buildGroupedAssessment,
   getGroupedAssessmentDefaults,
 } from "@/lib/grouped-assessment-utils";
 import { sanitizePlainNumberInput } from "@/lib/numeric-input";
-import { selectorCardClassName } from "@/lib/selector-card-styles";
 import { Assessment, Module, SingleAssessment } from "@/lib/types";
 import { createUuid } from "@/lib/uuid";
-
-const dialogPrimaryButtonClassName =
-  "border border-stone-300/80 bg-stone-900 text-white shadow-[0_12px_28px_-16px_rgba(15,23,42,0.4)] hover:bg-stone-800 dark:border-white/14 dark:bg-white/18 dark:text-white dark:hover:bg-white/24";
 
 interface AssessmentComposerDialogProps {
   module: Module;
@@ -112,7 +110,7 @@ export function AssessmentComposerDialog({
           <Button variant={triggerVariant}>{triggerLabel}</Button>
         </DialogTrigger>
       )}
-      <DialogContent className="flex max-h-[92vh] w-[min(94vw,640px)] flex-col overflow-hidden rounded-[28px] p-4 sm:max-w-4xl sm:rounded-[32px] sm:p-6">
+      <DialogContent layout="workspace-wide">
         <DialogHeader className="shrink-0">
           <DialogTitle>Add assignment</DialogTitle>
           <DialogDescription>{module.code}</DialogDescription>
@@ -220,13 +218,10 @@ export function AssessmentComposerDialog({
 
           <DialogFooter className="shrink-0 pt-3">
             <Button
-              className={`w-full sm:w-auto ${
-                isSubmitEnabled
-                  ? dialogPrimaryButtonClassName
-                  : "border border-white/20 bg-white/40 text-ink-muted shadow-[0_10px_24px_rgba(28,25,23,0.04)] backdrop-blur-sm hover:bg-white/40 dark:border-white/10 dark:bg-white/5 dark:text-ink-muted dark:hover:bg-white/5"
-              }`}
+              className="w-full sm:w-auto"
               disabled={!isSubmitEnabled}
               type="submit"
+              variant={isSubmitEnabled ? "dialog-primary" : "dialog-muted"}
             >
               {mode === "single" ? "Save assignment" : "Create Tutorials"}
             </Button>
@@ -249,12 +244,9 @@ function ModeCard({
   onClick: () => void;
 }) {
   return (
-    <button
-      className={`rounded-[20px] border px-3 py-3 text-left transition sm:rounded-[24px] sm:px-4 sm:py-4 ${
-        isActive ? selectorCardClassName.active : selectorCardClassName.inactive
-      }`}
+    <SelectableCardButton
       onClick={onClick}
-      type="button"
+      tone={isActive ? "active" : "inactive"}
     >
       <p className="text-[0.9rem] font-semibold leading-5 sm:text-sm">
         {title}
@@ -262,7 +254,7 @@ function ModeCard({
       <p className="mt-1 text-[0.8rem] leading-5 text-ink-muted sm:text-sm">
         {description}
       </p>
-    </button>
+    </SelectableCardButton>
   );
 }
 
@@ -273,14 +265,4 @@ function getDefaultSingleForm() {
     subminimumPercent: "",
     dueDate: "",
   };
-}
-
-function parseOptionalPercent(value: string) {
-  const numeric = Number(value.trim());
-
-  if (!Number.isFinite(numeric) || numeric <= 0) {
-    return null;
-  }
-
-  return Math.min(numeric, 100);
 }

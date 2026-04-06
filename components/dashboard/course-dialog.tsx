@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button, type ButtonProps } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
@@ -315,75 +316,77 @@ export function CourseDialog({
           onMoveCourse &&
           currentSemesterId &&
           movableSemesters.length > 0 ? (
-            <section className="rounded-[24px] border border-line/80 bg-surface-panel/70 p-3.5 sm:p-4">
-              <button
-                aria-expanded={isMoveSectionOpen}
-                className="flex w-full items-center justify-between gap-3 text-left"
-                onClick={() => setIsMoveSectionOpen((current) => !current)}
-                type="button"
-              >
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    Move course
-                  </p>
-                  <p className="mt-1 text-xs text-ink-soft">
-                    Transfer this course to another semester.
-                  </p>
-                </div>
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-line bg-surface text-ink-soft">
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 transition-transform duration-200",
-                      isMoveSectionOpen ? "rotate-180" : "",
-                    )}
-                  />
-                </span>
-              </button>
-
-              {isMoveSectionOpen ? (
-                <div className="mt-4 space-y-3 border-t border-line/80 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="move-course-semester">
-                      Destination semester
-                    </Label>
-                    <Select
-                      id="move-course-semester"
-                      onChange={(event) =>
-                        setMoveTargetSemesterId(event.target.value)
-                      }
-                      value={moveTargetSemesterId}
-                    >
-                      <option value={currentSemesterId}>
-                        Select a semester
-                      </option>
-                      {movableSemesters.map((semester) => (
-                        <option key={semester.id} value={semester.id}>
-                          {semester.name}
-                          {semester.periodLabel
-                            ? ` · ${semester.periodLabel}`
-                            : ""}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                  <p className="text-xs text-ink-soft">
-                    All assessments, cutoffs, and course details will move with
-                    it.
-                  </p>
-                  <div className="flex justify-start">
-                    <Button
-                      className="border-red-200 bg-red-50 text-red-700 hover:bg-red-100 disabled:border-line disabled:bg-surface disabled:text-ink-soft dark:border-red-950/60 dark:bg-red-950/30 dark:text-red-200 dark:hover:bg-red-950/40"
-                      disabled={!canMoveCourse}
-                      onClick={handleMoveCourse}
-                      type="button"
-                      variant="outline"
-                    >
+            <Card className="rounded-[24px]" variant="surface-panel">
+              <CardContent className="p-3.5 sm:p-4">
+                <button
+                  aria-expanded={isMoveSectionOpen}
+                  className="flex w-full items-center justify-between gap-3 text-left"
+                  onClick={() => setIsMoveSectionOpen((current) => !current)}
+                  type="button"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
                       Move course
-                    </Button>
+                    </p>
+                    <p className="mt-1 text-xs text-ink-soft">
+                      Transfer this course to another semester.
+                    </p>
                   </div>
-                </div>
-              ) : null}
-            </section>
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-line bg-surface text-ink-soft">
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform duration-200",
+                        isMoveSectionOpen ? "rotate-180" : "",
+                      )}
+                    />
+                  </span>
+                </button>
+
+                {isMoveSectionOpen ? (
+                  <div className="mt-4 space-y-3 border-t border-line/80 pt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="move-course-semester">
+                        Destination semester
+                      </Label>
+                      <Select
+                        id="move-course-semester"
+                        onChange={(event) =>
+                          setMoveTargetSemesterId(event.target.value)
+                        }
+                        value={moveTargetSemesterId}
+                      >
+                        <option value={currentSemesterId}>
+                          Select a semester
+                        </option>
+                        {movableSemesters.map((semester) => (
+                          <option key={semester.id} value={semester.id}>
+                            {semester.name}
+                            {semester.periodLabel
+                              ? ` · ${semester.periodLabel}`
+                              : ""}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+                    <p className="text-xs text-ink-soft">
+                      All assessments, cutoffs, and course details will move
+                      with it.
+                    </p>
+                    <div className="flex justify-start">
+                      <Button
+                        className="border-red-200 bg-red-50 text-red-700 hover:bg-red-100 disabled:border-line disabled:bg-surface disabled:text-ink-soft dark:border-red-950/60 dark:bg-red-950/30 dark:text-red-200 dark:hover:bg-red-950/40"
+                        disabled={!canMoveCourse}
+                        onClick={handleMoveCourse}
+                        type="button"
+                        variant="outline"
+                      >
+                        Move course
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
           ) : null}
           <DialogFooter className="sm:justify-between">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -423,7 +426,7 @@ export function CourseDialog({
   );
 }
 
-function getDefaultGradeBands(courseCode: string) {
+function getDefaultGradeBands() {
   return GRADE_BAND_PRESETS.filter((band) =>
     ["A", "B", "C", "D"].includes(band.label),
   ).map((band) => ({
@@ -434,7 +437,7 @@ function getDefaultGradeBands(courseCode: string) {
 }
 
 function getInitialGradeBands(course?: Course) {
-  return course?.gradeBands ?? getDefaultGradeBands(course?.code ?? "");
+  return course?.gradeBands ?? getDefaultGradeBands();
 }
 
 function getInitialFormState(course?: Course) {

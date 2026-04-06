@@ -89,8 +89,9 @@ export function TopNav() {
               <ConnectDevicesDialog
                 triggerAsChild
                 triggerChildren={
-                  <button
-                    className="rounded-md px-3 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-muted hover:text-foreground"
+                  <Button
+                    size={null}
+                    variant="nav"
                     type="button"
                     title={syncDetail ?? undefined}
                   >
@@ -98,7 +99,7 @@ export function TopNav() {
                       {renderSyncIndicator()}
                       {syncLabel}
                     </span>
-                  </button>
+                  </Button>
                 }
               />
             </div>
@@ -108,23 +109,23 @@ export function TopNav() {
                 onRestoreAppStateAction={replaceAppState}
               />
             </div>
-            <Link
-              className="rounded-[10px] border border-white/28 bg-white/52 px-3 py-1.5 text-[13px] font-medium text-foreground shadow-[0_10px_24px_-18px_rgba(15,23,42,0.18)] backdrop-blur-sm transition hover:bg-white/72 sm:px-4 sm:py-2 sm:text-sm dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/14"
-              href="/"
-              prefetch={false}
-            >
-              Semesters
-            </Link>
-            <button
+            <Button asChild size="pill-sm" variant="glass-soft">
+              <Link href="/" prefetch={false}>
+                Semesters
+              </Link>
+            </Button>
+            <Button
               aria-expanded={mobileMenuOpen}
               aria-haspopup="dialog"
               aria-label="Open menu"
-              className="inline-flex h-9 w-9 items-center justify-center text-foreground  transition  sm:hidden"
+              className="sm:hidden"
               onClick={() => setMobileMenuOpen(true)}
+              size="icon-responsive"
               type="button"
+              variant="ghost"
             >
               <Menu className="h-4.5 w-4.5" />
-            </button>
+            </Button>
           </nav>
         </div>
       </div>
@@ -141,7 +142,7 @@ export function TopNav() {
           <div className="grid auto-rows-min content-start items-start gap-5 self-start">
             <InstallAppButton
               className="w-full justify-start"
-              onInstalled={() => setMobileMenuOpen(false)}
+              onInstalledAction={() => setMobileMenuOpen(false)}
             />
 
             <ThemeModePanel />
@@ -156,8 +157,9 @@ export function TopNav() {
                 triggerAsChild
                 triggerChildren={
                   <Button
-                    className="w-full justify-start gap-2 rounded-[18px] border-white/24 bg-white/44 px-4 text-left shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/6"
-                    variant="outline"
+                    className="w-full justify-start text-left"
+                    size="panel"
+                    variant="glass-panel"
                   >
                     <DatabaseBackup className="h-4 w-4" />
                     Backup and restore
@@ -168,8 +170,9 @@ export function TopNav() {
                 triggerAsChild
                 triggerChildren={
                   <Button
-                    className="w-full justify-start gap-2 rounded-[18px] border-white/24 bg-white/44 px-4 text-left shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/6"
-                    variant="outline"
+                    className="w-full justify-start text-left"
+                    size="panel"
+                    variant="glass-panel"
                   >
                     <Smartphone className="h-4 w-4" />
                     <span className="inline-flex items-center gap-2">

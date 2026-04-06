@@ -378,13 +378,16 @@ export function SyncProvider({ children }: { children: ReactNode }) {
         );
 
         if (error) {
-          throw error;
+          const message = error.message;
+          await applyAuthState(null, message);
+          return { ok: false, errorMessage: message };
         }
 
         if (!data.session) {
-          throw new Error(
-            "GradeLog could not finish signing you in on this device. Try again.",
-          );
+          const message =
+            "GradeLog could not finish signing you in on this device. Try again.";
+          await applyAuthState(null, message);
+          return { ok: false, errorMessage: message };
         }
 
         await applyAuthState(data.session, null);
@@ -419,13 +422,19 @@ export function SyncProvider({ children }: { children: ReactNode }) {
         );
 
         if (error) {
-          throw error;
+          const message = error.message;
+          await applyAuthState(null, message);
+          return { ok: false, errorMessage: message };
         }
 
         if (!data.session) {
-          throw new Error(
-            "Your account was created, but this device is not signed in yet. Check your auth settings and try again.",
-          );
+          const message =
+            "Your account was created, but this device is not signed in yet. Check your auth settings and try again.";
+          await applyAuthState(null, message);
+          return {
+            ok: false,
+            errorMessage: message,
+          };
         }
 
         await applyAuthState(data.session, null);
@@ -451,7 +460,9 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       const { error } = await signOutFromSync();
 
       if (error) {
-        throw error;
+        const message = error.message;
+        await applyAuthState(session, message);
+        return;
       }
 
       await applyAuthState(null, null);
@@ -509,7 +520,7 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       );
 
       if (error) {
-        throw error;
+        return { ok: false, errorMessage: error.message };
       }
 
       return { ok: true, errorMessage: null };

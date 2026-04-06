@@ -65,12 +65,6 @@ interface AssessmentTableProps {
   ) => void;
 }
 
-const inlineTextInputClassName =
-  "h-auto w-full rounded-none border-0 bg-transparent px-0 py-0 text-base font-medium leading-normal text-foreground shadow-none focus-visible:ring-0";
-
-const inlineValueInputClassName =
-  "h-auto w-full rounded-none border-0 bg-transparent px-0 py-0 text-sm font-medium leading-normal text-foreground shadow-none [appearance:textfield] focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
-
 export function AssessmentTable({
   module,
   isExperimenting,
@@ -732,7 +726,7 @@ function InlineText({
 
   return (
     <Input
-      className={`${inlineTextInputClassName} ${align === "center" ? "text-center" : "text-left"}`}
+      className={align === "center" ? "text-center" : "text-left"}
       onBlur={() => {
         setEditing(false);
         if (draft !== value) {
@@ -750,6 +744,7 @@ function InlineText({
         }
       }}
       ref={inputRef}
+      variant="inline-heading"
       value={draft}
     />
   );
@@ -805,7 +800,7 @@ function InlineNumber({
 
   return (
     <Input
-      className={`${inlineValueInputClassName} w-full ${align === "center" ? "text-center" : "text-left"}`}
+      className={align === "center" ? "text-center" : "text-left"}
       inputMode="decimal"
       onBlur={() => {
         setEditing(false);
@@ -819,6 +814,7 @@ function InlineNumber({
       }
       ref={inputRef}
       type="text"
+      variant="inline-number"
       value={draft}
     />
   );
@@ -914,7 +910,7 @@ function InlineAssessmentResult({
 
   return (
     <Input
-      className={`${inlineValueInputClassName} w-full ${align === "center" ? "text-center" : "text-left"}`}
+      className={align === "center" ? "text-center" : "text-left"}
       onBlur={() => {
         setEditing(false);
         onCommit(parseGradeInput(draft));
@@ -940,6 +936,7 @@ function InlineAssessmentResult({
       }}
       ref={inputRef}
       type="text"
+      variant="inline-number"
       value={draft}
     />
   );

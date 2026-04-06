@@ -25,8 +25,6 @@ import {
 import { Module, GradeBand } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const inlineInputClassName =
-  "h-auto rounded-none border-0 bg-transparent px-0 py-0 text-inherit shadow-none focus-visible:ring-0";
 const neutralChartStripe =
   "repeating-linear-gradient(135deg, rgb(var(--chart-stripe-rgb) / 0.62), rgb(var(--chart-stripe-rgb) / 0.62) 3px, transparent 3px, transparent 7px)";
 
@@ -510,7 +508,7 @@ function InlineBandThreshold({
   return (
     <div className="inline-flex items-center gap-1 text-sm font-medium leading-none text-ink-subtle">
       <Input
-        className={`${inlineInputClassName} w-10 text-right text-sm`}
+        className="w-10 text-right text-sm"
         onBlur={() => {
           setEditing(false);
           onCommit(Math.max(Math.min(Number(draft || 0), 100), 0));
@@ -530,6 +528,7 @@ function InlineBandThreshold({
         ref={inputRef}
         inputMode="decimal"
         type="text"
+        variant="inline-number"
         value={draft}
       />
       <span className="text-ink-soft">%</span>

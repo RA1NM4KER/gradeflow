@@ -22,9 +22,6 @@ import {
 } from "@/lib/grouped-assessment-utils";
 import { GroupedAssessment, GroupedAssessmentCategory } from "@/lib/types";
 
-const dialogPrimaryButtonClassName =
-  "border border-stone-300/80 bg-stone-900 text-white shadow-[0_12px_28px_-16px_rgba(15,23,42,0.4)] hover:bg-stone-800 dark:border-white/14 dark:bg-white/18 dark:text-white dark:hover:bg-white/24";
-
 interface GroupedAssessmentDialogProps {
   moduleId: string;
   category?: GroupedAssessmentCategory;
@@ -152,13 +149,10 @@ export function GroupedAssessmentDialog({
               <span />
             )}
             <Button
-              className={`w-full min-w-0 px-3 sm:w-auto ${
-                isSubmitEnabled
-                  ? dialogPrimaryButtonClassName
-                  : "border border-white/20 bg-white/40 text-ink-muted shadow-[0_10px_24px_rgba(28,25,23,0.04)] backdrop-blur-sm hover:bg-white/40 dark:border-white/10 dark:bg-white/5 dark:text-ink-muted dark:hover:bg-white/5"
-              }`}
+              className="w-full min-w-0 px-3 sm:w-auto"
               disabled={!isSubmitEnabled}
               type="submit"
+              variant={isSubmitEnabled ? "dialog-primary" : "dialog-muted"}
             >
               {assessment ? "Save changes" : "Create category"}
             </Button>
