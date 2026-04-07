@@ -13,9 +13,15 @@ import {
   isThemeMode,
   resolveTheme,
   THEME_MODES,
+  THEME_MODE_SYSTEM,
   THEME_STORAGE_KEY,
 } from "@/lib/theme/theme";
-import { ResolvedTheme, ThemeMode } from "@/lib/theme/types";
+import {
+  RESOLVED_THEME_DARK,
+  RESOLVED_THEME_LIGHT,
+  ResolvedTheme,
+  ThemeMode,
+} from "@/lib/theme/types";
 
 interface ThemeContextValue {
   resolvedTheme: ResolvedTheme;
@@ -35,17 +41,20 @@ function getSystemPreference() {
 
 function applyThemeToDocument(theme: ResolvedTheme) {
   const root = document.documentElement;
-  root.classList.toggle("dark", theme === "dark");
+  root.classList.toggle("dark", theme === RESOLVED_THEME_DARK);
   root.style.colorScheme = theme;
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeMode>("system");
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
+  const [theme, setThemeState] = useState<ThemeMode>(THEME_MODE_SYSTEM);
+  const [resolvedTheme, setResolvedTheme] =
+    useState<ResolvedTheme>(RESOLVED_THEME_LIGHT);
 
   useEffect(() => {
     const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-    const initialTheme = isThemeMode(storedTheme) ? storedTheme : "system";
+    const initialTheme = isThemeMode(storedTheme)
+      ? storedTheme
+      : THEME_MODE_SYSTEM;
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     function updateResolvedTheme(mode: ThemeMode) {
@@ -60,13 +69,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           window.localStorage.getItem(THEME_STORAGE_KEY),
         )
           ? (window.localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode)
-          : "system";
+          : THEME_MODE_SYSTEM;
 
-        if (currentTheme !== "system") {
+        if (currentTheme !== THEME_MODE_SYSTEM) {
           return currentResolvedTheme;
         }
 
-        const nextResolvedTheme = event.matches ? "dark" : "light";
+        const nextResolvedTheme = event.matches
+          ? RESOLVED_THEME_DARK
+          : RESOLVED_THEME_LIGHT;
         applyThemeToDocument(nextResolvedTheme);
         return nextResolvedTheme;
       });

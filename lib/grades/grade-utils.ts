@@ -1,12 +1,22 @@
 import {
+  ASSESSMENT_KIND_SINGLE,
+  ASSESSMENT_STATUS_COMPLETED,
+  ASSESSMENT_STATUS_ONGOING,
   Assessment,
   Course,
+  GRADE_BAND_STATE_GUARANTEED,
+  GRADE_BAND_STATE_REACHABLE,
+  GRADE_BAND_STATE_UNREACHABLE,
   GradeBand,
+  GradeBandState,
   GroupedAssessment,
-  SubminimumRequirement,
   RequiredScoreResult,
   Semester,
   SingleAssessment,
+  SUBMINIMUM_STATUS_FAILED,
+  SUBMINIMUM_STATUS_MET,
+  SUBMINIMUM_STATUS_PENDING,
+  SubminimumRequirement,
 } from "@/lib/shared/types";
 
 function round(value: number, digits = 1) {
@@ -54,7 +64,7 @@ export function formatEditablePercent(
 export function isSingleAssessment(
   assessment: Assessment,
 ): assessment is SingleAssessment {
-  return assessment.kind === "single";
+  return assessment.kind === ASSESSMENT_KIND_SINGLE;
 }
 
 function getSinglePercent(assessment: SingleAssessment) {
@@ -84,10 +94,10 @@ function getSingleSubminimumRequirement(
     minimumPercent: round(assessment.subminimumPercent),
     status:
       achievedPercent === null
-        ? "pending"
+        ? SUBMINIMUM_STATUS_PENDING
         : achievedPercent >= assessment.subminimumPercent
-          ? "met"
-          : "failed",
+          ? SUBMINIMUM_STATUS_MET
+          : SUBMINIMUM_STATUS_FAILED,
   };
 }
 
@@ -134,7 +144,9 @@ export function getGroupedAssessmentMetrics(assessment: GroupedAssessment) {
     dropCount: assessment.dropLowest,
     appliedDropCount,
     status:
-      gradedItems.length >= assessment.items.length ? "completed" : "ongoing",
+      gradedItems.length >= assessment.items.length
+        ? ASSESSMENT_STATUS_COMPLETED
+        : ASSESSMENT_STATUS_ONGOING,
   };
 }
 export function getAssessmentPercent(assessment: Assessment) {
@@ -183,7 +195,9 @@ export function getAssessmentRemainingWeight(assessment: Assessment) {
 
 export function getAssessmentStatus(assessment: Assessment) {
   if (isSingleAssessment(assessment)) {
-    return assessment.scoreAchieved === null ? "ongoing" : assessment.status;
+    return assessment.scoreAchieved === null
+      ? ASSESSMENT_STATUS_ONGOING
+      : assessment.status;
   }
 
   return getGroupedAssessmentMetrics(assessment).status;
@@ -244,21 +258,21 @@ export function getSortedGradeBands(course: Course) {
 export function getGradeBandState(
   course: Course,
   band: GradeBand,
-): "guaranteed" | "reachable" | "unreachable" {
+): GradeBandState {
   const result = calculateRequiredScore(course, band.threshold);
 
   if (!result.achievable) {
-    return "unreachable";
+    return GRADE_BAND_STATE_UNREACHABLE;
   }
 
   if (
     getCourseGuaranteedGrade(course) >= band.threshold &&
     !result.hasPendingSubminimums
   ) {
-    return "guaranteed";
+    return GRADE_BAND_STATE_GUARANTEED;
   }
 
-  return "reachable";
+  return GRADE_BAND_STATE_REACHABLE;
 }
 
 export function calculateRequiredScore(
@@ -267,10 +281,10 @@ export function calculateRequiredScore(
 ): RequiredScoreResult {
   const subminimumRequirements = getCourseSubminimumRequirements(course);
   const hasFailedSubminimums = subminimumRequirements.some(
-    (requirement) => requirement.status === "failed",
+    (requirement) => requirement.status === SUBMINIMUM_STATUS_FAILED,
   );
   const hasPendingSubminimums = subminimumRequirements.some(
-    (requirement) => requirement.status === "pending",
+    (requirement) => requirement.status === SUBMINIMUM_STATUS_PENDING,
   );
   const securedContribution = getSecuredContribution(course);
   const remainingWeight = getRemainingWeight(course);
@@ -278,7 +292,7 @@ export function calculateRequiredScore(
 
   if (hasFailedSubminimums) {
     const failedRequirements = subminimumRequirements.filter(
-      (requirement) => requirement.status === "failed",
+      (requirement) => requirement.status === SUBMINIMUM_STATUS_FAILED,
     );
     const failedLabel = failedRequirements
       .map(
@@ -411,7 +425,10 @@ export function formatPercent(value: number) {
 
 export function getAssessmentPace(course: Course) {
   const completed = course.assessments.reduce((sum, assessment) => {
-    return sum + (getAssessmentStatus(assessment) === "completed" ? 1 : 0);
+    return (
+      sum +
+      (getAssessmentStatus(assessment) === ASSESSMENT_STATUS_COMPLETED ? 1 : 0)
+    );
   }, 0);
 
   return `${completed}/${course.assessments.length} done`;

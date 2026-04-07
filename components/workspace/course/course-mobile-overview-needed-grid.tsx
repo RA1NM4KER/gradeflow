@@ -14,7 +14,14 @@ import {
   getGradeBandState,
 } from "@/lib/grades/grade-utils";
 import { cn } from "@/lib/shared/utils";
-import { Course, GradeBand } from "@/lib/shared/types";
+import {
+  Course,
+  GRADE_BAND_STATE_UNREACHABLE,
+  GradeBand,
+  SUBMINIMUM_STATUS_FAILED,
+  SUBMINIMUM_STATUS_MET,
+  SUBMINIMUM_STATUS_PENDING,
+} from "@/lib/shared/types";
 
 export function CourseMobileOverviewNeededGrid({
   bands,
@@ -56,14 +63,14 @@ export function CourseMobileOverviewNeededGrid({
                 <p
                   className={cn(
                     "shrink-0 text-xs font-semibold uppercase tracking-[0.14em]",
-                    requirement.status === "failed"
+                    requirement.status === SUBMINIMUM_STATUS_FAILED
                       ? "text-rose-600 dark:text-rose-300"
-                      : requirement.status === "met"
+                      : requirement.status === SUBMINIMUM_STATUS_MET
                         ? "text-emerald-600"
                         : "text-amber-600",
                   )}
                 >
-                  {requirement.status === "pending"
+                  {requirement.status === SUBMINIMUM_STATUS_PENDING
                     ? "--"
                     : requirement.achievedPercent === null
                       ? requirement.status
@@ -103,7 +110,7 @@ export function CourseMobileOverviewNeededGrid({
           const result = calculateRequiredScore(module, band.threshold);
           const state = module.assessments.length
             ? getGradeBandState(module, band)
-            : "unreachable";
+            : GRADE_BAND_STATE_UNREACHABLE;
           const needed = !module.assessments.length
             ? "Not set"
             : result.remainingWeight === 0 && !result.achievable
@@ -111,7 +118,7 @@ export function CourseMobileOverviewNeededGrid({
               : result.achievable && result.neededAverage <= 0
                 ? formatPercent(band.threshold)
                 : `${result.neededAverage}%`;
-          const isAttainable = state !== "unreachable";
+          const isAttainable = state !== GRADE_BAND_STATE_UNREACHABLE;
 
           return (
             <div

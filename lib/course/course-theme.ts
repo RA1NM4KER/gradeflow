@@ -179,6 +179,8 @@ export function getCourseTheme(
       mode === "dark" ? baseTheme.chartMarkerLine : baseTheme.markerLine,
     chartAccentText:
       mode === "dark" ? baseTheme.chartMarkerText : baseTheme.markerText,
+    chartAccentTextMuted:
+      mode === "dark" ? baseTheme.chartMarkerText : baseTheme.neededMuted,
     neededAccentText:
       mode === "dark" ? baseTheme.chartMarkerText : baseTheme.neededText,
     tableHeaderAccent:

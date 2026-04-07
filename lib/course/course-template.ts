@@ -1,13 +1,19 @@
 import QRCode from "qrcode";
 
 import {
-  Course,
-  CourseTemplatePayload,
-  CourseTemplateRecord,
-  FetchedCourseTemplateRow,
-  SharedCourseTemplate,
-  SharedCourseTemplateRow,
-} from "@/lib/course/types";
+  ASSESSMENT_KIND_GROUP,
+  ASSESSMENT_KIND_SINGLE,
+  ASSESSMENT_STATUS_ONGOING,
+  GROUPED_ASSESSMENT_CATEGORY,
+} from "@/lib/assessments/types";
+import { Course, CourseTemplatePayload } from "@/lib/course/types";
+import {
+  courseTemplatePayloadSchema,
+  courseTemplateRecordSchema,
+  fetchedCourseTemplateRowSchema,
+  sharedCourseTemplateRowSchema,
+  sharedCourseTemplateSchema,
+} from "@/lib/course/schemas";
 import {
   getSupabaseBrowserClient,
   isSupabaseConfigured,
@@ -61,12 +67,12 @@ async function sha256(input: string) {
 export function buildCourseTemplatePayload(
   course: Course,
 ): CourseTemplatePayload {
-  return {
+  return courseTemplatePayloadSchema.parse({
     accent: course.accent,
     assessments: course.assessments.map((assessment) =>
-      assessment.kind === "single"
+      assessment.kind === ASSESSMENT_KIND_SINGLE
         ? {
-            kind: "single",
+            kind: ASSESSMENT_KIND_SINGLE,
             category: assessment.category,
             dueDate: assessment.dueDate,
             name: assessment.name,
@@ -75,8 +81,8 @@ export function buildCourseTemplatePayload(
             weight: assessment.weight,
           }
         : {
-            kind: "group",
-            category: "tutorials",
+            kind: ASSESSMENT_KIND_GROUP,
+            category: GROUPED_ASSESSMENT_CATEGORY.TUTORIALS,
             dropLowest: assessment.dropLowest,
             dueDate: assessment.dueDate,
             items: assessment.items.map((item) => ({
@@ -95,7 +101,7 @@ export function buildCourseTemplatePayload(
     })),
     instructor: course.instructor,
     name: course.name,
-  };
+  });
 }
 
 export async function createCourseTemplateShare(course: Course) {
@@ -118,20 +124,20 @@ export async function createCourseTemplateShare(course: Course) {
   }
 
   const row = Array.isArray(data)
-    ? (data[0] as SharedCourseTemplateRow | undefined)
+    ? sharedCourseTemplateRowSchema.optional().parse(data[0])
     : undefined;
 
   if (!row) {
     throw new Error("The shared course template could not be created.");
   }
 
-  return {
+  return sharedCourseTemplateSchema.parse({
     createdAt: row.created_at,
     publicToken: row.public_token,
     shareUrl: `${window.location.origin}/import-course-template?t=${encodeURIComponent(row.public_token)}`,
     title: row.title,
     updatedAt: row.updated_at,
-  } satisfies SharedCourseTemplate;
+  });
 }
 
 export async function fetchCourseTemplateByToken(token: string) {
@@ -150,20 +156,20 @@ export async function fetchCourseTemplateByToken(token: string) {
   }
 
   const row = Array.isArray(data)
-    ? (data[0] as FetchedCourseTemplateRow | undefined)
+    ? fetchedCourseTemplateRowSchema.optional().parse(data[0])
     : undefined;
 
   if (!row) {
     return null;
   }
 
-  return {
+  return courseTemplateRecordSchema.parse({
     createdAt: row.created_at,
     payload: row.course_payload,
     publicToken: row.public_token,
     title: row.title,
     updatedAt: row.updated_at,
-  } satisfies CourseTemplateRecord;
+  });
 }
 
 export async function buildCourseTemplateQrCode(shareUrl: string) {
@@ -181,15 +187,15 @@ export function instantiateCourseFromTemplate(
     id: createUuid(),
     accent: payload.accent,
     assessments: payload.assessments.map((assessment) =>
-      assessment.kind === "single"
+      assessment.kind === ASSESSMENT_KIND_SINGLE
         ? {
             id: createUuid(),
-            kind: "single",
+            kind: ASSESSMENT_KIND_SINGLE,
             category: assessment.category,
             dueDate: assessment.dueDate,
             name: assessment.name,
             scoreAchieved: null,
-            status: "ongoing",
+            status: ASSESSMENT_STATUS_ONGOING,
             subminimumPercent:
               assessment.subminimumPercent !== undefined &&
               assessment.subminimumPercent !== null &&
@@ -201,8 +207,8 @@ export function instantiateCourseFromTemplate(
           }
         : {
             id: createUuid(),
-            kind: "group",
-            category: "tutorials",
+            kind: ASSESSMENT_KIND_GROUP,
+            category: GROUPED_ASSESSMENT_CATEGORY.TUTORIALS,
             dropLowest: assessment.dropLowest,
             dueDate: assessment.dueDate,
             items: assessment.items.map((item) => ({
@@ -212,7 +218,7 @@ export function instantiateCourseFromTemplate(
               totalPossible: item.totalPossible,
             })),
             name: assessment.name,
-            status: "ongoing",
+            status: ASSESSMENT_STATUS_ONGOING,
             weight: assessment.weight,
           },
     ),

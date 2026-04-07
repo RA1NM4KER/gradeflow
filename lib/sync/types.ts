@@ -12,14 +12,48 @@ export type DeviceId = string;
 export type LamportCounter = number;
 export type SyncCursor = number | null;
 export type SyncOperationId = string;
-export type SyncEntityType = "semester" | "course" | "assessment";
-export type SyncStatus =
-  | "local-only"
-  | "connecting"
-  | "syncing"
-  | "up-to-date"
-  | "offline-pending"
-  | "error";
+export const SYNC_ENTITY_TYPE_SEMESTER = "semester";
+export const SYNC_ENTITY_TYPE_COURSE = "course";
+export const SYNC_ENTITY_TYPE_ASSESSMENT = "assessment";
+
+export const SYNC_ENTITY_TYPES = [
+  SYNC_ENTITY_TYPE_SEMESTER,
+  SYNC_ENTITY_TYPE_COURSE,
+  SYNC_ENTITY_TYPE_ASSESSMENT,
+] as const;
+export type SyncEntityType = (typeof SYNC_ENTITY_TYPES)[number];
+
+export const SYNC_STATUS_LOCAL_ONLY = "local-only";
+export const SYNC_STATUS_CONNECTING = "connecting";
+export const SYNC_STATUS_SYNCING = "syncing";
+export const SYNC_STATUS_UP_TO_DATE = "up-to-date";
+export const SYNC_STATUS_OFFLINE_PENDING = "offline-pending";
+export const SYNC_STATUS_ERROR = "error";
+
+export const SYNC_STATUSES = [
+  SYNC_STATUS_LOCAL_ONLY,
+  SYNC_STATUS_CONNECTING,
+  SYNC_STATUS_SYNCING,
+  SYNC_STATUS_UP_TO_DATE,
+  SYNC_STATUS_OFFLINE_PENDING,
+  SYNC_STATUS_ERROR,
+] as const;
+export type SyncStatus = (typeof SYNC_STATUSES)[number];
+
+export const SYNC_APPLY_REASON_APPLIED = "applied";
+export const SYNC_APPLY_REASON_ENTITY_DELETED = "entity-deleted";
+export const SYNC_APPLY_REASON_PARENT_DELETED = "parent-deleted";
+export const SYNC_APPLY_REASON_ENTITY_MISSING = "entity-missing";
+export const SYNC_APPLY_REASON_STALE_FIELD = "stale-field";
+
+export const SYNC_APPLY_REASONS = [
+  SYNC_APPLY_REASON_APPLIED,
+  SYNC_APPLY_REASON_ENTITY_DELETED,
+  SYNC_APPLY_REASON_PARENT_DELETED,
+  SYNC_APPLY_REASON_ENTITY_MISSING,
+  SYNC_APPLY_REASON_STALE_FIELD,
+] as const;
+export type SyncApplyReason = (typeof SYNC_APPLY_REASONS)[number];
 
 export interface SyncMetaRecord {
   connectedUserId: string | null;
@@ -240,12 +274,7 @@ export interface SyncMergeContext {
 export interface SyncApplyResult {
   context: SyncMergeContext;
   didApply: boolean;
-  reason:
-    | "applied"
-    | "entity-deleted"
-    | "parent-deleted"
-    | "entity-missing"
-    | "stale-field";
+  reason: SyncApplyReason;
   state: AppState;
 }
 

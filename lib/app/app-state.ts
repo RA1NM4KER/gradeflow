@@ -1,4 +1,12 @@
 import {
+  ASSESSMENT_KIND_GROUP,
+  ASSESSMENT_KIND_SINGLE,
+  ASSESSMENT_STATUS_ONGOING,
+  ASSESSMENT_STATUSES,
+  GROUPED_ASSESSMENT_CATEGORY,
+  GROUPED_ASSESSMENT_CATEGORIES,
+  SINGLE_ASSESSMENT_CATEGORY,
+  SINGLE_ASSESSMENT_CATEGORIES,
   Assessment,
   Course,
   GradeBand,
@@ -12,7 +20,9 @@ import type {
   PersistedAppState,
   PersistedAppStateMetadata,
 } from "@/lib/app/types";
+import { importedAppStateSchema } from "@/lib/app/schemas";
 import { createUuid, ensureUuid } from "@/lib/shared/uuid";
+import { ZodError } from "zod";
 
 const UNVERSIONED_APP_STATE_VERSION = 1;
 export const APP_STATE_VERSION = 2;
@@ -87,11 +97,15 @@ function normalizeSingleAssessment(
 
   return {
     id: ensureUuid(rawAssessment.id),
-    kind: "single",
+    kind: ASSESSMENT_KIND_SINGLE,
     name: getString(rawAssessment.name, `Assessment ${index + 1}`),
     weight: getNumber(rawAssessment.weight, 0),
     dueDate: getString(rawAssessment.dueDate),
-    status: rawAssessment.status === "completed" ? "completed" : "ongoing",
+    status: ASSESSMENT_STATUSES.includes(
+      rawAssessment.status as (typeof ASSESSMENT_STATUSES)[number],
+    )
+      ? (rawAssessment.status as SingleAssessment["status"])
+      : ASSESSMENT_STATUS_ONGOING,
     scoreAchieved:
       rawAssessment.scoreAchieved === null
         ? null
@@ -99,13 +113,11 @@ function normalizeSingleAssessment(
     subminimumPercent:
       rawSubminimum !== null && rawSubminimum > 0 ? rawSubminimum : null,
     totalPossible: getNumber(rawAssessment.totalPossible, 100),
-    category:
-      rawAssessment.category === "exam" ||
-      rawAssessment.category === "project" ||
-      rawAssessment.category === "quiz" ||
-      rawAssessment.category === "presentation"
-        ? rawAssessment.category
-        : "assignment",
+    category: SINGLE_ASSESSMENT_CATEGORIES.includes(
+      rawAssessment.category as (typeof SINGLE_ASSESSMENT_CATEGORIES)[number],
+    )
+      ? (rawAssessment.category as SingleAssessment["category"])
+      : SINGLE_ASSESSMENT_CATEGORY.ASSIGNMENT,
   };
 }
 
@@ -115,12 +127,16 @@ function normalizeGroupedAssessment(
 ): GroupedAssessment {
   return {
     id: ensureUuid(rawAssessment.id),
-    kind: "group",
+    kind: ASSESSMENT_KIND_GROUP,
     name: getString(rawAssessment.name, `Tutorials ${index + 1}`),
     weight: getNumber(rawAssessment.weight, 0),
     dueDate: getString(rawAssessment.dueDate),
-    status: rawAssessment.status === "completed" ? "completed" : "ongoing",
-    category: "tutorials",
+    status: ASSESSMENT_STATUSES.includes(
+      rawAssessment.status as (typeof ASSESSMENT_STATUSES)[number],
+    )
+      ? (rawAssessment.status as GroupedAssessment["status"])
+      : ASSESSMENT_STATUS_ONGOING,
+    category: GROUPED_ASSESSMENT_CATEGORY.TUTORIALS,
     dropLowest: getNumber(rawAssessment.dropLowest, 0),
     items: getArray(rawAssessment.items).map((item, itemIndex) =>
       normalizeGroupedAssessmentItem(item, itemIndex),
@@ -134,7 +150,12 @@ function normalizeAssessment(
 ): Assessment {
   const assessment = isRecord(rawAssessment) ? rawAssessment : {};
 
-  if (assessment.kind === "group" || assessment.category === "tutorials") {
+  if (
+    assessment.kind === ASSESSMENT_KIND_GROUP ||
+    GROUPED_ASSESSMENT_CATEGORIES.includes(
+      assessment.category as (typeof GROUPED_ASSESSMENT_CATEGORIES)[number],
+    )
+  ) {
     return normalizeGroupedAssessment(assessment, index);
   }
 
@@ -180,8 +201,7 @@ function normalizeSemester(rawSemester: unknown, index: number): Semester {
     name: getString(semester.name, `Semester ${index + 1}`),
     periodLabel: getString(semester.periodLabel),
     courses,
-    // `modules` remains a local mirror for existing UI paths. `courses` is the
-    // canonical model, and the only collection sync, code should treat as the source of truth.
+    // `modules` is just a UI mirror. `courses` is the source of truth.
     modules: courses,
   };
 }
@@ -263,7 +283,17 @@ function resolveRawAppStateVersion(rawState: Record<string, unknown>) {
 }
 
 export function validateImportedAppState(rawState: unknown) {
-  return migrateAppState(rawState, true);
+  try {
+    return migrateAppState(importedAppStateSchema.parse(rawState), true);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      throw new Error(
+        "This backup file does not contain a valid GradeLog state.",
+      );
+    }
+
+    throw error;
+  }
 }
 
 export function migrateAppState(

@@ -1,13 +1,42 @@
-export type AssessmentStatus = "completed" | "ongoing";
+export const ASSESSMENT_STATUS_COMPLETED = "completed";
+export const ASSESSMENT_STATUS_ONGOING = "ongoing";
 
+export const ASSESSMENT_STATUSES = [
+  ASSESSMENT_STATUS_COMPLETED,
+  ASSESSMENT_STATUS_ONGOING,
+] as const;
+export type AssessmentStatus = (typeof ASSESSMENT_STATUSES)[number];
+
+export const ASSESSMENT_KIND_SINGLE = "single";
+export const ASSESSMENT_KIND_GROUP = "group";
+
+export const SINGLE_ASSESSMENT_CATEGORY = {
+  EXAM: "exam",
+  PROJECT: "project",
+  QUIZ: "quiz",
+  ASSIGNMENT: "assignment",
+  PRESENTATION: "presentation",
+} as const;
+
+export const SINGLE_ASSESSMENT_CATEGORIES = [
+  SINGLE_ASSESSMENT_CATEGORY.EXAM,
+  SINGLE_ASSESSMENT_CATEGORY.PROJECT,
+  SINGLE_ASSESSMENT_CATEGORY.QUIZ,
+  SINGLE_ASSESSMENT_CATEGORY.ASSIGNMENT,
+  SINGLE_ASSESSMENT_CATEGORY.PRESENTATION,
+] as const;
 export type SingleAssessmentCategory =
-  | "exam"
-  | "project"
-  | "quiz"
-  | "assignment"
-  | "presentation";
+  (typeof SINGLE_ASSESSMENT_CATEGORIES)[number];
 
-export type GroupedAssessmentCategory = "tutorials";
+export const GROUPED_ASSESSMENT_CATEGORY = {
+  TUTORIALS: "tutorials",
+} as const;
+
+export const GROUPED_ASSESSMENT_CATEGORIES = [
+  GROUPED_ASSESSMENT_CATEGORY.TUTORIALS,
+] as const;
+export type GroupedAssessmentCategory =
+  (typeof GROUPED_ASSESSMENT_CATEGORIES)[number];
 
 export interface AssessmentBase {
   id: string;
@@ -18,7 +47,7 @@ export interface AssessmentBase {
 }
 
 export interface SingleAssessment extends AssessmentBase {
-  kind: "single";
+  kind: typeof ASSESSMENT_KIND_SINGLE;
   scoreAchieved: number | null;
   subminimumPercent: number | null;
   totalPossible: number;
@@ -33,13 +62,13 @@ export interface GroupedAssessmentItem {
 }
 
 export interface GroupedAssessmentBase extends AssessmentBase {
-  kind: "group";
+  kind: typeof ASSESSMENT_KIND_GROUP;
   dropLowest: number;
   items: GroupedAssessmentItem[];
 }
 
 export interface TutorialsAssessment extends GroupedAssessmentBase {
-  category: "tutorials";
+  category: typeof GROUPED_ASSESSMENT_CATEGORY.TUTORIALS;
 }
 
 export type GroupedAssessment = TutorialsAssessment;

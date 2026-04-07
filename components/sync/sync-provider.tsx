@@ -28,7 +28,6 @@ import {
 import { deleteCurrentAccount } from "@/lib/supabase/delete-account";
 import {
   enqueueLocalSyncOperation,
-  type SyncAdapter,
   syncWithServer,
 } from "@/lib/sync/sync-engine";
 import {
@@ -37,7 +36,12 @@ import {
   resetLocalSyncState,
   saveSyncMeta,
 } from "@/lib/sync/sync-storage";
-import { SyncMetaRecord, SyncOperation, SyncStatus } from "@/lib/sync/types";
+import {
+  SyncAdapter,
+  SyncMetaRecord,
+  SyncOperation,
+  SyncStatus,
+} from "@/lib/sync/types";
 import { AppState } from "@/lib/app/types";
 
 interface SyncConnectionContextValue {

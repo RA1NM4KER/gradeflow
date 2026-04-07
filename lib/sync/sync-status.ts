@@ -1,16 +1,23 @@
-import { SyncStatus } from "@/lib/sync/types";
+import {
+  SYNC_STATUS_CONNECTING,
+  SYNC_STATUS_ERROR,
+  SYNC_STATUS_OFFLINE_PENDING,
+  SYNC_STATUS_SYNCING,
+  SYNC_STATUS_UP_TO_DATE,
+  SyncStatus,
+} from "@/lib/sync/types";
 
 export function getSyncStatusLabel(status: SyncStatus) {
   switch (status) {
-    case "connecting":
+    case SYNC_STATUS_CONNECTING:
       return "Connecting";
-    case "syncing":
+    case SYNC_STATUS_SYNCING:
       return "Syncing…";
-    case "up-to-date":
+    case SYNC_STATUS_UP_TO_DATE:
       return "Up to date";
-    case "offline-pending":
+    case SYNC_STATUS_OFFLINE_PENDING:
       return "Offline changes pending";
-    case "error":
+    case SYNC_STATUS_ERROR:
       return "Sync needs attention";
     default:
       return "Local only";

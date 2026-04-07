@@ -19,6 +19,13 @@ import {
 import { ThemeModePanel, ThemeSelect } from "@/components/theme/theme-select";
 import { Button } from "@/components/ui/button";
 import { useCourses } from "@/components/workspace/shared/courses-provider";
+import {
+  SYNC_STATUS_CONNECTING,
+  SYNC_STATUS_ERROR,
+  SYNC_STATUS_OFFLINE_PENDING,
+  SYNC_STATUS_SYNCING,
+  SYNC_STATUS_UP_TO_DATE,
+} from "@/lib/sync/types";
 
 export function TopNav() {
   const { appState, replaceAppState } = useCourses();
@@ -28,12 +35,12 @@ export function TopNav() {
     ? getSyncStatusLabel(status)
     : "Connect devices";
   const syncDetail =
-    isAuthenticated && status === "up-to-date"
+    isAuthenticated && status === SYNC_STATUS_UP_TO_DATE
       ? formatLastSyncedAt(lastSyncedAt)
       : null;
 
   function renderSyncIndicator() {
-    if (status === "syncing" || status === "connecting") {
+    if (status === SYNC_STATUS_SYNCING || status === SYNC_STATUS_CONNECTING) {
       return (
         <LoaderCircle className="h-3.5 w-3.5 animate-spin text-ink-muted" />
       );
@@ -42,11 +49,11 @@ export function TopNav() {
     return (
       <span
         className={
-          status === "up-to-date"
+          status === SYNC_STATUS_UP_TO_DATE
             ? "h-2 w-2 rounded-full bg-emerald-500"
-            : status === "offline-pending"
+            : status === SYNC_STATUS_OFFLINE_PENDING
               ? "h-2 w-2 rounded-full bg-amber-500"
-              : status === "error"
+              : status === SYNC_STATUS_ERROR
                 ? "h-2 w-2 rounded-full bg-rose-500"
                 : "h-2 w-2 rounded-full bg-ink-muted/40"
         }

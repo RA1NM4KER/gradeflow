@@ -123,6 +123,7 @@ export interface CourseTheme {
   neededMuted: string;
   tableHeaderAccent: string;
   chartAccentBorder: string;
+  chartAccentLine: string;
   chartAccentText: string;
   chartAccentTextMuted: string;
   neededAccentText: string;
