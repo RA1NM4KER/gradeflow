@@ -124,7 +124,7 @@ export default function ResetPasswordPage() {
 
   return (
     <FormPageContainer>
-      <Card variant="glass-panel">
+      <Card className="w-full" variant="glass-panel">
         <CardHeader>
           <CardTitle>Reset your password</CardTitle>
           <CardDescription>
