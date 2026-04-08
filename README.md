@@ -1,5 +1,7 @@
 # GradeLog
 
+[![CI](https://github.com/RA1NM4KER/GradeLog/actions/workflows/ci.yml/badge.svg)](https://github.com/RA1NM4KER/GradeLog/actions/workflows/ci.yml)
+
 GradeLog is a simple grade tracker that keeps your marks on your device.
 
 No accounts required. No cloud by default.
@@ -200,6 +202,12 @@ GradeLog is active and evolving. The current focus is product clarity, UI consis
 ## License
 
 MIT. See [`LICENSE`](./LICENSE).
+
+## Security
+
+If you discover a security issue, please report it privately instead of opening a public issue.
+
+See [`SECURITY.md`](./SECURITY.md) for the reporting process.
 
 ## Support
 
