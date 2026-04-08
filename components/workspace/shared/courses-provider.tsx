@@ -12,6 +12,7 @@ import {
 } from "react";
 import { usePathname } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import { CoursesBootState } from "@/components/workspace/shared/courses-boot-state";
 import { useSyncConnection } from "@/components/sync/sync-provider";
 import { AppState } from "@/lib/app/types";
@@ -639,13 +640,13 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     return bootError ? (
       <CoursesBootState
         action={
-          <button
-            className="inline-flex h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground"
+          <Button
             onClick={() => window.location.reload()}
+            size="pill"
             type="button"
           >
             Reload app
-          </button>
+          </Button>
         }
         description={bootError}
         title="Local storage unavailable"

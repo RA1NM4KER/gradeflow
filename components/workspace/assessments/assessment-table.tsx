@@ -886,7 +886,7 @@ function InlineAssessmentResult({
             <p
               className={`font-medium ${
                 failedSubminimum
-                  ? "text-rose-600 dark:text-rose-300"
+                  ? "text-danger"
                   : isExperimenting
                     ? experimentTheme.accentText
                     : "text-foreground"
@@ -898,9 +898,7 @@ function InlineAssessmentResult({
               <p
                 className={cn(
                   "text-[0.72rem]",
-                  failedSubminimum
-                    ? "text-rose-600 dark:text-rose-300"
-                    : "text-ink-subtle",
+                  failedSubminimum ? "text-danger" : "text-ink-subtle",
                 )}
               >
                 Min {formatPercent(assessment.subminimumPercent)}

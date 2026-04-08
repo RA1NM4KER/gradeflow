@@ -72,7 +72,7 @@ export function MinimalLanding() {
         title="Your semesters"
       >
         <div className="mt-4 inline-flex max-w-full items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 text-[0.78rem] font-medium text-ink-soft shadow-card">
-          <span className="h-2 w-2 rounded-full bg-[#41b3a2]" />
+          <span className="bg-course-teal h-2 w-2 rounded-full" />
           Private. No sign up. Works offline.
         </div>
       </PageIntro>
@@ -117,8 +117,8 @@ export function MinimalLanding() {
                 </p>
               </div>
               {semester.id === selectedSemester.id ? (
-                <span className="mt-0.5 inline-flex items-center gap-1 self-start rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-emerald-700">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="mt-0.5 inline-flex items-center gap-1 self-start rounded-full border border-success-soft bg-success-soft px-2 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-success">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success-solid" />
                   Current
                 </span>
               ) : (

@@ -1,13 +1,7 @@
 "use client";
 
 import { ReactNode, SyntheticEvent, useMemo, useState } from "react";
-import {
-  ChevronDown,
-  Cloud,
-  LoaderCircle,
-  Smartphone,
-  TriangleAlert,
-} from "lucide-react";
+import { ChevronDown, Cloud, Smartphone, TriangleAlert } from "lucide-react";
 
 import {
   Dialog,
@@ -16,11 +10,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { DialogTriggerAction } from "@/components/ui/dialog-trigger-action";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoadingMessage } from "@/components/ui/loading-message";
+import { NoticePanel } from "@/components/ui/notice-panel";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { SelectableCardButton } from "@/components/ui/selectable-card-button";
 import { useSyncConnection } from "@/components/sync/sync-provider";
 import { formatLastSyncedAt, getSyncStatusLabel } from "@/lib/sync/sync-status";
@@ -216,15 +214,12 @@ export function ConnectDevicesDialog({
       }}
       open={open}
     >
-      {triggerChildren ? (
-        <DialogTrigger asChild={triggerAsChild}>
-          {triggerChildren}
-        </DialogTrigger>
-      ) : (
-        <DialogTrigger asChild>
-          <Button variant="outline">Connect devices</Button>
-        </DialogTrigger>
-      )}
+      <DialogTriggerAction
+        asChild={triggerAsChild}
+        fallback={<Button variant="outline">Connect devices</Button>}
+      >
+        {triggerChildren}
+      </DialogTriggerAction>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Connect your devices</DialogTitle>
@@ -236,10 +231,9 @@ export function ConnectDevicesDialog({
 
         <div className="grid gap-4">
           {isRestoringSession ? (
-            <p className="flex items-center gap-2 text-sm text-ink-muted">
-              <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+            <LoadingMessage size="sm">
               Restoring your connected devices session…
-            </p>
+            </LoadingMessage>
           ) : null}
 
           <div className="rounded-[20px] border border-white/18 bg-white/24 p-3 shadow-card backdrop-blur-sm dark:border-white/8 dark:bg-white/4">
@@ -268,11 +262,11 @@ export function ConnectDevicesDialog({
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.12em]",
                   status === "up-to-date"
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    ? "border-success-soft bg-success-soft text-success"
                     : status === "offline-pending"
-                      ? "border-amber-200 bg-amber-50 text-amber-700"
+                      ? "border-warning-soft bg-warning-soft text-warning"
                       : status === "error"
-                        ? "border-rose-200 bg-rose-50 text-rose-700"
+                        ? "border-danger-soft bg-danger-soft text-danger"
                         : "border-line bg-surface text-ink-muted",
                 )}
               >
@@ -283,46 +277,46 @@ export function ConnectDevicesDialog({
           </div>
 
           {statusNotice && !isAuthenticated ? (
-            <div className="rounded-[24px] border border-emerald-200 bg-emerald-50/90 p-4 text-sm text-emerald-900 dark:border-emerald-950/40 dark:bg-emerald-950/20 dark:text-emerald-100">
-              {statusNotice}
-            </div>
+            <NoticePanel tone="success">{statusNotice}</NoticePanel>
           ) : null}
 
           {!isConfigured ? (
-            <div className="rounded-[24px] border border-amber-200 bg-amber-50/90 p-4 text-sm text-amber-900">
+            <NoticePanel tone="warning">
               Sync is not configured in this build yet. Add
               `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to
               enable connected devices.
-            </div>
+            </NoticePanel>
           ) : isAuthenticated ? (
             <>
-              <div className="rounded-[24px] border border-white/24 bg-white/38 p-4 shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
-                <p className="text-sm font-semibold text-foreground">
-                  Connected devices are enabled
-                </p>
-                <p className="mt-1 text-sm leading-6 text-ink-soft">
-                  {connectedStateCopy}
-                </p>
-                {statusNotice ? (
-                  <p className="mt-2 text-sm text-ink-muted">{statusNotice}</p>
-                ) : null}
-                {status === "error" && errorMessage ? (
-                  <p className="mt-2 text-sm text-rose-700">{errorMessage}</p>
-                ) : null}
-                <div className="mt-4">
-                  <Button
-                    disabled={isSubmitting || isSyncing}
-                    onClick={handleSyncNow}
-                    type="button"
-                    variant="outline"
-                  >
-                    {isSubmitting || isSyncing ? (
-                      <LoaderCircle className="h-4 w-4 animate-spin" />
-                    ) : null}
-                    Sync now
-                  </Button>
-                </div>
-              </div>
+              <Card className="rounded-[24px]" variant="glass-panel">
+                <CardContent className="p-4">
+                  <p className="text-sm font-semibold text-foreground">
+                    Connected devices are enabled
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-ink-soft">
+                    {connectedStateCopy}
+                  </p>
+                  {statusNotice ? (
+                    <p className="mt-2 text-sm text-ink-muted">
+                      {statusNotice}
+                    </p>
+                  ) : null}
+                  {status === "error" && errorMessage ? (
+                    <p className="mt-2 text-sm text-danger">{errorMessage}</p>
+                  ) : null}
+                  <div className="mt-4">
+                    <Button
+                      disabled={isSubmitting || isSyncing}
+                      onClick={handleSyncNow}
+                      type="button"
+                      variant="outline"
+                    >
+                      {isSubmitting || isSyncing ? <LoadingSpinner /> : null}
+                      Sync now
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
               <div className="rounded-[24px] border border-line/80 bg-surface/70 shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
                 <button
                   className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left"
@@ -384,15 +378,12 @@ export function ConnectDevicesDialog({
                     ) : null}
                     <div className="mt-4">
                       <Button
-                        className="border-red-600 bg-red-600 text-white hover:bg-red-700 dark:border-red-500 dark:bg-red-600 dark:hover:bg-red-500"
                         disabled={isDeletingAccount || !canDeleteAccount}
                         onClick={handleDeleteAccount}
                         type="button"
-                        variant="outline"
+                        variant="destructive"
                       >
-                        {isDeletingAccount ? (
-                          <LoaderCircle className="h-4 w-4 animate-spin" />
-                        ) : null}
+                        {isDeletingAccount ? <LoadingSpinner /> : null}
                         Delete account
                       </Button>
                     </div>
@@ -485,12 +476,12 @@ export function ConnectDevicesDialog({
               </div>
 
               {resetNotice ? (
-                <p className="text-sm text-emerald-700">{resetNotice}</p>
+                <p className="text-sm text-success">{resetNotice}</p>
               ) : null}
 
               {(submitError ?? errorMessage) ? (
                 <div className="grid gap-2">
-                  <p className="text-sm text-rose-700">
+                  <p className="text-sm text-danger">
                     {submitError ?? errorMessage}
                   </p>
                   {showsExistingUserError && mode === "sign-up" ? (
@@ -515,9 +506,7 @@ export function ConnectDevicesDialog({
                   type="submit"
                   variant={isFormValid ? "glass-strong" : "glass-muted"}
                 >
-                  {isSubmitting ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                  ) : null}
+                  {isSubmitting ? <LoadingSpinner /> : null}
                   {mode === "sign-in" ? "Sign in" : "Create account"}
                 </Button>
               </DialogFooter>
@@ -533,9 +522,7 @@ export function ConnectDevicesDialog({
               type="button"
               variant="outline"
             >
-              {isSubmitting ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : null}
+              {isSubmitting ? <LoadingSpinner /> : null}
               Disconnect this device
             </Button>
           </DialogFooter>

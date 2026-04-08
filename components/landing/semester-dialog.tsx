@@ -10,8 +10,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import { DialogTriggerAction } from "@/components/ui/dialog-trigger-action";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createSemester } from "@/lib/course/semester-utils";
@@ -72,15 +72,12 @@ export function SemesterDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {triggerChildren ? (
-        <DialogTrigger asChild={triggerAsChild}>
-          {triggerChildren}
-        </DialogTrigger>
-      ) : (
-        <DialogTrigger asChild>
-          <Button size="lg">Create semester</Button>
-        </DialogTrigger>
-      )}
+      <DialogTriggerAction
+        asChild={triggerAsChild}
+        fallback={<Button size="lg">Create semester</Button>}
+      >
+        {triggerChildren}
+      </DialogTriggerAction>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>

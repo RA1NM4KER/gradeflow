@@ -2,14 +2,12 @@ import type { Metadata } from "next";
 import type { Viewport } from "next";
 import React from "react";
 
+import { AppProviders } from "@/components/layout/app-providers";
 import { AppShell } from "@/components/layout/app-shell";
 import { TopNav } from "@/components/layout/top-nav";
 import { RouteCacheWarmup } from "@/components/pwa/route-cache-warmup";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
-import { SyncProvider } from "@/components/sync/sync-provider";
-import { ThemeProvider } from "@/components/theme/theme-provider";
-import { CoursesProvider } from "@/components/workspace/shared/courses-provider";
-import { THEME_STORAGE_KEY } from "@/lib/theme/theme";
+import { getThemeInitializerScript } from "@/lib/theme/theme";
 import { Analytics } from "@vercel/analytics/next";
 
 import "./globals.css";
@@ -55,23 +53,7 @@ export const viewport: Viewport = {
   ],
 };
 
-const themeInitializerScript = `
-(() => {
-  const storageKey = ${JSON.stringify(THEME_STORAGE_KEY)};
-  const root = document.documentElement;
-  const storedTheme = window.localStorage.getItem(storageKey);
-  const theme =
-    storedTheme === "light" || storedTheme === "dark" || storedTheme === "system"
-      ? storedTheme
-      : "system";
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const resolvedTheme =
-    theme === "system" ? (prefersDark ? "dark" : "light") : theme;
-
-  root.classList.toggle("dark", resolvedTheme === "dark");
-  root.style.colorScheme = resolvedTheme;
-})();
-`;
+const themeInitializerScript = getThemeInitializerScript();
 
 export default function RootLayout({
   children,
@@ -82,17 +64,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
         <script dangerouslySetInnerHTML={{ __html: themeInitializerScript }} />
-        <ThemeProvider>
-          <SyncProvider>
-            <CoursesProvider>
-              <AppShell>
-                <RouteCacheWarmup />
-                <TopNav />
-                {children}
-              </AppShell>
-            </CoursesProvider>
-          </SyncProvider>
-        </ThemeProvider>
+        <AppProviders>
+          <AppShell>
+            <RouteCacheWarmup />
+            <TopNav />
+            {children}
+          </AppShell>
+        </AppProviders>
         <Analytics />
         <ServiceWorkerRegistration />
       </body>

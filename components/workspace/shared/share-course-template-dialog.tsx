@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { Check, Copy, LoaderCircle, QrCode, Share2 } from "lucide-react";
+import { Check, Copy, QrCode, Share2 } from "lucide-react";
 
 import {
   Dialog,
@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { LoadingCard } from "@/components/ui/loading-card";
+import { NoticePanel } from "@/components/ui/notice-panel";
 import { SectionLabel } from "@/components/ui/section-label";
 import { Course } from "@/lib/shared/types";
 import {
@@ -147,20 +149,15 @@ export function ShareCourseTemplateDialog({
         </DialogHeader>
 
         {!isConfigured ? (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-950/40 dark:bg-amber-950/20 dark:text-amber-100">
+          <NoticePanel className="rounded-2xl px-4 py-3" tone="warning">
             Course sharing needs Supabase to be configured in this build.
-          </div>
+          </NoticePanel>
         ) : isLoading ? (
-          <Card className="rounded-[24px]" variant="surface-panel">
-            <CardContent className="flex min-h-[18rem] flex-col items-center justify-center gap-3 p-6">
-              <LoaderCircle className="h-6 w-6 animate-spin text-ink-muted" />
-              <p className="text-sm text-ink-soft">Preparing your share link</p>
-            </CardContent>
-          </Card>
+          <LoadingCard message="Preparing your share link" />
         ) : errorMessage ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-950/40 dark:bg-red-950/20 dark:text-red-200">
+          <NoticePanel className="rounded-2xl px-4 py-3" tone="error">
             {errorMessage}
-          </div>
+          </NoticePanel>
         ) : shareData ? (
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)]">

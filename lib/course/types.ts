@@ -74,18 +74,6 @@ export interface CourseTemplatePayload {
   instructor: string;
   name: string;
 }
-
-export interface SharedCourseTemplateRow {
-  created_at: string;
-  public_token: string;
-  title: string;
-  updated_at: string;
-}
-
-export interface FetchedCourseTemplateRow extends SharedCourseTemplateRow {
-  course_payload: CourseTemplatePayload;
-}
-
 export interface SharedCourseTemplate {
   createdAt: string;
   publicToken: string;

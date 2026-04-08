@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { sanitizePlainNumberInput } from "@/lib/assessments/numeric-input";
@@ -85,7 +86,7 @@ export function GradeBandEditor({ bands, onChange }: GradeBandEditorProps) {
             const selected = bands.some((band) => band.label === preset.label);
 
             return (
-              <button
+              <Button
                 className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                   selected
                     ? "border-primary bg-primary text-primary-foreground"
@@ -93,10 +94,12 @@ export function GradeBandEditor({ bands, onChange }: GradeBandEditorProps) {
                 }`}
                 key={preset.label}
                 onClick={() => toggleBand(preset.label)}
+                size={null}
                 type="button"
+                variant="ghost"
               >
                 {preset.label}
-              </button>
+              </Button>
             );
           })}
         </div>

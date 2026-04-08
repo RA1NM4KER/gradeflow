@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { SyntheticEvent, useEffect, useState } from "react";
-import { LoaderCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { FormPageContainer } from "@/components/ui/form-page-container";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoadingMessage } from "@/components/ui/loading-message";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import {
   clearPasswordRecoverySession,
   getCurrentSyncSession,
@@ -121,8 +123,8 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-2xl items-center px-4 py-16 sm:px-6">
-      <Card className="w-full" variant="glass-panel">
+    <FormPageContainer>
+      <Card variant="glass-panel">
         <CardHeader>
           <CardTitle>Reset your password</CardTitle>
           <CardDescription>
@@ -131,20 +133,17 @@ export default function ResetPasswordPage() {
         </CardHeader>
         <CardContent className="grid gap-4">
           {!isReady ? (
-            <p className="flex items-center gap-2 text-sm text-ink-muted">
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-              Verifying your reset link…
-            </p>
+            <LoadingMessage>Verifying your reset link…</LoadingMessage>
           ) : hasCompletedReset ? (
             <div className="grid gap-3">
-              <p className="text-sm text-emerald-700">{successMessage}</p>
-              <Button asChild type="button" variant="outline">
+              <p className="text-sm text-success">{successMessage}</p>
+              <Button asChild variant="outline">
                 <Link href="/">Back to GradeLog</Link>
               </Button>
             </div>
           ) : !hasRecoverySession ? (
             <div className="grid gap-3">
-              <p className="text-sm text-rose-700">
+              <p className="text-sm text-danger">
                 {errorMessage ??
                   "This password reset link is invalid or has expired. Request a new one from the sign-in screen."}
               </p>
@@ -193,15 +192,15 @@ export default function ResetPasswordPage() {
               </p>
 
               {!passwordsMatch && confirmPassword.length > 0 ? (
-                <p className="text-sm text-rose-700">Passwords do not match.</p>
+                <p className="text-sm text-danger">Passwords do not match.</p>
               ) : null}
 
               {errorMessage ? (
-                <p className="text-sm text-rose-700">{errorMessage}</p>
+                <p className="text-sm text-danger">{errorMessage}</p>
               ) : null}
 
               {successMessage ? (
-                <p className="text-sm text-emerald-700">{successMessage}</p>
+                <p className="text-sm text-success">{successMessage}</p>
               ) : null}
 
               <Button
@@ -209,15 +208,13 @@ export default function ResetPasswordPage() {
                 type="submit"
                 variant={canSubmit ? "glass-strong" : "glass-muted"}
               >
-                {isSubmitting ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : null}
+                {isSubmitting ? <LoadingSpinner /> : null}
                 Update password
               </Button>
             </form>
           )}
         </CardContent>
       </Card>
-    </div>
+    </FormPageContainer>
   );
 }

@@ -3,6 +3,7 @@
 import { ChangeEvent, ReactNode, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +11,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import { DialogTriggerAction } from "@/components/ui/dialog-trigger-action";
 import {
   downloadAppStateBackup,
   getAppStateBackupSummary,
@@ -108,17 +109,16 @@ export function LocalBackupDialog({
       }}
       open={open}
     >
-      {triggerChildren ? (
-        <DialogTrigger asChild={triggerAsChild}>
-          {triggerChildren}
-        </DialogTrigger>
-      ) : (
-        <DialogTrigger asChild>
+      <DialogTriggerAction
+        asChild={triggerAsChild}
+        fallback={
           <Button size={null} type="button" variant="nav">
             Backup
           </Button>
-        </DialogTrigger>
-      )}
+        }
+      >
+        {triggerChildren}
+      </DialogTriggerAction>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Local backup</DialogTitle>
@@ -129,77 +129,82 @@ export function LocalBackupDialog({
         </DialogHeader>
 
         <div className="grid gap-5">
-          <div className="rounded-[24px] border border-white/24 bg-white/38 p-4 shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
-            <p className="text-sm font-semibold text-foreground">
-              Export current data
-            </p>
-            <p className="mt-1 text-sm leading-6 text-ink-soft">
-              Version {summary.version}. {summary.semesterCount} semesters,{" "}
-              {summary.courseCount} courses, and {summary.assessmentCount}{" "}
-              assessments will be saved to a local JSON file.
-            </p>
-            <Button
-              className="mt-4"
-              onClick={() => downloadAppStateBackup(appState)}
-              type="button"
-            >
-              Export JSON
-            </Button>
-          </div>
-
-          <div className="rounded-[24px] border border-white/24 bg-white/38 p-4 shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
-            <p className="text-sm font-semibold text-foreground">
-              Import backup
-            </p>
-            <p className="mt-1 text-sm leading-6 text-ink-soft">
-              Review the backup before replacing the current local state on this
-              device.
-            </p>
-            <input
-              accept="application/json,.json"
-              className="hidden"
-              onChange={handleFileChange}
-              ref={inputRef}
-              type="file"
-            />
-            <Button
-              className="mt-4"
-              onClick={() => inputRef.current?.click()}
-              type="button"
-              variant="outline"
-            >
-              Choose JSON file
-            </Button>
-
-            {isImporting ? (
-              <p className="mt-3 text-sm text-ink-muted">
-                Checking backup file…
+          <Card className="rounded-[24px]" variant="glass-panel">
+            <CardContent className="p-4">
+              <p className="text-sm font-semibold text-foreground">
+                Export current data
               </p>
-            ) : null}
+              <p className="mt-1 text-sm leading-6 text-ink-soft">
+                Version {summary.version}. {summary.semesterCount} semesters,{" "}
+                {summary.courseCount} courses, and {summary.assessmentCount}{" "}
+                assessments will be saved to a local JSON file.
+              </p>
+              <Button
+                className="mt-4"
+                onClick={() => downloadAppStateBackup(appState)}
+                type="button"
+              >
+                Export JSON
+              </Button>
+            </CardContent>
+          </Card>
 
-            {importError ? (
-              <p className="mt-3 text-sm text-red-700">{importError}</p>
-            ) : null}
+          <Card className="rounded-[24px]" variant="glass-panel">
+            <CardContent className="p-4">
+              <p className="text-sm font-semibold text-foreground">
+                Import backup
+              </p>
+              <p className="mt-1 text-sm leading-6 text-ink-soft">
+                Review the backup before replacing the current local state on
+                this device.
+              </p>
+              <input
+                accept="application/json,.json"
+                className="hidden"
+                onChange={handleFileChange}
+                ref={inputRef}
+                type="file"
+              />
+              <Button
+                className="mt-4"
+                onClick={() => inputRef.current?.click()}
+                type="button"
+                variant="outline"
+              >
+                Choose JSON file
+              </Button>
 
-            {pendingImport ? (
-              <div className="mt-3 rounded-2xl border border-white/20 bg-white/44 p-3 shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/6">
-                <p className="text-sm font-medium text-foreground">
-                  Ready to import {pendingImport.fileName}
+              {isImporting ? (
+                <p className="mt-3 text-sm text-ink-muted">
+                  Checking backup file…
                 </p>
-                <p className="mt-1 text-sm text-ink-soft">
-                  Version {pendingImportSummary?.version}.{" "}
-                  {pendingImportSummary?.semesterCount} semesters,{" "}
-                  {pendingImportSummary?.courseCount} courses, and{" "}
-                  {pendingImportSummary?.assessmentCount} assessments detected.
-                </p>
-                {pendingImport.lastModified ? (
-                  <p className="mt-1 text-sm text-ink-muted">
-                    File updated {pendingImport.lastModified}
+              ) : null}
+
+              {importError ? (
+                <p className="mt-3 text-sm text-danger">{importError}</p>
+              ) : null}
+
+              {pendingImport ? (
+                <div className="mt-3 rounded-2xl border border-white/20 bg-white/44 p-3 shadow-card backdrop-blur-sm dark:border-white/10 dark:bg-white/6">
+                  <p className="text-sm font-medium text-foreground">
+                    Ready to import {pendingImport.fileName}
                   </p>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
+                  <p className="mt-1 text-sm text-ink-soft">
+                    Version {pendingImportSummary?.version}.{" "}
+                    {pendingImportSummary?.semesterCount} semesters,{" "}
+                    {pendingImportSummary?.courseCount} courses, and{" "}
+                    {pendingImportSummary?.assessmentCount} assessments
+                    detected.
+                  </p>
+                  {pendingImport.lastModified ? (
+                    <p className="mt-1 text-sm text-ink-muted">
+                      File updated {pendingImport.lastModified}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
         </div>
 
         <DialogFooter>

@@ -5,15 +5,12 @@ import {
   THEME_MODES,
   THEME_MODE_SYSTEM,
   ThemeMode,
+  THEME_MODE_LIGHT,
+  THEME_MODE_DARK,
 } from "@/lib/theme/types";
 
 export type { ResolvedTheme, ThemeMode } from "@/lib/theme/types";
-export {
-  THEME_MODES,
-  THEME_MODE_DARK,
-  THEME_MODE_LIGHT,
-  THEME_MODE_SYSTEM,
-} from "@/lib/theme/types";
+export { THEME_MODES, THEME_MODE_SYSTEM } from "@/lib/theme/types";
 
 export const THEME_STORAGE_KEY = "gradelog-theme";
 
@@ -32,4 +29,35 @@ export function resolveTheme(
   }
 
   return mode;
+}
+
+export function getThemeInitializerScript() {
+  return `
+(() => {
+  const storageKey = ${JSON.stringify(THEME_STORAGE_KEY)};
+  const themeModeSystem = ${JSON.stringify(THEME_MODE_SYSTEM)};
+  const themeModeLight = ${JSON.stringify(THEME_MODE_LIGHT)};
+  const themeModeDark = ${JSON.stringify(THEME_MODE_DARK)};
+  const resolvedThemeLight = ${JSON.stringify(RESOLVED_THEME_LIGHT)};
+  const resolvedThemeDark = ${JSON.stringify(RESOLVED_THEME_DARK)};
+  const root = document.documentElement;
+  const storedTheme = window.localStorage.getItem(storageKey);
+  const theme =
+    storedTheme === themeModeLight ||
+    storedTheme === themeModeDark ||
+    storedTheme === themeModeSystem
+      ? storedTheme
+      : themeModeSystem;
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const resolvedTheme =
+    theme === themeModeSystem
+      ? prefersDark
+        ? resolvedThemeDark
+        : resolvedThemeLight
+      : theme;
+
+  root.classList.toggle("dark", resolvedTheme === resolvedThemeDark);
+  root.style.colorScheme = resolvedTheme;
+})();
+`.trim();
 }

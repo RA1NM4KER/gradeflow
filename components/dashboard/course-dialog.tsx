@@ -10,26 +10,23 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { DialogTriggerAction } from "@/components/ui/dialog-trigger-action";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import {
-  GradeBandEditor,
-  GRADE_BAND_PRESETS,
-} from "@/components/workspace/grades/grade-band-editor";
-import { courseThemeOptions, getCourseTheme } from "@/lib/course/course-theme";
+  getInitialFormState,
+  getInitialGradeBands,
+  selectableCourseThemeOptions,
+} from "@/components/dashboard/course-dialog-helpers";
+import { GradeBandEditorSection } from "@/components/workspace/grades/grade-band-editor-section";
 import { sanitizeIntegerInput } from "@/lib/assessments/numeric-input";
 import { cn } from "@/lib/shared/utils";
 import { Course, GradeBand, Semester } from "@/lib/shared/types";
 import { ensureUuid, createUuid } from "@/lib/shared/uuid";
-
-const selectableCourseThemeOptions = courseThemeOptions.filter(
-  (theme) => theme.id !== "violet",
-);
 
 interface CourseDialogProps {
   onSaveCourse: (course: Course) => void;
@@ -161,15 +158,12 @@ export function CourseDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      {triggerChildren ? (
-        <DialogTrigger asChild={triggerAsChild}>
-          {triggerChildren}
-        </DialogTrigger>
-      ) : (
-        <DialogTrigger asChild>
-          <Button variant={triggerVariant}>{triggerLabel}</Button>
-        </DialogTrigger>
-      )}
+      <DialogTriggerAction
+        asChild={triggerAsChild}
+        fallback={<Button variant={triggerVariant}>{triggerLabel}</Button>}
+      >
+        {triggerChildren}
+      </DialogTriggerAction>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{course ? "Edit course" : "Add course"}</DialogTitle>
@@ -307,10 +301,20 @@ export function CourseDialog({
               </div>
             </>
           ) : (
-            <GradeBandEditor bands={gradeBands} onChange={setGradeBands} />
+            <GradeBandEditorSection
+              bands={gradeBands}
+              description="Choose the grade bands you want to track for this course, then tune their cutoffs."
+              onChange={setGradeBands}
+              title="Grade bands"
+            />
           )}
           {!usesStepper && showsCutoffEditor ? (
-            <GradeBandEditor bands={gradeBands} onChange={setGradeBands} />
+            <GradeBandEditorSection
+              bands={gradeBands}
+              description="Choose the grade bands you want to track for this course, then tune their cutoffs."
+              onChange={setGradeBands}
+              title="Grade bands"
+            />
           ) : null}
           {course &&
           onMoveCourse &&
@@ -374,11 +378,10 @@ export function CourseDialog({
                     </p>
                     <div className="flex justify-start">
                       <Button
-                        className="border-red-200 bg-red-50 text-red-700 hover:bg-red-100 disabled:border-line disabled:bg-surface disabled:text-ink-soft dark:border-red-950/60 dark:bg-red-950/30 dark:text-red-200 dark:hover:bg-red-950/40"
                         disabled={!canMoveCourse}
                         onClick={handleMoveCourse}
                         type="button"
-                        variant="outline"
+                        variant="destructive-soft"
                       >
                         Move course
                       </Button>
@@ -392,10 +395,9 @@ export function CourseDialog({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               {course ? (
                 <Button
-                  className="border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-950/60 dark:bg-red-950/30 dark:text-red-200 dark:hover:bg-red-950/40"
                   onClick={handleDeleteCourse}
                   type="button"
-                  variant="outline"
+                  variant="destructive-soft"
                 >
                   Delete course
                 </Button>
@@ -424,41 +426,4 @@ export function CourseDialog({
       </DialogContent>
     </Dialog>
   );
-}
-
-function getDefaultGradeBands() {
-  return GRADE_BAND_PRESETS.filter((band) =>
-    ["A", "B", "C", "D"].includes(band.label),
-  ).map((band) => ({
-    id: createUuid(),
-    label: band.label,
-    threshold: band.threshold,
-  }));
-}
-
-function getInitialGradeBands(course?: Course) {
-  return course?.gradeBands ?? getDefaultGradeBands();
-}
-
-function getInitialFormState(course?: Course) {
-  return {
-    code: course?.code ?? "",
-    name: course?.name ?? "",
-    instructor: course?.instructor ?? "",
-    credits: String(course?.credits ?? 12),
-    accent: getInitialCourseThemeId(course),
-  };
-}
-
-function getInitialCourseThemeId(course?: Course) {
-  const resolvedThemeId = course ? getCourseTheme(course).id : undefined;
-
-  if (
-    resolvedThemeId &&
-    selectableCourseThemeOptions.some((theme) => theme.id === resolvedThemeId)
-  ) {
-    return resolvedThemeId;
-  }
-
-  return selectableCourseThemeOptions[0].id;
 }

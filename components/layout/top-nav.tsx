@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { DatabaseBackup, LoaderCircle, Menu, Smartphone } from "lucide-react";
+import { DatabaseBackup, Menu, Smartphone } from "lucide-react";
 import { useState } from "react";
 
 import { InstallAppButton } from "@/components/pwa/install-app-button";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { ThemeModePanel, ThemeSelect } from "@/components/theme/theme-select";
 import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useCourses } from "@/components/workspace/shared/courses-provider";
 import {
   SYNC_STATUS_CONNECTING,
@@ -42,20 +43,18 @@ export function TopNav() {
 
   function renderSyncIndicator() {
     if (status === SYNC_STATUS_SYNCING || status === SYNC_STATUS_CONNECTING) {
-      return (
-        <LoaderCircle className="h-3.5 w-3.5 animate-spin text-ink-muted" />
-      );
+      return <LoadingSpinner className="text-ink-muted" size="sm" />;
     }
 
     return (
       <span
         className={
           status === SYNC_STATUS_UP_TO_DATE
-            ? "h-2 w-2 rounded-full bg-emerald-500"
+            ? "h-2 w-2 rounded-full bg-success-solid"
             : status === SYNC_STATUS_OFFLINE_PENDING
-              ? "h-2 w-2 rounded-full bg-amber-500"
+              ? "h-2 w-2 rounded-full bg-warning-solid"
               : status === SYNC_STATUS_ERROR
-                ? "h-2 w-2 rounded-full bg-rose-500"
+                ? "h-2 w-2 rounded-full bg-danger-solid"
                 : "h-2 w-2 rounded-full bg-ink-muted/40"
         }
       />

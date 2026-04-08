@@ -5,6 +5,7 @@ import { Calculator } from "lucide-react";
 import { AlertTriangle, X } from "lucide-react";
 
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/page-container";
 import { AssessmentTable } from "@/components/workspace/assessments/assessment-table";
 import { CourseMobileOverview } from "@/components/workspace/course/course-mobile-overview";
@@ -121,13 +122,13 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
       <PageContainer className="pb-10 pt-6">
         <EmptyState
           action={
-            <button
-              className="inline-flex h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground"
+            <Button
               onClick={() => navigateCourses("/courses")}
+              size="pill"
               type="button"
             >
               Back to semester
-            </button>
+            </Button>
           }
           description="The selected course could not be found."
           icon={<Calculator className="h-5 w-5" />}

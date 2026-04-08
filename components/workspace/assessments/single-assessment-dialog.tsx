@@ -10,8 +10,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import { DialogTriggerAction } from "@/components/ui/dialog-trigger-action";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { parseOptionalPercent } from "@/lib/assessments/assessment-form-utils";
@@ -89,7 +89,9 @@ export function SingleAssessmentDialog({
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger asChild={triggerAsChild}>{triggerChildren}</DialogTrigger>
+      <DialogTriggerAction asChild={triggerAsChild}>
+        {triggerChildren}
+      </DialogTriggerAction>
       <DialogContent
         layout="workspace-compact"
         onInteractOutside={(event) => {
@@ -197,7 +199,7 @@ export function SingleAssessmentDialog({
                   value={form.dueDate}
                 />
                 {dueDateError ? (
-                  <p className="text-xs text-rose-600">{dueDateError}</p>
+                  <p className="text-xs text-danger">{dueDateError}</p>
                 ) : null}
               </div>
             </div>
@@ -217,7 +219,7 @@ export function SingleAssessmentDialog({
                 }
               }}
               type="button"
-              variant="outline"
+              variant="destructive-soft"
             >
               Delete assignment
             </Button>

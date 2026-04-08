@@ -10,8 +10,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import { DialogTriggerAction } from "@/components/ui/dialog-trigger-action";
 import {
   getGroupedAssessmentEditorValue,
   GroupedAssessmentEditor,
@@ -103,15 +103,12 @@ export function GroupedAssessmentDialog({
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      {triggerChildren ? (
-        <DialogTrigger asChild={triggerAsChild}>
-          {triggerChildren}
-        </DialogTrigger>
-      ) : (
-        <DialogTrigger asChild>
-          <Button variant={triggerVariant}>{triggerLabel}</Button>
-        </DialogTrigger>
-      )}
+      <DialogTriggerAction
+        asChild={triggerAsChild}
+        fallback={<Button variant={triggerVariant}>{triggerLabel}</Button>}
+      >
+        {triggerChildren}
+      </DialogTriggerAction>
       <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
@@ -132,7 +129,7 @@ export function GroupedAssessmentDialog({
           <DialogFooter className="grid grid-cols-2 gap-2 pt-4 sm:flex sm:flex-row sm:items-center sm:justify-between">
             {assessment && onDeleteAssessment ? (
               <Button
-                className="w-full min-w-0 border-rose-200 bg-rose-50 px-3 text-rose-700 hover:bg-rose-100 sm:w-auto"
+                className="w-full min-w-0 px-3 sm:w-auto"
                 onClick={() => {
                   if (
                     window.confirm(
@@ -144,7 +141,7 @@ export function GroupedAssessmentDialog({
                   }
                 }}
                 type="button"
-                variant="outline"
+                variant="destructive-soft"
               >
                 Delete category
               </Button>

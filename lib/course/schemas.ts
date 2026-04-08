@@ -60,7 +60,7 @@ export const sharedCourseTemplateSchema: z.ZodType<SharedCourseTemplate> =
   z.object({
     createdAt: z.string(),
     publicToken: z.string(),
-    shareUrl: z.string().url(),
+    shareUrl: z.url(),
     title: z.string(),
     updatedAt: z.string(),
   });

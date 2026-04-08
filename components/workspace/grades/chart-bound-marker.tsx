@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Info } from "lucide-react";
 import { createPortal } from "react-dom";
 
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/shared/utils";
 
 type ChartBoundMarkerOrientation = "horizontal" | "vertical";
@@ -141,19 +142,21 @@ export function ChartBoundMarker({
           : { left: `${positionPercent}%` }
       }
     >
-      <button
+      <Button
         aria-label={title}
-        className="flex h-6 w-6 items-center justify-center rounded-full border border-line-strong/70 bg-surface/92 text-ink-soft shadow-sm backdrop-blur-sm transition hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="h-6 w-6 rounded-full border border-line-strong/70 bg-surface/92 p-0 text-ink-soft shadow-sm backdrop-blur-sm hover:bg-surface hover:text-foreground"
         onClick={() => setOpen((currentOpen) => !currentOpen)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onFocus={() => setHovered(true)}
         onBlur={() => setHovered(false)}
         ref={buttonRef}
+        size="icon"
         type="button"
+        variant="ghost"
       >
         <Info className="pointer-events-none h-3.5 w-3.5" />
-      </button>
+      </Button>
 
       {typeof document !== "undefined" && tooltipVisible && tooltipStyle
         ? createPortal(tooltipContent, document.body)

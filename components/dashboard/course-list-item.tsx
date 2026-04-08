@@ -32,6 +32,7 @@ export function CourseListItem({
 
   return (
     <button
+      aria-pressed={isActive}
       className={cn(
         "group relative flex w-full overflow-hidden rounded-[20px] border border-line bg-surface text-left transition-all duration-200 sm:rounded-[24px]",
         "shadow-card hover:-translate-y-0.5 hover:shadow-soft",
@@ -79,7 +80,7 @@ export function CourseListItem({
               ? "Not started"
               : remainingWeight === 0
                 ? "Complete"
-                : `${remainingWeight}% remaining`}
+                : `${formatPercent(remainingWeight)} remaining`}
           </span>
           <span className="rounded-full bg-surface-muted px-2 py-1 text-[9px] font-medium text-ink-soft sm:px-2.5 sm:text-[10px]">
             {getAssessmentPace(course)}
@@ -95,7 +96,7 @@ export function CourseListItem({
               {hasRecordedGrade ? formatPercent(grade) : "--"}
             </p>
           </div>
-          <div className="self-start rounded-[12px] bg-[hsl(var(--surface-subtle))] px-2 py-1.5 text-right sm:rounded-[14px] sm:px-2.5">
+          <div className="bg-surface-subtle self-start rounded-[12px] px-2 py-1.5 text-right sm:rounded-[14px] sm:px-2.5">
             <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-ink-subtle sm:text-[10px] sm:tracking-[0.18em]">
               Assessments
             </p>
@@ -108,7 +109,7 @@ export function CourseListItem({
         <div className="pt-2">
           <div className="flex items-center justify-between text-[9px] font-semibold uppercase tracking-[0.14em] text-ink-muted sm:text-[10px] sm:tracking-[0.16em]">
             <span>Progress</span>
-            <span>{progressValue.toFixed(0)}%</span>
+            <span>{formatPercent(progressValue)}</span>
           </div>
           <div className="mt-1">
             <Progress

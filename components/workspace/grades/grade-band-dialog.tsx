@@ -10,9 +10,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { GradeBandEditor } from "@/components/workspace/grades/grade-band-editor";
+import { DialogTriggerAction } from "@/components/ui/dialog-trigger-action";
+import { GradeBandEditorSection } from "@/components/workspace/grades/grade-band-editor-section";
 import { GradeBand } from "@/lib/shared/types";
 
 interface GradeBandDialogProps {
@@ -39,7 +39,9 @@ export function GradeBandDialog({
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger asChild={triggerAsChild}>{triggerChildren}</DialogTrigger>
+      <DialogTriggerAction asChild={triggerAsChild}>
+        {triggerChildren}
+      </DialogTriggerAction>
       <DialogContent layout="workspace">
         <DialogHeader className="shrink-0">
           <DialogTitle>Edit cutoffs</DialogTitle>
@@ -48,7 +50,11 @@ export function GradeBandDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-          <GradeBandEditor bands={draftBands} onChange={setDraftBands} />
+          <GradeBandEditorSection
+            bands={draftBands}
+            onChange={setDraftBands}
+            showHeading={false}
+          />
         </div>
         <DialogFooter className="shrink-0 pt-3">
           <Button

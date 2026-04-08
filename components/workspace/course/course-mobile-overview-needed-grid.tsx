@@ -3,6 +3,7 @@
 import { Pencil } from "lucide-react";
 
 import { useTheme } from "@/components/theme/theme-provider";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { GradeBandDialog } from "@/components/workspace/grades/grade-band-dialog";
 import { getCourseTheme } from "@/lib/course/course-theme";
@@ -64,10 +65,10 @@ export function CourseMobileOverviewNeededGrid({
                   className={cn(
                     "shrink-0 text-xs font-semibold uppercase tracking-[0.14em]",
                     requirement.status === SUBMINIMUM_STATUS_FAILED
-                      ? "text-rose-600 dark:text-rose-300"
+                      ? "text-danger"
                       : requirement.status === SUBMINIMUM_STATUS_MET
-                        ? "text-emerald-600"
-                        : "text-amber-600",
+                        ? "text-success"
+                        : "text-warning",
                   )}
                 >
                   {requirement.status === SUBMINIMUM_STATUS_PENDING
@@ -90,18 +91,20 @@ export function CourseMobileOverviewNeededGrid({
           onSave={onSaveBandsAction}
           triggerAsChild
           triggerChildren={
-            <button
+            <Button
               aria-label="Edit cutoffs"
               className={cn(
-                "inline-flex h-7 w-7 items-center justify-center rounded-full border bg-surface transition hover:bg-surface-muted",
+                "h-7 w-7 rounded-full border bg-surface p-0 transition hover:bg-surface-muted",
                 isExperimenting
                   ? `${experimentTheme.accentBorder} ${experimentTheme.accentText}`
                   : `${theme.chartAccentBorder} ${theme.chartAccentText}`,
               )}
+              size="icon"
               type="button"
+              variant="ghost"
             >
               <Pencil className="h-3.5 w-3.5" />
-            </button>
+            </Button>
           }
         />
       </div>
@@ -156,7 +159,7 @@ export function CourseMobileOverviewNeededGrid({
                 result.hasFailedSubminimums ? (
                   <p
                     className={cn(
-                      "mt-1 text-[0.68rem] leading-tight text-rose-600 dark:text-rose-300",
+                      "mt-1 text-[0.68rem] leading-tight text-danger",
                     )}
                   >
                     Submin failed

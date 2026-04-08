@@ -33,7 +33,7 @@ export function ExperimentModePill({
         </>
       }
       onAction={onStopAction}
-      subtitle="Test changes safely. Nothing is saved until you exit."
+      subtitle="Nothing here changes your real grades. Undo to exit this preview."
       title="Experiment mode is on"
       tone="experiment"
     />

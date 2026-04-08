@@ -3,6 +3,22 @@
 @tailwind utilities;
 
 :root {
+  --course-teal: 170 47% 48%;
+  --course-teal-foreground: 167 100% 97%;
+  --experiment-header: 267 43% 95%;
+  --experiment-accent-surface: 267 100% 97%;
+  --experiment-accent-surface-soft: 267 100% 97%;
+  --experiment-accent-surface-strong: 267 100% 97%;
+  --experiment-accent-border: 267 71% 84%;
+  --experiment-accent-border-soft: 267 71% 84%;
+  --experiment-accent-line: 267 83% 60%;
+  --experiment-accent-ping-1: 267 91% 76%;
+  --experiment-accent-ping-2: 268 95% 86%;
+  --experiment-accent-ping-3: 270 95% 92%;
+  --experiment-accent-text: 268 56% 46%;
+  --experiment-accent-text-muted: 268 45% 58%;
+  --experiment-accent-text-soft: 267 52% 52%;
+  --experiment-accent-text-strong: 269 61% 30%;
   --font-manrope:
     ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
     "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
@@ -17,6 +33,21 @@
   --foreground-soft: 33 5.5% 32.4%;
   --foreground-muted: 25 5.3% 44.7%;
   --foreground-subtle: 24 5.4% 63.9%;
+  --success-surface: 138 76% 97%;
+  --success-border: 142 71% 86%;
+  --success-foreground: 142 72% 29%;
+  --success-foreground-strong: 141 64% 24%;
+  --success-solid: 142 71% 45%;
+  --warning-surface: 48 100% 96%;
+  --warning-border: 42 96% 83%;
+  --warning-foreground: 32 95% 34%;
+  --warning-foreground-strong: 28 88% 28%;
+  --warning-solid: 38 92% 50%;
+  --danger-surface: 0 86% 97%;
+  --danger-border: 0 93% 89%;
+  --danger-foreground: 0 72% 42%;
+  --danger-foreground-strong: 0 63% 31%;
+  --danger-solid: 0 72% 51%;
   --card: 0 0% 100%;
   --card-foreground: 20 14.3% 4.1%;
   --surface-soft-rgb: 251 251 250;
@@ -56,6 +87,20 @@
 
 .dark {
   --canvas: #17181b;
+  --experiment-header: 277 44% 16%;
+  --experiment-accent-surface: 268 95% 76% / 0.12;
+  --experiment-accent-surface-soft: 268 95% 76% / 0.1;
+  --experiment-accent-surface-strong: 268 95% 76% / 0.16;
+  --experiment-accent-border: 268 95% 76% / 0.55;
+  --experiment-accent-border-soft: 268 95% 76% / 0.35;
+  --experiment-accent-line: 268 95% 76% / 0.7;
+  --experiment-accent-ping-1: 268 95% 76% / 0.65;
+  --experiment-accent-ping-2: 268 95% 86% / 0.7;
+  --experiment-accent-ping-3: 270 95% 92% / 0.8;
+  --experiment-accent-text: 268 95% 76%;
+  --experiment-accent-text-muted: 268 95% 86% / 0.78;
+  --experiment-accent-text-soft: 268 95% 76% / 0.82;
+  --experiment-accent-text-strong: 268 95% 86%;
   --background: 220 16% 11%;
   --foreground: 40 20% 92%;
   --foreground-deep: 40 20% 92%;
@@ -63,6 +108,21 @@
   --foreground-soft: 40 10% 76%;
   --foreground-muted: 40 10% 76%;
   --foreground-subtle: 40 8% 62%;
+  --success-surface: 142 44% 18%;
+  --success-border: 142 38% 28%;
+  --success-foreground: 141 56% 74%;
+  --success-foreground-strong: 138 62% 86%;
+  --success-solid: 142 64% 46%;
+  --warning-surface: 38 48% 18%;
+  --warning-border: 38 42% 28%;
+  --warning-foreground: 40 82% 74%;
+  --warning-foreground-strong: 41 92% 85%;
+  --warning-solid: 38 92% 56%;
+  --danger-surface: 0 42% 18%;
+  --danger-border: 0 34% 28%;
+  --danger-foreground: 0 68% 76%;
+  --danger-foreground-strong: 0 78% 88%;
+  --danger-solid: 0 72% 62%;
   --card: 220 16% 14%;
   --card-foreground: 40 20% 92%;
   --surface-soft-rgb: 28 29 33;
@@ -118,6 +178,492 @@ body {
 ::selection {
   background: hsl(var(--accent) / 0.7);
   color: hsl(var(--foreground));
+}
+
+@layer utilities {
+  .text-success {
+    color: hsl(var(--success-foreground));
+  }
+
+  .text-success-strong {
+    color: hsl(var(--success-foreground-strong));
+  }
+
+  .text-warning {
+    color: hsl(var(--warning-foreground));
+  }
+
+  .text-warning-strong {
+    color: hsl(var(--warning-foreground-strong));
+  }
+
+  .text-danger {
+    color: hsl(var(--danger-foreground));
+  }
+
+  .text-danger-strong {
+    color: hsl(var(--danger-foreground-strong));
+  }
+
+  .bg-success-soft {
+    background-color: hsl(var(--success-surface));
+  }
+
+  .bg-surface-subtle {
+    background-color: hsl(var(--surface-subtle));
+  }
+
+  .bg-course-teal {
+    background-color: hsl(var(--course-teal));
+  }
+
+  .bg-course-coral {
+    background-color: #e76f51;
+  }
+
+  .bg-course-coral-soft {
+    background-color: #f7e8e3;
+  }
+
+  .bg-course-coral-header {
+    background-color: #cf684d;
+  }
+
+  .bg-course-blue {
+    background-color: #5ea6ea;
+  }
+
+  .bg-course-blue-soft {
+    background-color: #eef3f8;
+  }
+
+  .bg-course-blue-header {
+    background-color: #5ea6ea;
+  }
+
+  .bg-course-teal-soft {
+    background-color: #e8f6f3;
+  }
+
+  .bg-course-teal-header {
+    background-color: #41b3a2;
+  }
+
+  .bg-course-sand {
+    background-color: #d4a373;
+  }
+
+  .bg-course-sand-soft {
+    background-color: #f6eee6;
+  }
+
+  .bg-course-sand-header {
+    background-color: #c79363;
+  }
+
+  .bg-course-pink {
+    background-color: #f29cbc;
+  }
+
+  .bg-course-pink-soft {
+    background-color: #fdebf2;
+  }
+
+  .bg-course-pink-header {
+    background-color: #ea86af;
+  }
+
+  .bg-course-gold {
+    background-color: #e9c46a;
+  }
+
+  .bg-course-gold-soft {
+    background-color: #fbf4df;
+  }
+
+  .bg-course-gold-header {
+    background-color: #d8b253;
+  }
+
+  .bg-course-violet {
+    background-color: #9b5de5;
+  }
+
+  .bg-course-violet-soft {
+    background-color: #f1e9fd;
+  }
+
+  .bg-course-violet-header {
+    background-color: #9b5de5;
+  }
+
+  .bg-course-green {
+    background-color: #4caf50;
+  }
+
+  .bg-course-green-soft {
+    background-color: #e7f5e8;
+  }
+
+  .bg-course-green-header {
+    background-color: #4caf50;
+  }
+
+  .bg-experiment-header {
+    background-color: hsl(var(--experiment-header));
+  }
+
+  .bg-experiment-accent {
+    background-color: hsl(var(--experiment-accent-surface));
+  }
+
+  .bg-experiment-accent-soft {
+    background-color: hsl(var(--experiment-accent-surface-soft));
+  }
+
+  .bg-experiment-accent-strong {
+    background-color: hsl(var(--experiment-accent-surface-strong));
+  }
+
+  .bg-experiment-ping-1 {
+    background-color: hsl(var(--experiment-accent-ping-1));
+  }
+
+  .bg-experiment-ping-2 {
+    background-color: hsl(var(--experiment-accent-ping-2));
+  }
+
+  .bg-experiment-ping-3 {
+    background-color: hsl(var(--experiment-accent-ping-3));
+  }
+
+  .bg-warning-soft {
+    background-color: hsl(var(--warning-surface));
+  }
+
+  .bg-danger-soft {
+    background-color: hsl(var(--danger-surface));
+  }
+
+  .border-success-soft {
+    border-color: hsl(var(--success-border));
+  }
+
+  .border-warning-soft {
+    border-color: hsl(var(--warning-border));
+  }
+
+  .border-danger-soft {
+    border-color: hsl(var(--danger-border));
+  }
+
+  .border-course-teal {
+    border-color: hsl(var(--course-teal));
+  }
+
+  .border-course-coral {
+    border-color: #cf684d;
+  }
+
+  .border-course-coral-line {
+    border-color: rgb(207 104 77 / 0.7);
+  }
+
+  .border-course-coral-soft {
+    border-color: #e7b3a4;
+  }
+
+  .border-course-blue {
+    border-color: #5ea6ea;
+  }
+
+  .border-course-blue-line {
+    border-color: rgb(94 166 234 / 0.7);
+  }
+
+  .border-course-blue-soft {
+    border-color: #b8d7f5;
+  }
+
+  .border-course-teal-line {
+    border-color: rgb(65 179 162 / 0.7);
+  }
+
+  .border-course-teal-soft {
+    border-color: #9fdccf;
+  }
+
+  .border-course-sand {
+    border-color: #c79363;
+  }
+
+  .border-course-sand-line {
+    border-color: rgb(199 147 99 / 0.7);
+  }
+
+  .border-course-sand-soft {
+    border-color: #e3c7aa;
+  }
+
+  .border-course-pink {
+    border-color: #ea86af;
+  }
+
+  .border-course-pink-line {
+    border-color: rgb(234 134 175 / 0.7);
+  }
+
+  .border-course-pink-soft {
+    border-color: #f6bfd3;
+  }
+
+  .border-course-gold {
+    border-color: #d8b253;
+  }
+
+  .border-course-gold-line {
+    border-color: rgb(216 178 83 / 0.7);
+  }
+
+  .border-course-gold-soft {
+    border-color: #f0dfad;
+  }
+
+  .border-course-violet {
+    border-color: #9b5de5;
+  }
+
+  .border-course-violet-line {
+    border-color: rgb(155 93 229 / 0.7);
+  }
+
+  .border-course-violet-soft {
+    border-color: #d0b2f4;
+  }
+
+  .border-course-green {
+    border-color: #4caf50;
+  }
+
+  .border-course-green-line {
+    border-color: rgb(76 175 80 / 0.7);
+  }
+
+  .border-course-green-soft {
+    border-color: #a8d9aa;
+  }
+
+  .border-experiment-accent {
+    border-color: hsl(var(--experiment-accent-border));
+  }
+
+  .border-experiment-accent-soft {
+    border-color: hsl(var(--experiment-accent-border-soft));
+  }
+
+  .border-experiment-accent-line {
+    border-color: hsl(var(--experiment-accent-line));
+  }
+
+  .bg-success-solid {
+    background-color: hsl(var(--success-solid));
+  }
+
+  .bg-warning-solid {
+    background-color: hsl(var(--warning-solid));
+  }
+
+  .bg-danger-solid {
+    background-color: hsl(var(--danger-solid));
+  }
+
+  .text-course-teal-foreground {
+    color: hsl(var(--course-teal-foreground));
+  }
+
+  .text-course-coral {
+    color: #9d4b34;
+  }
+
+  .text-course-coral-muted {
+    color: #bf7a66;
+  }
+
+  .text-course-coral-soft {
+    color: #e7b3a4;
+  }
+
+  .text-course-coral-foreground {
+    color: #fff7f4;
+  }
+
+  .text-course-blue {
+    color: #3b76ae;
+  }
+
+  .text-course-blue-muted {
+    color: #7295b8;
+  }
+
+  .text-course-blue-soft {
+    color: #b8d7f5;
+  }
+
+  .text-course-blue-foreground {
+    color: #f5fbff;
+  }
+
+  .text-course-teal {
+    color: #2b8073;
+  }
+
+  .text-course-teal-muted {
+    color: #5b958c;
+  }
+
+  .text-course-teal-soft {
+    color: #9fdccf;
+  }
+
+  .text-course-sand {
+    color: #946d46;
+  }
+
+  .text-course-sand-muted {
+    color: #a18160;
+  }
+
+  .text-course-sand-soft {
+    color: #e3c7aa;
+  }
+
+  .text-course-sand-foreground {
+    color: #fff9f3;
+  }
+
+  .text-course-pink {
+    color: #b85d83;
+  }
+
+  .text-course-pink-muted {
+    color: #c585a1;
+  }
+
+  .text-course-pink-soft {
+    color: #f6bfd3;
+  }
+
+  .text-course-pink-foreground {
+    color: #fff7fb;
+  }
+
+  .text-course-gold {
+    color: #9a7e2f;
+  }
+
+  .text-course-gold-muted {
+    color: #ab9150;
+  }
+
+  .text-course-gold-soft {
+    color: #f0dfad;
+  }
+
+  .text-course-gold-foreground {
+    color: #fffcef;
+  }
+
+  .text-course-violet {
+    color: #7042a8;
+  }
+
+  .text-course-violet-muted {
+    color: #8767af;
+  }
+
+  .text-course-violet-soft {
+    color: #d0b2f4;
+  }
+
+  .text-course-violet-foreground {
+    color: #faf5ff;
+  }
+
+  .text-course-green {
+    color: #36793a;
+  }
+
+  .text-course-green-muted {
+    color: #648a67;
+  }
+
+  .text-course-green-soft {
+    color: #a8d9aa;
+  }
+
+  .text-course-green-foreground {
+    color: #f4fff4;
+  }
+
+  .text-experiment-accent {
+    color: hsl(var(--experiment-accent-text));
+  }
+
+  .text-experiment-accent-muted {
+    color: hsl(var(--experiment-accent-text-muted));
+  }
+
+  .text-experiment-accent-soft {
+    color: hsl(var(--experiment-accent-text-soft));
+  }
+
+  .text-experiment-accent-strong {
+    color: hsl(var(--experiment-accent-text-strong));
+  }
+
+  .hover\:text-experiment-accent:hover {
+    color: hsl(var(--experiment-accent-text-soft));
+  }
+
+  .border-loader-sand {
+    border-color: rgb(232 219 195 / 0.28);
+  }
+
+  .border-loader-sand-soft {
+    border-color: rgb(232 219 195 / 0.2);
+  }
+
+  .border-loader-sand-top {
+    border-top-color: #e8dbc3;
+  }
+
+  .border-loader-sand-right {
+    border-right-color: rgb(232 219 195 / 0.8);
+  }
+
+  .border-loader-sand-bottom {
+    border-bottom-color: rgb(232 219 195 / 0.95);
+  }
+
+  .border-loader-sand-left {
+    border-left-color: rgb(232 219 195 / 0.7);
+  }
+
+  .border-loader-coral {
+    border-color: rgb(255 107 107 / 0.18);
+  }
+
+  .border-loader-coral-top {
+    border-top-color: #ff6b6b;
+  }
+
+  .border-loader-coral-left {
+    border-left-color: rgb(255 107 107 / 0.75);
+  }
+
+  .shadow-loader-coral {
+    box-shadow: 0 0 24px rgb(255 107 107 / 0.28);
+  }
 }
 
 input[type="range"]::-webkit-slider-thumb {

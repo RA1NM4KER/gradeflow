@@ -10,8 +10,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import { DialogTriggerAction } from "@/components/ui/dialog-trigger-action";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SelectableCardButton } from "@/components/ui/selectable-card-button";
@@ -101,15 +101,12 @@ export function AssessmentComposerDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {triggerChildren ? (
-        <DialogTrigger asChild={triggerAsChild}>
-          {triggerChildren}
-        </DialogTrigger>
-      ) : (
-        <DialogTrigger asChild>
-          <Button variant={triggerVariant}>{triggerLabel}</Button>
-        </DialogTrigger>
-      )}
+      <DialogTriggerAction
+        asChild={triggerAsChild}
+        fallback={<Button variant={triggerVariant}>{triggerLabel}</Button>}
+      >
+        {triggerChildren}
+      </DialogTriggerAction>
       <DialogContent layout="workspace-wide">
         <DialogHeader className="shrink-0">
           <DialogTitle>Add assignment</DialogTitle>

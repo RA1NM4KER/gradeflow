@@ -36,14 +36,16 @@ export function CourseHeader({
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <button
-          className="inline-flex items-center gap-1.5 text-[0.82rem] text-ink-muted transition hover:text-foreground sm:gap-2 sm:text-sm"
+        <Button
+          className="h-auto gap-1.5 p-0 text-[0.82rem] text-ink-muted hover:bg-transparent hover:text-foreground sm:gap-2 sm:text-sm"
           onClick={() => navigateCourses("/courses")}
+          size={null}
           type="button"
+          variant="ghost"
         >
           <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           {semesterName}
-        </button>
+        </Button>
         <div className="mt-1 flex items-start gap-1.5 sm:mt-1.5 sm:items-center sm:gap-2">
           <h1 className="text-[1.15rem] font-semibold tracking-tight text-foreground sm:text-xl">
             {module.name}
@@ -103,26 +105,20 @@ export function CourseHeader({
               <span
                 className={cn(
                   "pointer-events-none absolute -top-1 left-1/2 h-1.5 w-1.5 -translate-x-[7px] rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:animate-ping",
-                  resolvedTheme === "dark"
-                    ? "bg-violet-300/0 group-hover:bg-violet-300/65"
-                    : "bg-violet-400/0 group-hover:bg-violet-400/80",
+                  experimentTheme.accentPing1,
                 )}
               />
               <span
                 className={cn(
                   "pointer-events-none absolute -top-2 left-1/2 h-1 w-1 -translate-x-[1px] rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:animate-ping",
-                  resolvedTheme === "dark"
-                    ? "bg-violet-200/0 group-hover:bg-violet-200/70"
-                    : "bg-violet-300/0 group-hover:bg-violet-300/90",
+                  experimentTheme.accentPing2,
                 )}
                 style={{ animationDelay: "120ms" }}
               />
               <span
                 className={cn(
                   "pointer-events-none absolute -top-0.5 left-1/2 h-1 w-1 -translate-x-[5px] rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:animate-ping",
-                  resolvedTheme === "dark"
-                    ? "bg-violet-100/0 group-hover:bg-violet-100/80"
-                    : "bg-violet-200/0 group-hover:bg-violet-200/90",
+                  experimentTheme.accentPing3,
                 )}
                 style={{ animationDelay: "240ms" }}
               />
