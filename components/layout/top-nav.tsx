@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { DatabaseBackup, LoaderCircle, Menu, Smartphone } from "lucide-react";
 import { useState } from "react";
@@ -70,11 +71,12 @@ export function TopNav() {
           prefetch={false}
         >
           <div className="relative h-10 w-10 shrink-0 sm:h-11 sm:w-11">
-            <img
+            <Image
               alt="GradeLog logo"
               className="object-contain"
+              fill
+              sizes="44px"
               src="/logo.svg"
-              style={{ height: "100%", width: "100%" }}
             />
           </div>
           <div className="min-w-0">

@@ -334,7 +334,7 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, [errorMessage, isBusy, session]);
+  }, [errorMessage, isBusy, session, syncMetaState]);
 
   useEffect(() => {
     if (!configured) {

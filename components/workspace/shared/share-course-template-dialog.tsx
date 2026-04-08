@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { Check, Copy, LoaderCircle, QrCode, Share2 } from "lucide-react";
 
@@ -166,10 +167,13 @@ export function ShareCourseTemplateDialog({
               <Card className="rounded-[24px]" variant="surface-panel">
                 <CardContent className="flex flex-col items-center justify-center p-4">
                   {qrCodeDataUrl ? (
-                    <img
+                    <Image
                       alt="QR code for the course template share link"
                       className="h-40 w-40 rounded-2xl bg-white p-2"
+                      height={160}
                       src={qrCodeDataUrl}
+                      unoptimized
+                      width={160}
                     />
                   ) : (
                     <div className="flex h-40 w-40 items-center justify-center rounded-2xl border border-dashed border-line bg-surface text-ink-muted">
