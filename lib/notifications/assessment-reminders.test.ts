@@ -194,6 +194,7 @@ describe("assessment-reminders", () => {
       .notifications;
 
     expect(scheduled).toHaveLength(2);
+    expect(scheduled?.map((notification) => notification.id)).toEqual([1, 2]);
     expect(scheduled?.[0]).toMatchObject({
       title: "Upcoming assignment: Quiz 1",
       body: expect.stringContaining("MAT101 is due on"),
@@ -209,6 +210,24 @@ describe("assessment-reminders", () => {
         at: new Date("2026-05-01T14:30:00"),
       },
     });
+    expect(
+      JSON.parse(storage.getItem("gradelog-reminder-id-map-v1") ?? "{}"),
+    ).toEqual({
+      "assessment-1": 1,
+      "assessment-2": 2,
+    });
+  });
+
+  it("reuses the same notification ids for the same assessments", async () => {
+    await reconcileAssessmentReminderNotifications(createState());
+    vi.clearAllMocks();
+
+    await reconcileAssessmentReminderNotifications(createState());
+
+    const scheduled = vi.mocked(LocalNotifications.schedule).mock.calls[0]?.[0]
+      .notifications;
+
+    expect(scheduled?.map((notification) => notification.id)).toEqual([1, 2]);
   });
 
   it("stores managed ids and stops before scheduling when permission is denied", async () => {

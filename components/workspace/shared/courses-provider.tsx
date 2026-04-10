@@ -100,6 +100,7 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
   );
   const persistedAppStateRef = useRef<AppState | null>(persistedAppState);
   const lastReminderSnapshotRef = useRef("");
+  const reminderReconcileTaskRef = useRef(Promise.resolve());
 
   const isExperimenting = experimentAppState !== null;
   const activeAppState = experimentAppState ?? persistedAppState;
@@ -119,12 +120,15 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     }
 
     lastReminderSnapshotRef.current = reminderSnapshot;
-
-    void reconcileAssessmentReminderNotifications(persistedAppState).catch(
-      (error) => {
-        console.error("Failed to reconcile assignment reminders.", error);
-      },
-    );
+    reminderReconcileTaskRef.current = reminderReconcileTaskRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        try {
+          await reconcileAssessmentReminderNotifications(persistedAppState);
+        } catch (error) {
+          console.error("Failed to reconcile assignment reminders.", error);
+        }
+      });
   }, [experimentAppState, isHydrated, persistedAppState]);
 
   const syncAdapter = useMemo(

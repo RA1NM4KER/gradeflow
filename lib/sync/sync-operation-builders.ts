@@ -226,10 +226,7 @@ function buildAssessmentChanges(current: Assessment, next: Assessment) {
   }
 
   if (current.kind === "single" && next.kind === "single") {
-    if (
-      JSON.stringify(current.reminder ?? null) !==
-      JSON.stringify(next.reminder ?? null)
-    ) {
+    if (!hasMatchingReminder(current.reminder ?? null, next.reminder ?? null)) {
       changes.reminder = next.reminder ?? null;
     }
     if (current.scoreAchieved !== next.scoreAchieved) {
@@ -254,6 +251,24 @@ function buildAssessmentChanges(current: Assessment, next: Assessment) {
   }
 
   return changes;
+}
+
+function hasMatchingReminder(
+  current: AssessmentUpdateOperation["payload"]["changes"]["reminder"] | null,
+  next: AssessmentUpdateOperation["payload"]["changes"]["reminder"] | null,
+) {
+  if (current === next) {
+    return true;
+  }
+
+  if (!current || !next) {
+    return false;
+  }
+
+  return (
+    current.mode === next.mode &&
+    (current.customDateTime ?? null) === (next.customDateTime ?? null)
+  );
 }
 
 export function buildAssessmentCreateOperation(

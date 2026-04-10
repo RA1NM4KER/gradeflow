@@ -16,8 +16,11 @@ import {
 import { isNativeApp } from "@/lib/platform/platform";
 
 const MANAGED_REMINDER_IDS_STORAGE_KEY = "gradelog-managed-reminder-ids-v1";
+const REMINDER_ID_MAP_STORAGE_KEY = "gradelog-reminder-id-map-v1";
+const NEXT_REMINDER_ID_STORAGE_KEY = "gradelog-next-reminder-id-v1";
 
 interface ScheduledReminderNotification {
+  assessmentId: string;
   at: Date;
   body: string;
   id: number;
@@ -60,8 +63,10 @@ export async function reconcileAssessmentReminderNotifications(
     return;
   }
 
-  const desiredNotifications = collectScheduledReminderNotifications(state);
-  const desiredIds = desiredNotifications.map(
+  const desiredNotifications = assignNotificationIds(
+    collectScheduledReminderNotifications(state),
+  );
+  const desiredIds = desiredNotifications.notifications.map(
     (notification) => notification.id,
   );
   const managedIds = getManagedReminderIds();
@@ -73,19 +78,21 @@ export async function reconcileAssessmentReminderNotifications(
     });
   }
 
-  if (desiredNotifications.length === 0) {
+  if (desiredNotifications.notifications.length === 0) {
     setManagedReminderIds([]);
+    setReminderIdMap({});
     return;
   }
 
   const permissionState = await ensureNotificationPermission();
   if (!permissionState) {
     setManagedReminderIds(desiredIds);
+    setReminderIdMap(desiredNotifications.idMap);
     return;
   }
 
   await LocalNotifications.schedule({
-    notifications: desiredNotifications.map((notification) => ({
+    notifications: desiredNotifications.notifications.map((notification) => ({
       id: notification.id,
       title: notification.title,
       body: notification.body,
@@ -97,6 +104,7 @@ export async function reconcileAssessmentReminderNotifications(
   });
 
   setManagedReminderIds(desiredIds);
+  setReminderIdMap(desiredNotifications.idMap);
 }
 
 function collectScheduledReminderNotifications(state: AppState) {
@@ -130,9 +138,10 @@ function buildScheduledReminderNotification(
 
   return [
     {
+      assessmentId: assessment.id,
       at: scheduledAt,
       body: `${course.code} is due on ${formatDueDateLabel(assessment.dueDate)}.`,
-      id: getAssessmentReminderNotificationId(assessment.id),
+      id: 0,
       title: `Upcoming assignment: ${assessment.name}`,
     },
   ];
@@ -198,17 +207,6 @@ function formatDueDateLabel(dueDate: string) {
   }).format(date);
 }
 
-function getAssessmentReminderNotificationId(assessmentId: string) {
-  let hash = 0;
-
-  for (let index = 0; index < assessmentId.length; index += 1) {
-    hash = (hash << 5) - hash + assessmentId.charCodeAt(index);
-    hash |= 0;
-  }
-
-  return Math.abs(hash) || 1;
-}
-
 async function ensureNotificationPermission() {
   const currentPermission = await LocalNotifications.checkPermissions();
 
@@ -246,4 +244,70 @@ function setManagedReminderIds(ids: number[]) {
     MANAGED_REMINDER_IDS_STORAGE_KEY,
     JSON.stringify(ids),
   );
+}
+
+function assignNotificationIds(notifications: ScheduledReminderNotification[]) {
+  const currentMap = getReminderIdMap();
+  const nextMap: Record<string, number> = {};
+  let nextId = getNextReminderId();
+
+  const assignedNotifications = notifications.map((notification) => {
+    const existingId = currentMap[notification.assessmentId];
+    const id = existingId ?? nextId++;
+
+    nextMap[notification.assessmentId] = id;
+
+    return {
+      ...notification,
+      id,
+    };
+  });
+
+  setNextReminderId(nextId);
+
+  return {
+    idMap: nextMap,
+    notifications: assignedNotifications,
+  };
+}
+
+function getReminderIdMap() {
+  const raw = window.localStorage.getItem(REMINDER_ID_MAP_STORAGE_KEY);
+
+  if (!raw) {
+    return {} as Record<string, number>;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") {
+      return {};
+    }
+
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        (entry): entry is [string, number] => typeof entry[1] === "number",
+      ),
+    );
+  } catch {
+    return {};
+  }
+}
+
+function setReminderIdMap(idMap: Record<string, number>) {
+  window.localStorage.setItem(
+    REMINDER_ID_MAP_STORAGE_KEY,
+    JSON.stringify(idMap),
+  );
+}
+
+function getNextReminderId() {
+  const raw = window.localStorage.getItem(NEXT_REMINDER_ID_STORAGE_KEY);
+  const parsed = raw ? Number(raw) : 1;
+
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function setNextReminderId(value: number) {
+  window.localStorage.setItem(NEXT_REMINDER_ID_STORAGE_KEY, String(value));
 }

@@ -88,7 +88,10 @@ export function AssessmentComposerDialog({
         return;
       }
 
-      if (singleForm.dueDate && singleForm.reminderMode === "custom") {
+      if (
+        singleForm.dueDate &&
+        singleForm.reminderMode === ASSESSMENT_REMINDER_MODE.CUSTOM
+      ) {
         const customReminderValidation = validateCustomReminderDateTime(
           singleForm.customReminderDateTime,
         );

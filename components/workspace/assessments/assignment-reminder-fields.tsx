@@ -7,6 +7,7 @@ import {
   hasDueDate,
 } from "@/lib/assessments/reminder-utils";
 import {
+  ASSESSMENT_REMINDER_MODE,
   ASSESSMENT_REMINDER_MODES,
   AssessmentReminderMode,
 } from "@/lib/assessments/types";
@@ -53,7 +54,7 @@ export function AssignmentReminderFields({
               </option>
             ))}
           </select>
-          {mode === "custom" ? (
+          {mode === ASSESSMENT_REMINDER_MODE.CUSTOM ? (
             <div className="space-y-2">
               <Label htmlFor="assignment-reminder-custom">
                 Custom reminder date and time
