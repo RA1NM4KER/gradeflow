@@ -18,6 +18,7 @@ import { AssignmentReminderFields } from "@/components/workspace/assessments/ass
 import { parseOptionalPercent } from "@/lib/assessments/assessment-form-utils";
 import {
   createDefaultReminder,
+  hasDueDate,
   normalizeReminder,
   validateCustomReminderDateTime,
   validateDueDate,
@@ -75,15 +76,22 @@ export function SingleAssessmentDialog({
   function submit(event: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
     event.preventDefault();
 
-    const dueDateValidation = validateDueDate(form.dueDate);
+    const dueDate = form.dueDate.trim();
+    const customReminderDateTime = form.customReminderDateTime.trim();
+    const hasReminderDueDate = hasDueDate(dueDate);
+
+    const dueDateValidation = validateDueDate(dueDate);
     if (!dueDateValidation.valid) {
       setDueDateError(dueDateValidation.message);
       return;
     }
 
-    if (form.dueDate && form.reminderMode === ASSESSMENT_REMINDER_MODE.CUSTOM) {
+    if (
+      hasReminderDueDate &&
+      form.reminderMode === ASSESSMENT_REMINDER_MODE.CUSTOM
+    ) {
       const customReminderValidation = validateCustomReminderDateTime(
-        form.customReminderDateTime,
+        customReminderDateTime,
       );
       if (!customReminderValidation.valid) {
         setCustomReminderError(customReminderValidation.message);
@@ -97,17 +105,17 @@ export function SingleAssessmentDialog({
       ...assessment,
       name: form.name,
       weight: Number(form.weight || 0),
-      dueDate: form.dueDate,
+      dueDate,
       scoreAchieved: parsedGrade,
       subminimumPercent: parseOptionalPercent(form.subminimumPercent),
       totalPossible: 100,
       status: parsedGrade === null ? "ongoing" : "completed",
-      reminder: !form.dueDate
+      reminder: !hasReminderDueDate
         ? null
         : form.reminderMode === ASSESSMENT_REMINDER_MODE.CUSTOM
           ? {
               mode: ASSESSMENT_REMINDER_MODE.CUSTOM,
-              customDateTime: form.customReminderDateTime,
+              customDateTime: customReminderDateTime,
             }
           : {
               mode: form.reminderMode,

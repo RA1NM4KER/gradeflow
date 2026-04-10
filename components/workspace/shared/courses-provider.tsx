@@ -100,6 +100,7 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
   );
   const persistedAppStateRef = useRef<AppState | null>(persistedAppState);
   const lastReminderSnapshotRef = useRef("");
+  const pendingReminderSnapshotRef = useRef<string | null>(null);
   const reminderReconcileTaskRef = useRef(Promise.resolve());
 
   const isExperimenting = experimentAppState !== null;
@@ -115,18 +116,26 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     }
 
     const reminderSnapshot = getAssessmentReminderSnapshot(persistedAppState);
-    if (reminderSnapshot === lastReminderSnapshotRef.current) {
+    if (
+      reminderSnapshot === lastReminderSnapshotRef.current ||
+      reminderSnapshot === pendingReminderSnapshotRef.current
+    ) {
       return;
     }
 
-    lastReminderSnapshotRef.current = reminderSnapshot;
+    pendingReminderSnapshotRef.current = reminderSnapshot;
     reminderReconcileTaskRef.current = reminderReconcileTaskRef.current
       .catch(() => undefined)
       .then(async () => {
         try {
           await reconcileAssessmentReminderNotifications(persistedAppState);
+          lastReminderSnapshotRef.current = reminderSnapshot;
         } catch (error) {
           console.error("Failed to reconcile assignment reminders.", error);
+        } finally {
+          if (pendingReminderSnapshotRef.current === reminderSnapshot) {
+            pendingReminderSnapshotRef.current = null;
+          }
         }
       });
   }, [experimentAppState, isHydrated, persistedAppState]);

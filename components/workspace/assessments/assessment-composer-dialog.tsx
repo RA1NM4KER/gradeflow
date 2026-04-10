@@ -19,6 +19,7 @@ import { AssignmentReminderFields } from "@/components/workspace/assessments/ass
 import { GroupedAssessmentEditor } from "@/components/workspace/assessments/grouped-assessment-editor";
 import { parseOptionalPercent } from "@/lib/assessments/assessment-form-utils";
 import {
+  hasDueDate,
   validateCustomReminderDateTime,
   validateDueDate,
 } from "@/lib/assessments/reminder-utils";
@@ -82,18 +83,22 @@ export function AssessmentComposerDialog({
     event.preventDefault();
 
     if (mode === "single") {
-      const dueDateValidation = validateDueDate(singleForm.dueDate);
+      const dueDate = singleForm.dueDate.trim();
+      const customReminderDateTime = singleForm.customReminderDateTime.trim();
+      const hasReminderDueDate = hasDueDate(dueDate);
+
+      const dueDateValidation = validateDueDate(dueDate);
       if (!dueDateValidation.valid) {
         setDueDateError(dueDateValidation.message);
         return;
       }
 
       if (
-        singleForm.dueDate &&
+        hasReminderDueDate &&
         singleForm.reminderMode === ASSESSMENT_REMINDER_MODE.CUSTOM
       ) {
         const customReminderValidation = validateCustomReminderDateTime(
-          singleForm.customReminderDateTime,
+          customReminderDateTime,
         );
         if (!customReminderValidation.valid) {
           setCustomReminderError(customReminderValidation.message);
@@ -109,15 +114,15 @@ export function AssessmentComposerDialog({
         scoreAchieved: null,
         subminimumPercent: parseOptionalPercent(singleForm.subminimumPercent),
         totalPossible: 100,
-        dueDate: singleForm.dueDate,
+        dueDate,
         category: "assignment",
         status: "ongoing",
-        reminder: !singleForm.dueDate
+        reminder: !hasReminderDueDate
           ? null
           : singleForm.reminderMode === ASSESSMENT_REMINDER_MODE.CUSTOM
             ? {
                 mode: ASSESSMENT_REMINDER_MODE.CUSTOM,
-                customDateTime: singleForm.customReminderDateTime,
+                customDateTime: customReminderDateTime,
               }
             : {
                 mode: singleForm.reminderMode,

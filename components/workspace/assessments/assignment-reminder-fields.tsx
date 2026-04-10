@@ -1,5 +1,7 @@
 "use client";
 
+import { useId } from "react";
+
 import { Input, inputVariants } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -31,10 +33,12 @@ export function AssignmentReminderFields({
   onModeChange,
 }: AssignmentReminderFieldsProps) {
   const dueDatePresent = hasDueDate(dueDate);
+  const modeFieldId = useId();
+  const customDateTimeFieldId = useId();
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="assignment-reminder-mode">Reminder</Label>
+      <Label htmlFor={modeFieldId}>Reminder</Label>
       {dueDatePresent ? (
         <>
           <select
@@ -42,7 +46,7 @@ export function AssignmentReminderFields({
               inputVariants({ variant: "default" }),
               "appearance-none",
             )}
-            id="assignment-reminder-mode"
+            id={modeFieldId}
             onChange={(event) =>
               onModeChange(event.target.value as AssessmentReminderMode)
             }
@@ -56,11 +60,11 @@ export function AssignmentReminderFields({
           </select>
           {mode === ASSESSMENT_REMINDER_MODE.CUSTOM ? (
             <div className="space-y-2">
-              <Label htmlFor="assignment-reminder-custom">
+              <Label htmlFor={customDateTimeFieldId}>
                 Custom reminder date and time
               </Label>
               <Input
-                id="assignment-reminder-custom"
+                id={customDateTimeFieldId}
                 onChange={(event) => onCustomDateTimeChange(event.target.value)}
                 type="datetime-local"
                 value={customDateTime}
