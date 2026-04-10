@@ -4,6 +4,7 @@ import {
   ASSESSMENT_KIND_GROUP,
   GROUPED_ASSESSMENT_CATEGORIES,
   ASSESSMENT_KIND_SINGLE,
+  ASSESSMENT_REMINDER_MODES,
   SINGLE_ASSESSMENT_CATEGORIES,
 } from "@/lib/assessments/types";
 
@@ -31,6 +32,13 @@ const rawSingleAssessmentSchema = z.object({
   subminimumPercent: z.number().nullable().optional(),
   totalPossible: z.number().optional(),
   category: z.enum(SINGLE_ASSESSMENT_CATEGORIES).optional(),
+  reminder: z
+    .object({
+      mode: z.enum(ASSESSMENT_REMINDER_MODES),
+      customDateTime: z.string().optional(),
+    })
+    .nullable()
+    .optional(),
 });
 
 const rawGroupedAssessmentSchema = z.object({

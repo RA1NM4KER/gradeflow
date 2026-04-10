@@ -15,12 +15,21 @@ import { DialogTriggerAction } from "@/components/ui/dialog-trigger-action";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SelectableCardButton } from "@/components/ui/selectable-card-button";
+import { AssignmentReminderFields } from "@/components/workspace/assessments/assignment-reminder-fields";
 import { GroupedAssessmentEditor } from "@/components/workspace/assessments/grouped-assessment-editor";
 import { parseOptionalPercent } from "@/lib/assessments/assessment-form-utils";
+import {
+  validateCustomReminderDateTime,
+  validateDueDate,
+} from "@/lib/assessments/reminder-utils";
 import {
   buildGroupedAssessment,
   getGroupedAssessmentDefaults,
 } from "@/lib/assessments/grouped-assessment-utils";
+import {
+  ASSESSMENT_REMINDER_MODE,
+  AssessmentReminderMode,
+} from "@/lib/assessments/types";
 import { sanitizePlainNumberInput } from "@/lib/assessments/numeric-input";
 import { Assessment, Module, SingleAssessment } from "@/lib/shared/types";
 import { createUuid } from "@/lib/shared/uuid";
@@ -48,12 +57,16 @@ export function AssessmentComposerDialog({
   const [groupForm, setGroupForm] = useState(
     getGroupedAssessmentDefaults("tutorials"),
   );
+  const [dueDateError, setDueDateError] = useState("");
+  const [customReminderError, setCustomReminderError] = useState("");
 
   useEffect(() => {
     if (open) {
       setSingleForm(getDefaultSingleForm());
       setGroupForm(getGroupedAssessmentDefaults("tutorials"));
       setMode("single");
+      setDueDateError("");
+      setCustomReminderError("");
     }
   }, [open]);
 
@@ -69,6 +82,22 @@ export function AssessmentComposerDialog({
     event.preventDefault();
 
     if (mode === "single") {
+      const dueDateValidation = validateDueDate(singleForm.dueDate);
+      if (!dueDateValidation.valid) {
+        setDueDateError(dueDateValidation.message);
+        return;
+      }
+
+      if (singleForm.dueDate && singleForm.reminderMode === "custom") {
+        const customReminderValidation = validateCustomReminderDateTime(
+          singleForm.customReminderDateTime,
+        );
+        if (!customReminderValidation.valid) {
+          setCustomReminderError(customReminderValidation.message);
+          return;
+        }
+      }
+
       const nextAssessment: SingleAssessment = {
         id: createUuid(),
         kind: "single",
@@ -80,6 +109,16 @@ export function AssessmentComposerDialog({
         dueDate: singleForm.dueDate,
         category: "assignment",
         status: "ongoing",
+        reminder: !singleForm.dueDate
+          ? null
+          : singleForm.reminderMode === ASSESSMENT_REMINDER_MODE.CUSTOM
+            ? {
+                mode: ASSESSMENT_REMINDER_MODE.CUSTOM,
+                customDateTime: singleForm.customReminderDateTime,
+              }
+            : {
+                mode: singleForm.reminderMode,
+              },
       };
 
       onSaveAssessment(module.id, nextAssessment);
@@ -192,16 +231,44 @@ export function AssessmentComposerDialog({
                     <Label htmlFor="single-due-date">Due date</Label>
                     <Input
                       id="single-due-date"
-                      onChange={(event) =>
+                      onChange={(event) => {
                         setSingleForm((current) => ({
                           ...current,
                           dueDate: event.target.value,
-                        }))
-                      }
+                        }));
+                        setDueDateError("");
+                      }}
                       type="date"
                       value={singleForm.dueDate}
                     />
+                    {dueDateError ? (
+                      <p className="text-xs text-danger">{dueDateError}</p>
+                    ) : null}
                   </div>
+                  <AssignmentReminderFields
+                    customDateTime={singleForm.customReminderDateTime}
+                    customDateTimeError={customReminderError}
+                    dueDate={singleForm.dueDate}
+                    mode={singleForm.reminderMode}
+                    onCustomDateTimeChange={(value) => {
+                      setSingleForm((current) => ({
+                        ...current,
+                        customReminderDateTime: value,
+                      }));
+                      setCustomReminderError("");
+                    }}
+                    onModeChange={(value) => {
+                      setSingleForm((current) => ({
+                        ...current,
+                        reminderMode: value,
+                        customReminderDateTime:
+                          value === ASSESSMENT_REMINDER_MODE.CUSTOM
+                            ? current.customReminderDateTime
+                            : "",
+                      }));
+                      setCustomReminderError("");
+                    }}
+                  />
                 </div>
               </div>
             ) : (
@@ -261,5 +328,7 @@ function getDefaultSingleForm() {
     weight: "20",
     subminimumPercent: "",
     dueDate: "",
+    reminderMode: ASSESSMENT_REMINDER_MODE.DAY_BEFORE as AssessmentReminderMode,
+    customReminderDateTime: "",
   };
 }

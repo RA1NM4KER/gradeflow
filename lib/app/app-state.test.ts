@@ -89,6 +89,7 @@ describe("app-state", () => {
       status: "ongoing",
       category: "assignment",
       subminimumPercent: null,
+      reminder: { mode: "day_before" },
     });
     expect(course.assessments[1]).toMatchObject({
       kind: "group",

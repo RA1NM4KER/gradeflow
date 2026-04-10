@@ -226,6 +226,12 @@ function buildAssessmentChanges(current: Assessment, next: Assessment) {
   }
 
   if (current.kind === "single" && next.kind === "single") {
+    if (
+      JSON.stringify(current.reminder ?? null) !==
+      JSON.stringify(next.reminder ?? null)
+    ) {
+      changes.reminder = next.reminder ?? null;
+    }
     if (current.scoreAchieved !== next.scoreAchieved) {
       changes.scoreAchieved = next.scoreAchieved;
     }
@@ -276,6 +282,7 @@ export function buildAssessmentCreateOperation(
             "dueDate",
             "status",
             "category",
+            "reminder",
             "scoreAchieved",
             "subminimumPercent",
             "totalPossible",

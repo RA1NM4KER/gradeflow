@@ -14,11 +14,19 @@ import {
 import { DialogTriggerAction } from "@/components/ui/dialog-trigger-action";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AssignmentReminderFields } from "@/components/workspace/assessments/assignment-reminder-fields";
 import { parseOptionalPercent } from "@/lib/assessments/assessment-form-utils";
+import {
+  createDefaultReminder,
+  normalizeReminder,
+  validateCustomReminderDateTime,
+  validateDueDate,
+} from "@/lib/assessments/reminder-utils";
 import {
   formatEditablePercent,
   parsePercentInput,
 } from "@/lib/grades/grade-utils";
+import { ASSESSMENT_REMINDER_MODE } from "@/lib/assessments/types";
 import {
   sanitizePlainNumberInput,
   sanitizeScoreExpressionInput,
@@ -45,6 +53,7 @@ export function SingleAssessmentDialog({
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(getFormState(assessment));
   const [dueDateError, setDueDateError] = useState("");
+  const [customReminderError, setCustomReminderError] = useState("");
   const isSubmitEnabled =
     form.name.trim().length > 0 && Number(form.weight || 0) > 0;
   const useTextDateInput = useMemo(() => {
@@ -59,6 +68,7 @@ export function SingleAssessmentDialog({
     if (open) {
       setForm(getFormState(assessment));
       setDueDateError("");
+      setCustomReminderError("");
     }
   }, [assessment, open]);
 
@@ -69,6 +79,16 @@ export function SingleAssessmentDialog({
     if (!dueDateValidation.valid) {
       setDueDateError(dueDateValidation.message);
       return;
+    }
+
+    if (form.dueDate && form.reminderMode === ASSESSMENT_REMINDER_MODE.CUSTOM) {
+      const customReminderValidation = validateCustomReminderDateTime(
+        form.customReminderDateTime,
+      );
+      if (!customReminderValidation.valid) {
+        setCustomReminderError(customReminderValidation.message);
+        return;
+      }
     }
 
     const parsedGrade = parsePercentInput(form.grade);
@@ -82,6 +102,16 @@ export function SingleAssessmentDialog({
       subminimumPercent: parseOptionalPercent(form.subminimumPercent),
       totalPossible: 100,
       status: parsedGrade === null ? "ongoing" : "completed",
+      reminder: !form.dueDate
+        ? null
+        : form.reminderMode === ASSESSMENT_REMINDER_MODE.CUSTOM
+          ? {
+              mode: ASSESSMENT_REMINDER_MODE.CUSTOM,
+              customDateTime: form.customReminderDateTime,
+            }
+          : {
+              mode: form.reminderMode,
+            },
     });
 
     setOpen(false);
@@ -202,6 +232,30 @@ export function SingleAssessmentDialog({
                   <p className="text-xs text-danger">{dueDateError}</p>
                 ) : null}
               </div>
+              <AssignmentReminderFields
+                customDateTime={form.customReminderDateTime}
+                customDateTimeError={customReminderError}
+                dueDate={form.dueDate}
+                mode={form.reminderMode}
+                onCustomDateTimeChange={(value) => {
+                  setForm((current) => ({
+                    ...current,
+                    customReminderDateTime: value,
+                  }));
+                  setCustomReminderError("");
+                }}
+                onModeChange={(value) => {
+                  setForm((current) => ({
+                    ...current,
+                    reminderMode: value,
+                    customReminderDateTime:
+                      value === ASSESSMENT_REMINDER_MODE.CUSTOM
+                        ? current.customReminderDateTime
+                        : "",
+                  }));
+                  setCustomReminderError("");
+                }}
+              />
             </div>
           </div>
 
@@ -239,6 +293,8 @@ export function SingleAssessmentDialog({
 }
 
 function getFormState(assessment: SingleAssessment) {
+  const reminder = normalizeReminder(assessment.dueDate, assessment.reminder);
+
   return {
     name: assessment.name,
     weight: String(assessment.weight),
@@ -254,38 +310,13 @@ function getFormState(assessment: SingleAssessment) {
         ? ""
         : String(assessment.subminimumPercent),
     dueDate: assessment.dueDate || "",
+    reminderMode:
+      reminder?.mode ??
+      createDefaultReminder(assessment.dueDate)?.mode ??
+      ASSESSMENT_REMINDER_MODE.DAY_BEFORE,
+    customReminderDateTime:
+      reminder && reminder.mode === ASSESSMENT_REMINDER_MODE.CUSTOM
+        ? (reminder.customDateTime ?? "")
+        : "",
   };
-}
-
-function validateDueDate(value: string) {
-  const trimmed = value.trim();
-
-  if (trimmed === "") {
-    return { valid: true, message: "" };
-  }
-
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
-  if (!match) {
-    return { valid: false, message: "Use YYYY-MM-DD." };
-  }
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = new Date(`${trimmed}T00:00:00`);
-
-  const isValidDate =
-    Number.isFinite(year) &&
-    Number.isFinite(month) &&
-    Number.isFinite(day) &&
-    !Number.isNaN(date.getTime()) &&
-    date.getFullYear() === year &&
-    date.getMonth() + 1 === month &&
-    date.getDate() === day;
-
-  if (!isValidDate) {
-    return { valid: false, message: "Enter a real calendar date." };
-  }
-
-  return { valid: true, message: "" };
 }
