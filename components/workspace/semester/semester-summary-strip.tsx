@@ -40,7 +40,7 @@ export function SemesterSummaryStrip({
             Semester
           </p>
           <div className="flex items-center gap-2">
-            <p className="text-[1.45rem] font-semibold leading-none tracking-[-0.04em] text-foreground sm:text-[1.95rem]">
+            <p className="text-[1.45rem] font-semibold leading-none tracking-[-0.04em] text-black dark:text-white sm:text-[1.95rem]">
               {semesterName}
             </p>
             <SemesterDialog

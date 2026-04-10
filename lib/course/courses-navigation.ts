@@ -1,8 +1,25 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
+
 import { isNativeApp } from "@/lib/platform/platform";
 
 const WORKSPACE_NAVIGATION_EVENT = "gradeflow:workspace-navigation";
+const DEFAULT_COURSES_LOCATION: CoursesLocationState = {
+  moduleId: null,
+  pathname: "/courses",
+  scope: "semester",
+  semesterId: null,
+};
+let cachedCoursesLocation = DEFAULT_COURSES_LOCATION;
+let cachedCoursesLocationKey = "";
+
+export interface CoursesLocationState {
+  moduleId: string | null;
+  pathname: string;
+  scope: "all" | "semester";
+  semesterId: string | null;
+}
 
 function warmCoursesRoute(url: string) {
   if (
@@ -46,4 +63,44 @@ export function addCoursesNavigationListener(listener: () => void) {
     window.removeEventListener("popstate", listener);
     window.removeEventListener(WORKSPACE_NAVIGATION_EVENT, listener);
   };
+}
+
+export function readCoursesLocation(): CoursesLocationState {
+  if (typeof window === "undefined") {
+    return DEFAULT_COURSES_LOCATION;
+  }
+
+  const pathname = window.location.pathname;
+  const searchParams = new URLSearchParams(window.location.search);
+  const moduleMatch =
+    pathname.match(/^\/courses\/([^/]+)$/) ??
+    pathname.match(/^\/workspace\/modules\/([^/]+)$/);
+  const moduleId =
+    searchParams.get("course") ??
+    (moduleMatch ? decodeURIComponent(moduleMatch[1]) : null);
+  const scope = searchParams.get("scope") === "all" ? "all" : "semester";
+  const semesterId = searchParams.get("semester");
+  const nextCacheKey = `${pathname}::${scope}::${semesterId ?? ""}::${moduleId ?? ""}`;
+
+  if (nextCacheKey === cachedCoursesLocationKey) {
+    return cachedCoursesLocation;
+  }
+
+  cachedCoursesLocationKey = nextCacheKey;
+  cachedCoursesLocation = {
+    moduleId,
+    pathname,
+    scope,
+    semesterId,
+  };
+
+  return cachedCoursesLocation;
+}
+
+export function useCoursesLocation() {
+  return useSyncExternalStore(
+    addCoursesNavigationListener,
+    readCoursesLocation,
+    () => DEFAULT_COURSES_LOCATION,
+  );
 }

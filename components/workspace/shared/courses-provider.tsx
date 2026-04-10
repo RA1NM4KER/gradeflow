@@ -34,6 +34,7 @@ import {
 import { loadSyncMeta } from "@/lib/sync/sync-storage";
 import { SyncMetaRecord, SyncOperation } from "@/lib/sync/types";
 import { usePersistedAppState } from "@/lib/app/use-persisted-app-state";
+import { useCoursesLocation } from "@/lib/course/courses-navigation";
 import { Assessment, Course, Semester } from "@/lib/shared/types";
 
 interface CoursesContextValue {
@@ -84,6 +85,7 @@ type BuiltSyncOperation = {
 
 export function CoursesProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const coursesLocation = useCoursesLocation();
   const {
     appState: persistedAppState,
     bootError,
@@ -94,14 +96,25 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
   const [experimentAppState, setExperimentAppState] = useState<AppState | null>(
     null,
   );
+  const [hasMounted, setHasMounted] = useState(false);
   const persistedAppStateRef = useRef<AppState | null>(persistedAppState);
 
   const isExperimenting = experimentAppState !== null;
   const activeAppState = experimentAppState ?? persistedAppState;
+  const urlSelectedSemesterId =
+    hasMounted &&
+    (pathname.startsWith("/courses") || pathname.startsWith("/workspace")) &&
+    coursesLocation.scope !== "all"
+      ? coursesLocation.semesterId
+      : null;
 
   useEffect(() => {
     persistedAppStateRef.current = persistedAppState;
   }, [persistedAppState]);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const syncAdapter = useMemo(
     () => ({
@@ -183,9 +196,14 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
       return null;
     }
 
+    const resolvedSelectedSemesterId =
+      urlSelectedSemesterId &&
+      activeAppState.semesters.some((item) => item.id === urlSelectedSemesterId)
+        ? urlSelectedSemesterId
+        : activeAppState.selectedSemesterId;
     const semester =
       activeAppState.semesters.find(
-        (item) => item.id === activeAppState.selectedSemesterId,
+        (item) => item.id === resolvedSelectedSemesterId,
       ) ??
       activeAppState.semesters[0] ??
       createSemester({
@@ -197,7 +215,7 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
       appState: activeAppState,
       semester,
       semesters: activeAppState.semesters,
-      selectedSemesterId: semester.id,
+      selectedSemesterId: resolvedSelectedSemesterId || semester.id,
       isExperimenting,
       replaceAppState: (nextState) => {
         setExperimentAppState(null);
@@ -634,6 +652,7 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     isExperimenting,
     persistedAppState,
     replacePersistedAppState,
+    urlSelectedSemesterId,
   ]);
 
   if (!isHydrated || !value) {

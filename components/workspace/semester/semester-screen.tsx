@@ -1,41 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { BookMarked, Plus } from "lucide-react";
 
 import { CourseDialog } from "@/components/dashboard/course-dialog";
-import { EmptyState } from "@/components/dashboard/empty-state";
 import { CourseListItem } from "@/components/dashboard/course-list-item";
+import { EmptyState } from "@/components/dashboard/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select } from "@/components/ui/select";
 import { ExperimentModePill } from "@/components/workspace/shared/experiment-mode-pill";
+import { SemesterSummaryStat } from "@/components/workspace/semester/semester-summary-stat";
 import { SemesterSummaryStrip } from "@/components/workspace/semester/semester-summary-strip";
 import { useCourses } from "@/components/workspace/shared/courses-provider";
+import {
+  navigateCourses,
+  useCoursesLocation,
+} from "@/lib/course/courses-navigation";
 import {
   getCompletedWeight,
   getSemesterAverage,
   getSemesterGpa,
 } from "@/lib/grades/grade-utils";
-import {
-  addCoursesNavigationListener,
-  navigateCourses,
-} from "@/lib/course/courses-navigation";
 import { Course } from "@/lib/shared/types";
 
 export function SemesterScreen() {
-  const [semesterIdFromUrl, setSemesterIdFromUrl] = useState<
-    string | undefined
-  >(undefined);
+  const coursesLocation = useCoursesLocation();
   const {
     semester,
     semesters,
-    selectedSemesterId,
     addCourse,
     isExperimenting,
-    selectSemester,
     stopExperiment,
     updateSemester,
   } = useCourses();
 
+  const isAllCoursesView = coursesLocation.scope === "all";
   const average = getSemesterAverage(semester);
   const gpa = getSemesterGpa(semester);
   const totalCredits = semester.courses.reduce(
@@ -45,55 +43,52 @@ export function SemesterScreen() {
   const completedCourses = semester.courses.filter(
     (course) => getCompletedWeight(course) >= 100,
   ).length;
+  const allCourseEntries = semesters.flatMap((item) =>
+    item.courses.map((course) => ({
+      course,
+      semesterId: item.id,
+      semesterName: item.name,
+    })),
+  );
+  const displayedCourseEntries = isAllCoursesView
+    ? allCourseEntries
+    : semester.courses.map((course) => ({
+        course,
+        semesterId: semester.id,
+        semesterName: semester.name,
+      }));
+  const allCompletedCourses = allCourseEntries.filter(
+    ({ course }) => getCompletedWeight(course) >= 100,
+  ).length;
 
   function handleSaveCourse(course: Course) {
     addCourse(course);
-    navigateCourses(`/courses?course=${encodeURIComponent(course.id)}`);
+    navigateCourses(
+      `/courses?semester=${encodeURIComponent(
+        semester.id,
+      )}&course=${encodeURIComponent(course.id)}`,
+    );
   }
 
-  useEffect(() => {
-    function readSemesterIdFromLocation() {
-      const nextSemesterId =
-        new URLSearchParams(window.location.search).get("semester") ??
-        undefined;
+  function showAllCourses() {
+    navigateCourses("/courses?scope=all");
+  }
 
-      setSemesterIdFromUrl((currentSemesterId) =>
-        currentSemesterId === nextSemesterId
-          ? currentSemesterId
-          : nextSemesterId,
-      );
-    }
+  function showSemesterCourses(nextSemesterId: string) {
+    navigateCourses(`/courses?semester=${encodeURIComponent(nextSemesterId)}`);
+  }
 
-    readSemesterIdFromLocation();
-    return addCoursesNavigationListener(readSemesterIdFromLocation);
-  }, []);
-
-  useEffect(() => {
-    if (
-      semesterIdFromUrl &&
-      semesterIdFromUrl !== selectedSemesterId &&
-      semesters.some((item) => item.id === semesterIdFromUrl)
-    ) {
-      selectSemester(semesterIdFromUrl);
-    }
-  }, [selectSemester, selectedSemesterId, semesterIdFromUrl, semesters]);
-
-  useEffect(() => {
-    if (!selectedSemesterId || semesterIdFromUrl === selectedSemesterId) {
+  function handleScopeChange(value: string) {
+    if (value === "all") {
+      showAllCourses();
       return;
     }
 
-    const nextUrl = new URL(window.location.href);
-    nextUrl.searchParams.set("semester", selectedSemesterId);
-
-    // Keep the semester query in sync without asking App Router to perform
-    // a navigation, which can trigger offline RSC fetch churn on refresh.
-    window.history.replaceState(window.history.state, "", nextUrl);
-    setSemesterIdFromUrl(selectedSemesterId);
-  }, [selectedSemesterId, semesterIdFromUrl]);
+    showSemesterCourses(value);
+  }
 
   return (
-    <div className="mx-auto h-[calc(100vh-5.5rem)] max-w-7xl overflow-auto px-4 py-4 sm:px-8 sm:py-6">
+    <div className="mx-auto h-[calc(100vh-5.5rem)] max-w-7xl overflow-auto px-4 py-4 pb-28 sm:px-8 sm:py-6 sm:pb-6">
       {isExperimenting ? (
         <div className="pointer-events-none fixed left-1/2 top-[4.7rem] z-40 w-[calc(100%-2rem)] max-w-max -translate-x-1/2 sm:top-[5.25rem]">
           <div className="pointer-events-auto">
@@ -102,49 +97,105 @@ export function SemesterScreen() {
         </div>
       ) : null}
 
-      <Card className="rounded-[28px] bg-transparent shadow-none sm:rounded-[34px]">
-        <CardContent className="grid gap-4 p-0">
-          <SemesterSummaryStrip
-            average={average}
-            credits={totalCredits}
-            gpa={gpa}
-            periodLabel={semester.periodLabel}
-            semester={semester}
-            semesterName={semester.name}
-            onSaveSemester={(nextSemester) =>
-              updateSemester(nextSemester.id, {
-                name: nextSemester.name,
-                periodLabel: nextSemester.periodLabel,
-              })
-            }
-          />
-        </CardContent>
-      </Card>
+      {isAllCoursesView ? (
+        <Card className="rounded-[22px] bg-[hsl(var(--surface))] px-4 py-4 shadow-none sm:rounded-[26px] sm:px-6 sm:py-5">
+          <CardContent className="grid gap-4 p-0">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-start">
+              <div>
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+                  Courses
+                </p>
+                <p className="mt-1 text-[1.45rem] font-semibold leading-none tracking-[-0.04em] text-foreground sm:text-[1.95rem]">
+                  All courses
+                </p>
+                <p className="mt-2 max-w-2xl text-[0.9rem] leading-6 text-ink-soft">
+                  Browse every course across your semesters, then jump into any
+                  course without going back home.
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 self-start sm:gap-3">
+                <SemesterSummaryStat
+                  label="Courses"
+                  value={String(allCourseEntries.length)}
+                />
+                <SemesterSummaryStat
+                  label="Complete"
+                  value={String(allCompletedCourses)}
+                />
+                <SemesterSummaryStat
+                  label="Semesters"
+                  value={String(semesters.length)}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="rounded-[28px] bg-transparent shadow-none sm:rounded-[34px]">
+          <CardContent className="grid gap-4 p-0">
+            <SemesterSummaryStrip
+              average={average}
+              credits={totalCredits}
+              gpa={gpa}
+              periodLabel={semester.periodLabel}
+              semester={semester}
+              semesterName={semester.name}
+              onSaveSemester={(nextSemester) =>
+                updateSemester(nextSemester.id, {
+                  name: nextSemester.name,
+                  periodLabel: nextSemester.periodLabel,
+                })
+              }
+            />
+          </CardContent>
+        </Card>
+      )}
 
       <section className="mt-5 px-3 sm:mt-7 sm:px-7">
         <div>
           <h2 className="text-[1.55rem] font-semibold leading-none tracking-[-0.04em] text-foreground sm:text-[1.7rem]">
             Courses
           </h2>
-          <div className="mt-2.5 flex flex-row items-start gap-20 sm:mt-3 sm:items-end sm:justify-between sm:gap-4">
-            <p className="text-[0.95rem] text-ink-soft">
-              {semester.courses.length} active, {completedCourses} complete
+          <div className="mt-2.5 flex items-center justify-between gap-3 sm:mt-3 sm:items-end sm:gap-4">
+            <p className="min-w-0 whitespace-nowrap text-[0.95rem] text-ink-soft">
+              {displayedCourseEntries.length} active,{" "}
+              {isAllCoursesView ? allCompletedCourses : completedCourses}{" "}
+              complete
             </p>
-            <p className="text-[0.92rem] text-ink-soft">Open a course</p>
+            <div className="w-[9.75rem] shrink-0 sm:w-[11.5rem]">
+              <Select
+                aria-label="Filter courses by semester"
+                className="h-9 rounded-full border-line/80 bg-surface-soft px-3 pr-8 text-[0.82rem] shadow-none"
+                onChange={(event) => handleScopeChange(event.target.value)}
+                value={isAllCoursesView ? "all" : semester.id}
+              >
+                <option value="all">All courses</option>
+                {semesters.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
         </div>
 
         <div className="mt-4 sm:mt-6">
-          {semester.courses.length > 0 ? (
+          {displayedCourseEntries.length > 0 ? (
             <div className="grid items-start gap-3.5 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {semester.courses.map((module) => (
+              {displayedCourseEntries.map((entry) => (
                 <CourseListItem
-                  course={module}
+                  contextLabel={
+                    isAllCoursesView ? entry.semesterName : undefined
+                  }
+                  course={entry.course}
                   isActive={false}
-                  key={module.id}
+                  key={`${entry.semesterId}:${entry.course.id}`}
                   onSelect={() =>
                     navigateCourses(
-                      `/courses?course=${encodeURIComponent(module.id)}`,
+                      `/courses?semester=${encodeURIComponent(
+                        entry.semesterId,
+                      )}&course=${encodeURIComponent(entry.course.id)}`,
                     )
                   }
                 />
@@ -161,7 +212,9 @@ export function SemesterScreen() {
                     <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pl-2.5 text-center text-ink-muted transition group-hover:text-foreground sm:pl-3">
                       <Plus className="h-6 w-6 sm:h-7 sm:w-7" />
                       <span className="mt-2.5 text-[0.84rem] font-semibold uppercase tracking-[0.14em] sm:mt-3 sm:text-[0.92rem]">
-                        Add course
+                        {isAllCoursesView
+                          ? `Add to ${semester.name}`
+                          : "Add course"}
                       </span>
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col px-3 py-2 pl-5 sm:px-3.5 sm:py-2.5 sm:pl-6">

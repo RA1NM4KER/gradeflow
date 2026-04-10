@@ -63,23 +63,23 @@ export function TopNav() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-line/60 bg-surface-overlay/96 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:gap-6 sm:px-8 sm:py-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:gap-6 sm:px-8 sm:py-3.5">
         <Link
-          className="flex min-w-0 shrink-0 items-center sm:gap-3"
+          className="flex min-w-0 shrink-0 items-center gap-1 sm:gap-3"
           href="/"
           prefetch={false}
         >
-          <div className="relative h-10 w-10 shrink-0 sm:h-11 sm:w-11">
+          <div className="relative h-9 w-9 shrink-0 sm:h-10 sm:w-10">
             <Image
               alt="GradeLog logo"
               className="object-contain"
               fill
-              sizes="44px"
+              sizes="40px"
               src="/logo.svg"
             />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-[0.88rem] font-semibold text-foreground sm:text-[0.95rem]">
+            <p className="truncate text-[0.84rem] font-semibold text-foreground sm:text-[0.92rem]">
               GradeLog
             </p>
             <p className="text-xs hidden sm:block text-ink-muted">

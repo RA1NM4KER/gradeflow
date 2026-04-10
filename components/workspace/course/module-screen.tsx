@@ -139,7 +139,7 @@ export function CourseScreen({ moduleId }: { moduleId?: string }) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl overflow-auto px-4 py-3 pb-24 sm:h-[calc(100vh-5.5rem)] sm:overflow-hidden sm:px-8 sm:py-4 sm:pb-4 md:pb-6">
+    <div className="mx-auto max-w-7xl overflow-auto px-4 py-3 pb-20 sm:h-[calc(100vh-5.5rem)] sm:overflow-hidden sm:px-8 sm:py-4 sm:pb-4 md:pb-6">
       <div className="mb-3 sm:mb-4">
         <CourseHeader
           isExperimenting={isExperimenting}

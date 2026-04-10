@@ -14,12 +14,14 @@ import { Course } from "@/lib/shared/types";
 
 interface CourseListItemProps {
   course: Course;
+  contextLabel?: string;
   isActive: boolean;
   onSelect: () => void;
 }
 
 export function CourseListItem({
   course,
+  contextLabel,
   isActive,
   onSelect,
 }: CourseListItemProps) {
@@ -47,6 +49,11 @@ export function CourseListItem({
       <div className="flex min-w-0 flex-1 flex-col px-3 py-2 pl-5 sm:px-3.5 sm:py-2.5 sm:pl-6">
         <div className="flex items-start justify-between gap-3 sm:gap-4">
           <div className="min-w-0 flex-1">
+            {contextLabel ? (
+              <p className="mb-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-ink-muted sm:text-[0.68rem]">
+                {contextLabel}
+              </p>
+            ) : null}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <h3 className="line-clamp-2 max-w-[14ch] text-[0.95rem] font-semibold leading-[1.05] tracking-[-0.025em] text-foreground sm:text-[1.1rem] sm:tracking-[-0.03em]">
                 {course.name}

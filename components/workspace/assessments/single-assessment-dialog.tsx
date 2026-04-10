@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, SyntheticEvent, useEffect, useMemo, useState } from "react";
+import { ReactNode, SyntheticEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,15 +45,9 @@ export function SingleAssessmentDialog({
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(getFormState(assessment));
   const [dueDateError, setDueDateError] = useState("");
+  const [useTextDateInput, setUseTextDateInput] = useState(false);
   const isSubmitEnabled =
     form.name.trim().length > 0 && Number(form.weight || 0) > 0;
-  const useTextDateInput = useMemo(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    return window.matchMedia("(pointer: coarse)").matches;
-  }, []);
 
   useEffect(() => {
     if (open) {
@@ -61,6 +55,10 @@ export function SingleAssessmentDialog({
       setDueDateError("");
     }
   }, [assessment, open]);
+
+  useEffect(() => {
+    setUseTextDateInput(window.matchMedia("(pointer: coarse)").matches);
+  }, []);
 
   function submit(event: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
     event.preventDefault();
