@@ -21,6 +21,7 @@ import type {
   PersistedAppStateMetadata,
 } from "@/lib/app/types";
 import { importedAppStateSchema } from "@/lib/app/schemas";
+import { normalizeReminder } from "@/lib/assessments/reminder-utils";
 import { createUuid, ensureUuid } from "@/lib/shared/uuid";
 import { ZodError } from "zod";
 
@@ -118,6 +119,10 @@ function normalizeSingleAssessment(
     )
       ? (rawAssessment.category as SingleAssessment["category"])
       : SINGLE_ASSESSMENT_CATEGORY.ASSIGNMENT,
+    reminder: normalizeReminder(
+      getString(rawAssessment.dueDate),
+      rawAssessment.reminder,
+    ),
   };
 }
 

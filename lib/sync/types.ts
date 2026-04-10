@@ -5,6 +5,7 @@ import {
   GradeBand,
   GroupedAssessmentItem,
   Semester,
+  SingleAssessment,
 } from "@/lib/shared/types";
 import { AppState } from "@/lib/app/types";
 
@@ -110,6 +111,7 @@ export interface AssessmentPatch {
   subminimumPercent?: number | null;
   totalPossible?: number;
   category?: Assessment["category"];
+  reminder?: SingleAssessment["reminder"];
   dropLowest?: number;
   items?: GroupedAssessmentItem[];
 }

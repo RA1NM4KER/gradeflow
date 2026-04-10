@@ -28,6 +28,26 @@ export const SINGLE_ASSESSMENT_CATEGORIES = [
 export type SingleAssessmentCategory =
   (typeof SINGLE_ASSESSMENT_CATEGORIES)[number];
 
+export const ASSESSMENT_REMINDER_MODE = {
+  OFF: "off",
+  DAY_BEFORE: "day_before",
+  MORNING_OF: "morning_of",
+  CUSTOM: "custom",
+} as const;
+
+export const ASSESSMENT_REMINDER_MODES = [
+  ASSESSMENT_REMINDER_MODE.OFF,
+  ASSESSMENT_REMINDER_MODE.DAY_BEFORE,
+  ASSESSMENT_REMINDER_MODE.MORNING_OF,
+  ASSESSMENT_REMINDER_MODE.CUSTOM,
+] as const;
+export type AssessmentReminderMode = (typeof ASSESSMENT_REMINDER_MODES)[number];
+
+export interface AssessmentReminder {
+  mode: AssessmentReminderMode;
+  customDateTime?: string;
+}
+
 export const GROUPED_ASSESSMENT_CATEGORY = {
   TUTORIALS: "tutorials",
 } as const;
@@ -52,6 +72,7 @@ export interface SingleAssessment extends AssessmentBase {
   subminimumPercent: number | null;
   totalPossible: number;
   category: SingleAssessmentCategory;
+  reminder?: AssessmentReminder | null;
 }
 
 export interface GroupedAssessmentItem {

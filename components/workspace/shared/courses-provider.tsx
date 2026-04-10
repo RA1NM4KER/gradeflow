@@ -34,6 +34,10 @@ import {
 import { loadSyncMeta } from "@/lib/sync/sync-storage";
 import { SyncMetaRecord, SyncOperation } from "@/lib/sync/types";
 import { usePersistedAppState } from "@/lib/app/use-persisted-app-state";
+import {
+  getAssessmentReminderSnapshot,
+  reconcileAssessmentReminderNotifications,
+} from "@/lib/notifications/assessment-reminders";
 import { Assessment, Course, Semester } from "@/lib/shared/types";
 
 interface CoursesContextValue {
@@ -95,6 +99,9 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     null,
   );
   const persistedAppStateRef = useRef<AppState | null>(persistedAppState);
+  const lastReminderSnapshotRef = useRef("");
+  const pendingReminderSnapshotRef = useRef<string | null>(null);
+  const reminderReconcileTaskRef = useRef(Promise.resolve());
 
   const isExperimenting = experimentAppState !== null;
   const activeAppState = experimentAppState ?? persistedAppState;
@@ -102,6 +109,36 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     persistedAppStateRef.current = persistedAppState;
   }, [persistedAppState]);
+
+  useEffect(() => {
+    if (!isHydrated || !persistedAppState || experimentAppState) {
+      return;
+    }
+
+    const reminderSnapshot = getAssessmentReminderSnapshot(persistedAppState);
+    if (
+      reminderSnapshot === lastReminderSnapshotRef.current ||
+      reminderSnapshot === pendingReminderSnapshotRef.current
+    ) {
+      return;
+    }
+
+    pendingReminderSnapshotRef.current = reminderSnapshot;
+    reminderReconcileTaskRef.current = reminderReconcileTaskRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        try {
+          await reconcileAssessmentReminderNotifications(persistedAppState);
+          lastReminderSnapshotRef.current = reminderSnapshot;
+        } catch (error) {
+          console.error("Failed to reconcile assignment reminders.", error);
+        } finally {
+          if (pendingReminderSnapshotRef.current === reminderSnapshot) {
+            pendingReminderSnapshotRef.current = null;
+          }
+        }
+      });
+  }, [experimentAppState, isHydrated, persistedAppState]);
 
   const syncAdapter = useMemo(
     () => ({
