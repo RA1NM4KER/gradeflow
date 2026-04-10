@@ -164,7 +164,11 @@ export function CourseDialog({
       >
         {triggerChildren}
       </DialogTriggerAction>
-      <DialogContent>
+      <DialogContent
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{course ? "Edit course" : "Add course"}</DialogTitle>
           <DialogDescription>

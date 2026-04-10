@@ -81,6 +81,7 @@ export function MinimalLanding() {
     <PageContainer className="flex min-h-[calc(100vh-5.5rem)] flex-col pt-7 pb-0 sm:pt-12 sm:pb-10">
       <PageIntro
         badge="GradeLog"
+        descriptionClassName="sm:text-[1.08rem] sm:leading-7"
         description="Keep track of your marks and know exactly where you stand."
         maxWidthClassName="max-w-2xl"
         title="Your semesters"
@@ -176,22 +177,22 @@ export function MinimalLanding() {
 
       <div className="mt-auto pt-7 sm:pt-8">
         <Card
-          className="rounded-[18px] border border-line/80 p-0 shadow-none sm:rounded-[22px]"
+          className="rounded-[18px] border border-line/80 p-0 shadow-none sm:rounded-[22px] sm:border-white/24 sm:shadow-card dark:sm:border-white/10"
           variant="glass-panel"
         >
           <CardContent className="p-4 sm:px-6 sm:py-5">
             <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="min-w-0">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/22 bg-white/50 text-foreground shadow-none backdrop-blur-sm dark:border-white/10 dark:bg-white/10 sm:h-11 sm:w-11 sm:shadow-[0_8px_24px_-18px_rgba(15,23,42,0.2)]">
-                    <HeartHandshake className="h-5 w-5" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/22 bg-white/50 text-foreground shadow-none backdrop-blur-sm dark:border-white/10 dark:bg-white/10 sm:h-11 sm:w-11 sm:border-white/28 sm:bg-white/58 sm:shadow-[0_8px_24px_-18px_rgba(15,23,42,0.2)]">
+                    <HeartHandshake className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                   <p className="min-w-0 text-[0.96rem] font-semibold text-foreground sm:text-[0.98rem]">
                     Keep GradeLog independent
                   </p>
                 </div>
-                <div className="mt-2.5 sm:mt-1">
-                  <p className="max-w-xl text-[0.88rem] leading-6 text-ink-soft sm:max-w-2xl sm:text-sm">
+                <div className="mt-2.5 sm:mt-1 sm:ml-14 ">
+                  <p className="max-w-xl text-[0.88rem] leading-6 text-ink-soft sm:max-w-2xl sm:text-sm sm:leading-6">
                     GradeLog stays free, local-first, and account-free. If it
                     has been useful to you, you can help support development.
                   </p>
@@ -201,14 +202,16 @@ export function MinimalLanding() {
                       href="/privacy"
                       prefetch={false}
                     >
-                      Privacy
+                      <span className="sm:hidden">Privacy</span>
+                      <span className="hidden sm:inline">Privacy policy</span>
                     </Link>
                     <Link
                       className="text-[0.92rem] font-medium text-foreground/88 underline decoration-foreground/35 underline-offset-4 transition hover:text-foreground hover:decoration-foreground sm:text-sm"
                       href="/terms"
                       prefetch={false}
                     >
-                      Terms
+                      <span className="sm:hidden">Terms</span>
+                      <span className="hidden sm:inline">Terms of service</span>
                     </Link>
                   </div>
                 </div>
@@ -216,9 +219,9 @@ export function MinimalLanding() {
 
               <Button
                 asChild
-                className="w-full sm:w-auto sm:self-center"
+                className="w-full sm:w-auto sm:self-center sm:rounded-full sm:border-white/28 sm:bg-white/62 sm:px-4 sm:py-2 sm:text-sm sm:font-medium sm:backdrop-blur-sm sm:hover:bg-white/82"
                 size="sm"
-                variant="glass"
+                variant="outline"
               >
                 <a
                   href="https://ko-fi.com/kefasaleck"
@@ -226,7 +229,7 @@ export function MinimalLanding() {
                   target="_blank"
                 >
                   Support on Ko-fi
-                  <ExternalLink className="h-3.5 w-3.5" />
+                  <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </a>
               </Button>
             </div>

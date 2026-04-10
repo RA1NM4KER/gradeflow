@@ -88,7 +88,7 @@ export function SemesterScreen() {
   }
 
   return (
-    <div className="mx-auto h-[calc(100vh-5.5rem)] max-w-7xl overflow-auto px-4 py-4 pb-28 sm:px-8 sm:py-6 sm:pb-6">
+    <div className="mx-auto max-w-7xl overflow-auto px-4 py-4 sm:px-8 sm:py-6 ">
       {isExperimenting ? (
         <div className="pointer-events-none fixed left-1/2 top-[4.7rem] z-40 w-[calc(100%-2rem)] max-w-max -translate-x-1/2 sm:top-[5.25rem]">
           <div className="pointer-events-auto">
@@ -98,22 +98,22 @@ export function SemesterScreen() {
       ) : null}
 
       {isAllCoursesView ? (
-        <Card className="rounded-[22px] bg-[hsl(var(--surface))] px-4 py-4 shadow-none sm:rounded-[26px] sm:px-6 sm:py-5">
-          <CardContent className="grid gap-4 p-0">
+        <Card className="rounded-[20px] bg-[hsl(var(--surface))] px-3 py-3 shadow-none sm:rounded-[26px] sm:px-6 sm:py-5">
+          <CardContent className="grid gap-3 p-0 sm:gap-4">
             <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-start">
               <div>
-                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+                <p className="text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-ink-muted sm:text-[0.7rem]">
                   Courses
                 </p>
-                <p className="mt-1 text-[1.45rem] font-semibold leading-none tracking-[-0.04em] text-foreground sm:text-[1.95rem]">
+                <p className="mt-1 text-[1.28rem] font-semibold leading-none tracking-[-0.035em] text-foreground sm:text-[1.95rem] sm:tracking-[-0.04em]">
                   All courses
                 </p>
-                <p className="mt-2 max-w-2xl text-[0.9rem] leading-6 text-ink-soft">
+                <p className="mt-2 hidden max-w-2xl text-[0.9rem] leading-6 text-ink-soft sm:block">
                   Browse every course across your semesters, then jump into any
                   course without going back home.
                 </p>
               </div>
-              <div className="grid grid-cols-3 gap-2 self-start sm:gap-3">
+              <div className="grid grid-cols-3 gap-1.5 self-start sm:gap-3">
                 <SemesterSummaryStat
                   label="Courses"
                   value={String(allCourseEntries.length)}
@@ -151,7 +151,7 @@ export function SemesterScreen() {
         </Card>
       )}
 
-      <section className="mt-5 px-3 sm:mt-7 sm:px-7">
+      <section className="mt-4 px-3 sm:mt-7 sm:px-7">
         <div>
           <h2 className="text-[1.55rem] font-semibold leading-none tracking-[-0.04em] text-foreground sm:text-[1.7rem]">
             Courses

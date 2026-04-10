@@ -78,7 +78,13 @@ export function SemesterDialog({
       >
         {triggerChildren}
       </DialogTriggerAction>
-      <DialogContent>
+      <DialogContent
+        onOpenAutoFocus={(event) => {
+          if (semester) {
+            event.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>
             {semester ? "Edit semester" : "Create semester"}

@@ -113,7 +113,14 @@ export function GroupedAssessmentDialog({
           {triggerChildren}
         </DialogTriggerAction>
       ) : null}
-      <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-3xl">
+      <DialogContent
+        className="max-h-[90vh] overflow-hidden sm:max-w-3xl"
+        onOpenAutoFocus={(event) => {
+          if (assessment) {
+            event.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>
             {assessment ? "Edit category" : "Create category"}

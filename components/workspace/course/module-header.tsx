@@ -61,13 +61,13 @@ export function CourseHeader({
             triggerChildren={
               <Button
                 aria-label="Edit course"
-                className="group h-auto w-auto rounded-none border-0 bg-transparent p-0 text-ink-muted shadow-none hover:bg-transparent hover:text-ink-deep"
+                className="group mt-0.5 h-auto w-auto rounded-none border-0 bg-transparent p-0.5 text-ink-muted shadow-none hover:bg-transparent hover:text-ink-deep sm:mt-0"
                 size="icon"
                 title="Edit course"
                 type="button"
                 variant="ghost"
               >
-                <Cog className="h-5 w-5 transition-transform duration-300 group-hover:rotate-90 sm:h-6 sm:w-6" />
+                <Cog className="h-[1.35rem] w-[1.35rem] transition-transform duration-300 group-hover:rotate-90 sm:h-6 sm:w-6" />
               </Button>
             }
           />
@@ -76,13 +76,13 @@ export function CourseHeader({
             triggerChildren={
               <Button
                 aria-label="Share course template"
-                className="group h-auto w-auto rounded-none border-0 bg-transparent p-0 text-ink-muted shadow-none hover:bg-transparent hover:text-ink-deep"
+                className="group mt-0.5 h-auto w-auto rounded-none border-0 bg-transparent p-0.5 text-ink-muted shadow-none hover:bg-transparent hover:text-ink-deep sm:mt-0"
                 size="icon"
                 title="Share course template"
                 type="button"
                 variant="ghost"
               >
-                <Share2 className="h-5 w-5 transition-transform duration-300 group-hover:-translate-y-0.5 sm:h-6 sm:w-6" />
+                <Share2 className="h-[1.35rem] w-[1.35rem] transition-transform duration-300 group-hover:-translate-y-0.5 sm:h-6 sm:w-6" />
               </Button>
             }
           />

@@ -92,6 +92,9 @@ export function SingleAssessmentDialog({
       </DialogTriggerAction>
       <DialogContent
         layout="workspace-compact"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+        }}
         onInteractOutside={(event) => {
           event.preventDefault();
         }}
