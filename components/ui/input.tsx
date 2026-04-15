@@ -9,13 +9,13 @@ const inputVariants = cva(
     variants: {
       variant: {
         default:
-          "h-10 rounded-xl border border-input bg-surface px-3.5 py-2 text-sm text-surface-foreground shadow-sm placeholder:text-ink-subtle focus-visible:ring-2 focus-visible:ring-ring",
+          "h-10 rounded-xl border border-input bg-surface px-3.5 py-2 text-base text-surface-foreground shadow-sm placeholder:text-ink-subtle focus-visible:ring-2 focus-visible:ring-ring md:text-sm",
         inline:
-          "h-auto rounded-none border-0 bg-transparent px-0 py-0 text-sm font-medium leading-normal text-foreground shadow-none focus-visible:ring-0",
+          "h-auto rounded-none border-0 bg-transparent px-0 py-0 text-base font-medium leading-normal text-foreground shadow-none focus-visible:ring-0 md:text-sm",
         "inline-heading":
           "h-auto rounded-none border-0 bg-transparent px-0 py-0 text-base font-medium leading-normal text-foreground shadow-none focus-visible:ring-0",
         "inline-number":
-          "h-auto rounded-none border-0 bg-transparent px-0 py-0 text-sm font-medium leading-normal text-foreground shadow-none [appearance:textfield] focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+          "h-auto rounded-none border-0 bg-transparent px-0 py-0 text-base font-medium leading-normal text-foreground shadow-none [appearance:textfield] focus-visible:ring-0 md:text-sm [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
       },
     },
     defaultVariants: {
