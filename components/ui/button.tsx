@@ -18,7 +18,7 @@ const buttonVariants = cva(
           "border border-transparent bg-danger-solid text-white shadow-card hover:brightness-[0.96] disabled:border-transparent disabled:bg-danger-solid disabled:text-white",
         "destructive-soft":
           "border border-danger-soft bg-danger-soft text-danger hover:brightness-[0.98] disabled:border-line disabled:bg-surface disabled:text-ink-soft disabled:opacity-100",
-        ghost: "text-ink-strong hover:bg-surface-muted",
+        ghost: "text-ink-strong ",
         nav: "rounded-md px-3 py-2 text-sm font-medium text-ink-strong hover:bg-surface-muted hover:text-foreground",
         glass:
           "border border-white/28 bg-white/62 text-foreground shadow-[0_10px_24px_-18px_rgba(15,23,42,0.18)] backdrop-blur-sm hover:bg-white/82 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/14",

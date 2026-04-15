@@ -90,7 +90,7 @@ export function GradeBandEditor({ bands, onChange }: GradeBandEditorProps) {
                 className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                   selected
                     ? "border-primary bg-primary text-primary-foreground"
-                    : "border-white/24 bg-white/28 text-ink-soft hover:border-white/35 hover:bg-white/42 hover:text-foreground dark:border-white/8 dark:bg-white/4 dark:hover:bg-white/8"
+                    : "border-white/24 bg-white/28 text-ink-soft  hover:text-foreground dark:border-white/8 dark:bg-white/4 dark:hover:bg-white/8"
                 }`}
                 key={preset.label}
                 onClick={() => toggleBand(preset.label)}
