@@ -148,7 +148,6 @@ export function GroupedAssessmentEditor({
           <Input
             className="text-center"
             id={`${category}-weight`}
-            max={100}
             min={0}
             onChange={(event) =>
               update({ weight: sanitizePlainNumberInput(event.target.value) })
@@ -399,6 +398,6 @@ function formatGroupedScoreInput(value: number | null) {
 }
 
 function roundGroupedScore(value: number) {
-  const clamped = Math.min(Math.max(value, 0), 100);
-  return Math.round(clamped * 10) / 10;
+  const normalized = Math.max(value, 0);
+  return Math.round(normalized * 10) / 10;
 }
