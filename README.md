@@ -235,7 +235,7 @@ MIT. See [`LICENSE`](./LICENSE).
 
 ## Security
 
-If you discover a security issue, please report it privately instead of opening a public issue.
+If you discover a security issue, please do the responsible thing and report it privately instead of opening a public issue.
 
 See [`SECURITY.md`](./SECURITY.md) for the reporting process.
 
