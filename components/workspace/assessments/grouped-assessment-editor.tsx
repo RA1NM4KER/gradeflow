@@ -330,7 +330,7 @@ function GroupedScoreInput({
       <Input
         className="pr-5 text-center"
         id={id}
-        inputMode="decimal"
+        inputMode="text"
         onBlur={() => {
           const parsed = parseGroupedScoreInput(draft);
           setDraft(formatGroupedScoreInput(parsed));
@@ -372,7 +372,7 @@ function parseGroupedScoreInput(value: string) {
   if (normalized.includes("/")) {
     const [left, right] = normalized
       .split("/")
-      .map((part) => Number(part.trim()));
+      .map((part) => Number(normalizeDecimalPart(part)));
 
     if (Number.isFinite(left) && Number.isFinite(right) && right > 0) {
       return roundGroupedScore((left / right) * 100);
@@ -381,12 +381,16 @@ function parseGroupedScoreInput(value: string) {
     return null;
   }
 
-  const numeric = Number(normalized.replace("%", "").trim());
+  const numeric = Number(normalizeDecimalPart(normalized.replace("%", "")));
   if (!Number.isFinite(numeric)) {
     return null;
   }
 
   return roundGroupedScore(numeric);
+}
+
+function normalizeDecimalPart(value: string) {
+  return value.trim().replace(/,/g, ".");
 }
 
 function formatGroupedScoreInput(value: number | null) {

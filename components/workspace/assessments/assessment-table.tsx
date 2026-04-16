@@ -920,6 +920,7 @@ function InlineAssessmentResult({
   return (
     <Input
       className={align === "center" ? "text-center" : "text-left"}
+      inputMode="text"
       onBlur={() => {
         setEditing(false);
         onCommit(parseGradeInput(draft));

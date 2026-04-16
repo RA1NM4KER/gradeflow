@@ -31,23 +31,27 @@ export function parsePercentInput(value: string) {
   }
 
   if (trimmed.includes("/")) {
-    const [left, right] = trimmed.split("/");
-    const score = Number(left);
-    const total = Number(right);
+    const [left, right] = trimmed
+      .split("/")
+      .map((part) => Number(normalizeDecimalPart(part)));
 
-    if (Number.isFinite(score) && Number.isFinite(total) && total > 0) {
-      return round((score / total) * 100);
+    if (Number.isFinite(left) && Number.isFinite(right) && right > 0) {
+      return round((left / right) * 100);
     }
 
     return null;
   }
 
-  const numeric = Number(trimmed.replace("%", "").trim());
+  const numeric = Number(normalizeDecimalPart(trimmed.replace("%", "")));
   if (!Number.isFinite(numeric)) {
     return null;
   }
 
   return numeric;
+}
+
+function normalizeDecimalPart(value: string) {
+  return value.trim().replace(/,/g, ".");
 }
 
 export function formatEditablePercent(

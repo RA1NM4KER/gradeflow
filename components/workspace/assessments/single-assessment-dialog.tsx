@@ -169,7 +169,7 @@ export function SingleAssessmentDialog({
                 </Label>
                 <Input
                   id={`assignment-grade-${assessment.id}`}
-                  inputMode="decimal"
+                  inputMode="text"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,

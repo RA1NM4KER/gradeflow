@@ -14,6 +14,7 @@ import {
   GRADE_BAND_STATE_REACHABLE,
   GRADE_BAND_STATE_UNREACHABLE,
 } from "@/lib/grades/types";
+import type { GroupedAssessment } from "@/lib/shared/types";
 import {
   formatEditablePercent,
   formatPercent,
@@ -46,6 +47,8 @@ describe("grade-utils", () => {
     expect(parsePercentInput("8/10")).toBe(80);
     expect(parsePercentInput("7/0")).toBeNull();
     expect(parsePercentInput(" 82% ")).toBe(82);
+    expect(parsePercentInput("82,5%")).toBe(82.5);
+    expect(parsePercentInput("8,25/10")).toBe(82.5);
     expect(parsePercentInput("bad")).toBeNull();
 
     expect(formatEditablePercent(17, 20)).toBe("85");
@@ -124,7 +127,7 @@ describe("grade-utils", () => {
   });
 
   it("derives grouped assessment helper values and completed status", () => {
-    const grouped = {
+    const grouped: GroupedAssessment = {
       id: "group-2",
       kind: ASSESSMENT_KIND_GROUP,
       category: GROUPED_ASSESSMENT_CATEGORY.TUTORIALS,
@@ -138,7 +141,7 @@ describe("grade-utils", () => {
       name: "Tutorials",
       status: ASSESSMENT_STATUS_ONGOING,
       weight: 30,
-    } as const;
+    };
 
     expect(getAssessmentPercent(grouped)).toBe(85);
     expect(getAssessmentCurrentWeight(grouped)).toBe(30);

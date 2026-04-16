@@ -25,6 +25,7 @@ describe("numeric-input", () => {
         " ",
       ),
     ).toBe(" (12/15) * 100% ^ 2 ");
+    expect(sanitizeScoreExpressionInput("98,5% / 100")).toBe("98,5% / 100");
     expect(sanitizeScoreExpressionInput("abc")).toBe("");
   });
 });
